@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Gin 后端全接口测试控制台 Pro</title>
+    <style>
+        body {
+            font-family: Consolas, monospace;
+            background: #fafafa;
+            padding: 20px;
+        }
+
+        section {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: #fff;
+        }
+
+        h2 {
+            color: #333;
+            cursor: pointer;
+        }
+
+        input,
+        select,
+        textarea {
+            margin: 4px;
+            padding: 4px;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+        }
+
+        button {
+            margin: 4px;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            background: #1976d2;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1565c0;
+        }
+
+        pre {
+            background: #1e1e1e;
+            color: #dcdcdc;
+            padding: 10px;
+            border-radius: 6px;
+            max-height: 400px;
+            overflow: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Gin 后端接口测试控制台 Pro</h1>
+    <p>覆盖管理员、用户及公共接口，一键测试所有功能。</p>
+
+    <section>
+        <h2 onclick="toggle('auth')">🔐 登录 & 注册</h2>
+        <div id="auth">
+            用户名 <input id="username" placeholder="用户名"> 密码 <input id="password" type="password" placeholder="密码">
+            <button onclick="register()">注册</button>
+            <button onclick="login()">登录</button>
+            <p id="auth-info"></p>
+        </div>
+    </section>
+
+    <section>
+        <h2 onclick="toggle('dashboard')">📊 仪表盘</h2>
+        <div id="dashboard" style="display:none">
+            <button onclick="call('GET','/api/admin/dashboard')">管理员仪表盘</button>
+            <button onclick="call('GET','/api/user/dashboard')">用户仪表盘</button>
+        </div>
+    </section>
+
+    <section>
+        <h2 onclick="toggle('employees')">👥 员工管理</h2>
+        <div id="employees" style="display:none">
+            <div>
+                <button onclick="loadEmployeeList()">获取员工列表</button>
+                ID <input id="emp-id" placeholder="1">
+                <button onclick="loadEmployeeDetail()">获取员工详情</button>
+            </div>
+
+            <div id="emp-detail" style="margin-top:10px; display:none;">
+                <h3>🧾 员工详情</h3>
+                <table border="1" cellpadding="4" cellspacing="0">
+                    <tr>
+                        <td>员工号</td>
+                        <td><input id="emp-empid" disabled></td>
+                    </tr>
+                    <tr>
+                        <td>姓名</td>
+                        <td><input id="emp-name"></td>
+                    </tr>
+                    <tr>
+                        <td>性别</td>
+                        <td><input id="emp-sex"></td>
+                    </tr>
+                    <tr>
+                        <td>生日</td>
+                        <td><input id="emp-birth" type="date"></td>
+                    </tr>
+                    <tr>
+                        <td>部门ID</td>
+                        <td><input id="emp-dpt" disabled></td>
+                    </tr>
+                    <tr>
+                        <td>职务</td>
+                        <td><input id="emp-job"></td>
+                    </tr>
+                    <tr>
+                        <td>家庭住址</td>
+                        <td><input id="emp-addr"></td>
+                    </tr>
+                    <tr>
+                        <td>手机</td>
+                        <td><input id="emp-tel"></td>
+                    </tr>
+                    <tr>
+                        <td>电子邮箱</td>
+                        <td><input id="emp-email"></td>
+                    </tr>
+                    <tr>
+                        <td>备注</td>
+                        <td><textarea id="emp-remark" rows="2" cols="30"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>创建时间</td>
+                        <td><input id="emp-create" disabled></td>
+                    </tr>
+                    <tr>
+                        <td>更新时间</td>
+                        <td><input id="emp-update" disabled></td>
+                    </tr>
+                </table>
+                <br />
+                <button onclick="updateEmployeeInfo()">更新员工信息</button>
+                <button onclick="hideEmployeeDetail()">隐藏</button>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2 onclick="toggle('departments')">🏢 部门管理</h2>
+        <div id="departments" style="display:none">
+            <button onclick="call('GET','/api/admin/departments')">获取部门列表</button>
+            ID <input id="dpt-id" placeholder="1">
+            <button
+                onclick="call('GET',`/api/admin/department/${document.getElementById('dpt-id').value}`)">获取详情</button>
+            <br />
+            名称 <input id="dpt-name" placeholder="研发部"> 负责人 <input id="dpt-manager" placeholder="李四"> 地点 <input
+                id="dpt-loc" placeholder="A201">
+            <button onclick="createDepartment()">创建</button>
+            <button onclick="updateDepartment()">更新</button>
+            ID <input id="dpt-del" placeholder="1">
+            <button
+                onclick="call('DELETE',`/api/admin/department/${document.getElementById('dpt-del').value}`)">删除</button>
+        </div>
+    </section>
+
+    <section>
+        <h2 onclick="toggle('personnel')">📋 人事变更</h2>
+        <div id="personnel" style="display:none">
+            <button onclick="call('GET','/api/admin/changes')">查询所有变更</button>
+            <input id="chg-id" placeholder="变更ID"> <button
+                onclick="call('GET',`/api/admin/changes/${document.getElementById('chg-id').value}`)">查询详情</button><br />
+            EmpID <input id="chg-emp" placeholder="EMP0001"> 目标部门ID <input id="chg-dpt" placeholder="1"> 类型 <select
+                id="chg-type">
+                <option value="1">调部门</option>
+                <option value="2">调岗</option>
+                <option value="3">离职</option>
+            </select>
+            <br />说明 <input id="chg-desc" placeholder="原因描述">
+            <button onclick="createChange()">提交申请</button>
+            <h4>审批</h4>
+            ID <input id="approve-id" placeholder="变更ID"> 审批人 <input id="approve-name" placeholder="管理员">
+            <button onclick="approveChange(true)">通过</button>
+            <button onclick="approveChange(false)">驳回</button>
+        </div>
+    </section>
+
+    <section>
+        <h2 onclick="toggle('notice')">📢 公告管理</h2>
+        <div id="notice" style="display:none">
+            <button onclick="call('GET','/api/notice')">获取公告列表</button>
+            ID <input id="notice-id" placeholder="1">
+            <button
+                onclick="call('GET',`/api/admin/notice/${document.getElementById('notice-id').value}`)">查看详情</button>
+            <br />标题 <input id="notice-title" placeholder="标题"> 内容 <input id="notice-content" placeholder="内容">
+            <button onclick="createNotice()">发布公告</button>
+            <button onclick="updateNotice()">更新公告</button>
+            ID <input id="notice-del" placeholder="1">
+            <button
+                onclick="call('DELETE',`/api/admin/notice/${document.getElementById('notice-del').value}`)">删除公告</button>
+        </div>
+    </section>
+
+    <section>
+        <h2 onclick="toggle('authManage')">🛠️ 权限管理</h2>
+        <div id="authManage" style="display:none">
+            <button onclick="call('GET','/api/admin/auth')">获取所有账号</button><br />
+            用户名 <input id="acc-user" placeholder="test"> 密码 <input id="acc-pass" placeholder="123"> 角色 <select
+                id="acc-role">
+                <option value="staff">staff</option>
+                <option value="admin">admin</option>
+            </select>
+            <button
+                onclick="call('POST','/api/register',{username:document.getElementById('acc-user').value,password:document.getElementById('acc-pass').value,role:document.getElementById('acc-role').value})">创建账号</button>
+            ID <input id="acc-id" placeholder="账号ID">
+            角色 <select id="acc-role">
+                <option value="staff">staff</option>
+                <option value="admin">admin</option>
+            </select>
+            <button onclick="updateUserRole()">更新角色</button>
+            <button onclick="call('DELETE',`/api/admin/auth/${document.getElementById('acc-id').value}`)">删除账号</button>
+        </div>
+    </section>
+
+    <hr>
+    <h2>🧾 接口响应</h2>
+    <button onclick="document.getElementById('result').innerText=''">清空结果</button>
+    <pre id="result">暂无数据</pre>
+
+    <script>
+        const API = 'http://localhost:8080';
+        let token = '';
+        let tokenPayload = null;
+
+        function toggle(id) {
+            const el = document.getElementById(id);
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function register() {
+            await call('POST', '/api/register', {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+            });
+        }
+
+        async function login() {
+            const res = await fetch(`${API}/api/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value
+                })
+            });
+            const data = await res.json();
+            if (data.token) {
+                token = data.token;
+                // decode JWT payload
+                tokenPayload = JSON.parse(atob(data.token.split('.')[1]));
+                document.getElementById('auth-info').innerText = `✅ 登录成功: ${tokenPayload.username} (${tokenPayload.role})`;
+            }
+            show(data);
+        }
+
+        async function createEmployee() {
+            await call('POST', '/api/admin/employee', {
+                name: document.getElementById('emp-name').value,
+                dpt_id: parseInt(document.getElementById('emp-dpt').value),
+                job: document.getElementById('emp-job').value
+            });
+        }
+
+        async function updateEmployee() {
+            await call('PUT', `/api/admin/employee/${document.getElementById('emp-id').value}`, {
+                name: document.getElementById('emp-name').value,
+                job: document.getElementById('emp-job').value
+            });
+        }
+
+        async function createDepartment() {
+            await call('POST', '/api/admin/department', {
+                name: document.getElementById('dpt-name').value,
+                manager: document.getElementById('dpt-manager').value,
+                location: document.getElementById('dpt-loc').value
+            });
+        }
+
+        async function updateDepartment() {
+            await call('PUT', `/api/admin/department/${document.getElementById('dpt-id').value}`, {
+                name: document.getElementById('dpt-name').value,
+                manager: document.getElementById('dpt-manager').value,
+                location: document.getElementById('dpt-loc').value
+            });
+        }
+
+        async function createChange() {
+            await call('POST', '/api/user/change/request', {
+                emp_id: document.getElementById('chg-emp').value,
+                target_dpt: parseInt(document.getElementById('chg-dpt').value),
+                change_type: parseInt(document.getElementById('chg-type').value),
+                description: document.getElementById('chg-desc').value
+            });
+        }
+
+        async function approveChange(ok) {
+            const id = document.getElementById('approve-id').value;
+            await call('PUT', `/api/admin/changes/${id}`, {
+                approve: ok,
+                approver: document.getElementById('approve-name').value
+            });
+        }
+
+        async function updateUserRole() {
+            const id = document.getElementById("acc-id").value;
+            const newRole = document.getElementById("acc-role").value;
+            await call("PUT", `/api/admin/auth/${id}`, { role: newRole, status: 1 });
+        }
+
+        async function createNotice() {
+            await call('POST', '/api/admin/notice', {
+                title: document.getElementById('notice-title').value,
+                content: document.getElementById('notice-content').value
+            });
+        }
+
+        async function updateNotice() {
+            const id = document.getElementById('notice-id').value;
+            await call('PUT', `/api/admin/notice/${id}`, {
+                title: document.getElementById('notice-title').value,
+                content: document.getElementById('notice-content').value
+            });
+        }
+
+        async function loadEmployeeList() {
+            await call('GET', '/api/admin/employees');
+        }
+
+        async function loadEmployeeDetail() {
+            const id = document.getElementById('emp-id').value;
+            if (!id) {
+                alert("请输入员工ID");
+                return;
+            }
+
+            let path = '/api/admin/employee/' + id;
+            if (tokenPayload && tokenPayload.role === 'staff') {
+                path = '/api/user/profile/' + id;
+            }
+
+            const data = await call('GET', path);
+            if (data && data.data) {
+                fillEmployeeDetail(data.data);
+            }
+        }
+
+        function fillEmployeeDetail(emp) {
+            document.getElementById('emp-detail').style.display = 'block';
+            document.getElementById('emp-empid').value = emp.emp_id || '';
+            document.getElementById('emp-name').value = emp.name || '';
+            document.getElementById('emp-sex').value = emp.sex || '';
+            document.getElementById('emp-birth').value = emp.birth ? emp.birth.split(' ')[0] : '';
+            document.getElementById('emp-dpt').value = emp.dpt_id || '';
+            document.getElementById('emp-job').value = emp.job || '';
+            document.getElementById('emp-addr').value = emp.addr || '';
+            document.getElementById('emp-tel').value = emp.tel || '';
+            document.getElementById('emp-email').value = emp.email || '';
+            document.getElementById('emp-remark').value = emp.remark || '';
+            document.getElementById('emp-create').value = emp.create_at || '';
+            document.getElementById('emp-update').value = emp.update_at || '';
+        }
+
+        function hideEmployeeDetail() {
+            document.getElementById('emp-detail').style.display = 'none';
+        }
+
+        async function updateEmployeeInfo() {
+            const id = document.getElementById('emp-id').value;
+            const body = {
+                name: document.getElementById('emp-name').value,
+                sex: document.getElementById('emp-sex').value,
+                birth: document.getElementById('emp-birth').value,
+                job: document.getElementById('emp-job').value,
+                addr: document.getElementById('emp-addr').value,
+                tel: document.getElementById('emp-tel').value,
+                email: document.getElementById('emp-email').value,
+                remark: document.getElementById('emp-remark').value
+            };
+
+            let path = `/api/admin/employee/${id}`;
+            if (tokenPayload && tokenPayload.role === "staff") {
+                path = `/api/user/profile/${id}`;
+            }
+            await call("PUT", path, body);
+        }
+
+        async function call(method, url, body = null) {
+            const opts = { method, headers: { 'Content-Type': 'application/json' } };
+            if (token) opts.headers.Authorization = 'Bearer ' + token;
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(API + url, opts);
+            let data;
+            try { data = await res.json(); } catch { data = { error: '非JSON返回' } }
+            show(data);
+            return data;
+        }
+
+        function show(data) {
+            document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+
+</html>

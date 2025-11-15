@@ -1,7 +1,6 @@
 
 # Vue Admin Backend API 文档
 
-> 作者：Julian M,ChatGPT  
 
 ## 项目简介
 
@@ -319,7 +318,7 @@ Authorization: Bearer <token>
 
 1. 克隆项目
 ```bash
-git clone <repository-url>
+git clone https://github.com/Julian-Meng/backend
 cd backend
 ```
 

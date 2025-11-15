@@ -19,6 +19,7 @@ func main() {
 	os.Setenv("JWT_SECRET", "MyProductionSecretKey")
 
 	start := time.Now()
+	// 设置gin模式为release模式,控制台不打印日志
 	gin.SetMode(gin.ReleaseMode)
 
 	// 初始化数据库

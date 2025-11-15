@@ -1,4 +1,3 @@
-// router.go
 package main
 
 import (
@@ -29,11 +28,8 @@ func SetupRouter() *gin.Engine {
 	// ========================
 	//  静态文件
 	// ========================
-	// 指定静态资源目录（例如 /static 下放图片、CSS、JS）
 	r.Static("/static", "./static")
-
-	// 主页（测试控制台 HTML）
-	r.StaticFile("/", "./static/full_backend_test_pro.html")
+	r.StaticFile("/", "./static/backend_test.html")
 
 	// ========================
 	//  公共接口（无需登录）
@@ -69,6 +65,7 @@ func SetupRouter() *gin.Engine {
 		admin.GET("/changes", handlers.GetAllPersonnelChanges)
 		admin.POST("/change", handlers.CreatePersonnelChange)
 		admin.PUT("/changes/:id", handlers.ApprovePersonnelChange)
+		admin.GET("/changes/:id", handlers.GetPersonnelChangeByID)
 
 		// 账号管理
 		admin.GET("/auth", handlers.GetAllAccounts)

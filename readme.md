@@ -1,7 +1,7 @@
 
 # Vue Admin Backend API 文档
 
-> 作者：CodeGeeX,Julian M,ChatGPT  
+> 作者：Julian M,ChatGPT  
 
 ## 项目简介
 

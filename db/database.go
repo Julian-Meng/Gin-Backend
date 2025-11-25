@@ -1,204 +1,162 @@
 package db
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
+	"time"
 
-	_ "modernc.org/sqlite" // SQLite 驱动
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+
+	"backend/models"
 )
 
-var DB *sql.DB // 全局数据库连接
+var DB *gorm.DB
 
-// ==========================
-// InitDB 初始化数据库
-// ==========================
-func InitDB() error {
-	var err error
+// ===============================
+// 数据库配置结构体（env → main.go 传入）
+// ===============================
+type Config struct {
+	Driver string // mysql / sqlite
+	DSN    string // MySQL: user:pass@tcp(...) ; SQLite: ./db/hr.db
+	Debug  bool   // 是否开启 GORM debug 模式
+}
 
-	// ================================
-	// 确保数据库文件路径存在
-	// ================================
-	dbDir := "./db"
-	if err = os.MkdirAll(dbDir, os.ModePerm); err != nil {
-		return fmt.Errorf("创建数据库目录失败: %v", err)
+// ===============================
+// InitDB - 初始化数据库（MySQL / SQLite）
+// ===============================
+func InitDB(cfg Config) error {
+
+	// 设置 GORM 日志级别
+	var gLogger logger.Interface
+	if cfg.Debug {
+		gLogger = logger.Default.LogMode(logger.Info)
+	} else {
+		gLogger = logger.Default.LogMode(logger.Warn)
 	}
 
-	dbPath := fmt.Sprintf("%s/hr.db", dbDir)
-
-	// ================================
-	// 高性能 & 稳定性参数
-	// ================================
-	connStr := fmt.Sprintf(
-		"file:%s?_busy_timeout=5000&_foreign_keys=on&_journal_mode=WAL&_synchronous=NORMAL",
-		dbPath,
+	// 初始化连接
+	var (
+		db  *gorm.DB
+		err error
 	)
 
-	DB, err = sql.Open("sqlite", connStr)
+	switch cfg.Driver {
+	case "sqlite":
+		ensureSQLiteDir(cfg.DSN)
+		db, err = gorm.Open(sqlite.Open(cfg.DSN), &gorm.Config{
+			Logger: gLogger,
+		})
+
+	case "mysql":
+		db, err = gorm.Open(mysql.Open(cfg.DSN), &gorm.Config{
+			Logger: gLogger,
+		})
+
+	default:
+		return fmt.Errorf("unsupported database driver: %s", cfg.Driver)
+	}
+
 	if err != nil {
-		return fmt.Errorf("数据库连接失败: %v", err)
+		return fmt.Errorf("failed to connect database: %v", err)
 	}
 
-	if err = DB.Ping(); err != nil {
-		return fmt.Errorf("数据库不可用: %v", err)
-	}
-	log.Printf("✅ 数据库连接成功 (%s)\n", dbPath)
+	DB = db
+	log.Printf("✅ 数据库连接成功 → [%s]", cfg.Driver)
 
-	// ================================
-	// 全局 PRAGMA 设置（双保险）
-	// ================================
-	DB.Exec(`PRAGMA foreign_keys = ON;`)
-	DB.Exec(`PRAGMA defer_foreign_keys = OFF;`)
-	DB.Exec(`PRAGMA journal_mode = WAL;`)
-	DB.Exec(`PRAGMA synchronous = NORMAL;`)
-
-	// ================================
-	// Schema 版本控制
-	// ================================
-	if _, err := DB.Exec(`CREATE TABLE IF NOT EXISTS META (version INTEGER DEFAULT 1)`); err != nil {
-		return fmt.Errorf("创建 META 表失败: %v", err)
+	// 设置连接池（MySQL 专用，SQLite 忽略）
+	if sqlDB, err := db.DB(); err == nil {
+		sqlDB.SetMaxIdleConns(10)
+		sqlDB.SetMaxOpenConns(50)
+		sqlDB.SetConnMaxLifetime(time.Hour)
 	}
 
-	var version int
-	_ = DB.QueryRow(`SELECT version FROM META LIMIT 1`).Scan(&version)
-	if version == 0 {
-		version = 1
-		DB.Exec(`INSERT INTO META (version) VALUES (1)`)
-	}
-	// log.Printf("📦 当前数据库版本: %d\n", version)
-
-	// ================================
-	// PERSON 表
-	// ================================
-	createPerson := `
-	CREATE TABLE IF NOT EXISTS PERSON (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		emp_id TEXT UNIQUE,
-		auth INTEGER,
-		name TEXT,
-		sex TEXT,
-		birth TEXT,
-		dpt_id INTEGER,
-		job TEXT,
-		addr TEXT,
-		tel TEXT,
-		email TEXT,
-		state INTEGER DEFAULT 1,
-		remark TEXT,
-		create_at TEXT DEFAULT (datetime('now')),
-		update_at TEXT DEFAULT (datetime('now')),
-		FOREIGN KEY (dpt_id) REFERENCES DEPARTMENT(id)
-	);
-	`
-	if _, err := DB.Exec(createPerson); err != nil {
-		return fmt.Errorf("创建 PERSON 表失败: %v", err)
+	// ===========================================
+	// AutoMigrate（可关闭，如不想 GORM 改表结构）
+	// ===========================================
+	err = autoMigrateAll()
+	if err != nil {
+		return fmt.Errorf("auto migrate failed: %v", err)
 	}
 
-	// ================================
-	// ACCOUNT 表
-	// ================================
-	createAccount := `
-	CREATE TABLE IF NOT EXISTS ACCOUNT (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		username TEXT UNIQUE,
-		password TEXT,
-		emp_id TEXT,
-		role TEXT DEFAULT 'staff',
-		status INTEGER DEFAULT 1,
-		create_at TEXT DEFAULT (datetime('now')),
-		last_login TEXT
-	);
-	`
-	if _, err := DB.Exec(createAccount); err != nil {
-		return fmt.Errorf("创建 ACCOUNT 表失败: %v", err)
+	// ===========================================
+	// 确保默认部门存在（从原逻辑迁移）
+	// ===========================================
+	err = ensureDefaultDepartment()
+	if err != nil {
+		return fmt.Errorf("failed ensuring default department: %v", err)
 	}
 
-	// ================================
-	// DEPARTMENT 表
-	// ================================
-	createDepartment := `
-	CREATE TABLE IF NOT EXISTS DEPARTMENT (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		name TEXT UNIQUE,
-		manager TEXT,
-		intro TEXT,
-		create_at TEXT DEFAULT (datetime('now')),
-		location TEXT,
-		dpt_num INTEGER DEFAULT 0,
-		full_num INTEGER DEFAULT 0,
-		is_full INTEGER DEFAULT 0
-	);
-	`
-	if _, err := DB.Exec(createDepartment); err != nil {
-		return fmt.Errorf("创建 DEPARTMENT 表失败: %v", err)
-	}
-
-	// ✅ 确保存在默认部门
-	var deptCount int
-	_ = DB.QueryRow(`SELECT COUNT(*) FROM DEPARTMENT`).Scan(&deptCount)
-	if deptCount == 0 {
-		_, err := DB.Exec(`
-			INSERT INTO DEPARTMENT (name, manager, intro, location, dpt_num, full_num, is_full)
-			VALUES ('未分配部门', '系统', '系统默认部门', '未知', 0, 50, 0)
-		`)
-		if err != nil {
-			return fmt.Errorf("创建默认部门失败: %v", err)
-		}
-		log.Println("📦 已自动创建默认部门: '未分配部门'")
-	}
-
-	// ================================
-	// PERSONNEL 表（含 approver 字段）
-	// ================================
-	createPersonnel := `
-	CREATE TABLE IF NOT EXISTS PERSONNEL (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		emp_id TEXT,
-		change_type INTEGER,
-		description TEXT,
-		state INTEGER DEFAULT 0,
-		target_dpt INTEGER,
-		approver TEXT,
-		create_at TEXT DEFAULT (datetime('now')),
-		approve_at TEXT,
-		FOREIGN KEY (emp_id) REFERENCES PERSON(emp_id)
-	);
-	`
-	if _, err := DB.Exec(createPersonnel); err != nil {
-		return fmt.Errorf("创建 PERSONNEL 表失败: %v", err)
-	}
-
-	// ================================
-	// NOTICE 表
-	// ================================
-	createNotice := `
-	CREATE TABLE IF NOT EXISTS NOTICE (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		title TEXT,
-		content TEXT,
-		publisher TEXT,
-		create_at TEXT DEFAULT (datetime('now')),
-		update_at TEXT
-	);
-	`
-	if _, err := DB.Exec(createNotice); err != nil {
-		return fmt.Errorf("创建 NOTICE 表失败: %v", err)
-	}
-
-	log.Println("✅ 所有表检查/创建完成")
 	return nil
 }
 
-// ==========================
-// CloseDB 优雅关闭数据库
-// ==========================
-func CloseDB() {
-	if DB != nil {
-		if err := DB.Close(); err != nil {
-			log.Printf("⚠️ 关闭数据库出错: %v\n", err)
-		} else {
-			log.Println("✅ 数据库连接已关闭")
+// ===============================
+// AutoMigrate 所有模型
+// ===============================
+func autoMigrateAll() error {
+	return DB.AutoMigrate(
+		&models.Account{},
+		&models.Person{},
+		&models.Department{},
+		&models.Personnel{},
+		&models.Notice{},
+		// Dashboard 无表，不参与
+	)
+}
+
+// ===============================
+// SQLite 目录创建
+// ===============================
+func ensureSQLiteDir(path string) {
+	dir := "db"
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		os.MkdirAll(dir, 0755)
+	}
+}
+
+// ===============================
+// 创建默认部门（跨库兼容）
+// ===============================
+func ensureDefaultDepartment() error {
+	var count int64
+	DB.Model(&models.Department{}).Count(&count)
+	if count == 0 {
+		def := models.Department{
+			Name:     "未分配部门",
+			Manager:  "系统",
+			Intro:    "系统默认部门",
+			Location: "未知",
+			DptNum:   0,
+			FullNum:  50,
+			IsFull:   0,
 		}
+		if err := DB.Create(&def).Error; err != nil {
+			return fmt.Errorf("创建默认部门失败: %v", err)
+		}
+		log.Println("📦 已自动创建默认部门: 未分配部门")
+	}
+	return nil
+}
+
+// ===============================
+// 返回全局 DB
+// ===============================
+func GetDB() *gorm.DB {
+	return DB
+}
+
+// ===============================
+// 关闭数据库连接
+// ===============================
+func CloseDB() {
+	if DB == nil {
+		return
+	}
+	sqlDB, err := DB.DB()
+	if err == nil {
+		sqlDB.Close()
 	}
 }

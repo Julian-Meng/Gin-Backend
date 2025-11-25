@@ -1,15 +1,19 @@
 package handlers
 
 import (
-	"backend/models"
+	"backend/dao"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
+// ===========================
 // 管理员仪表盘
+// GET /dashboard/admin
+// ===========================
 func AdminDashboard(c *gin.Context) {
-	data := models.GetAdminDashboardData()
+	data := dao.GetAdminDashboardData()
+
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 		"msg":  "success",
@@ -17,9 +21,13 @@ func AdminDashboard(c *gin.Context) {
 	})
 }
 
+// ===========================
 // 普通用户仪表盘
+// GET /dashboard/user
+// ===========================
 func UserDashboard(c *gin.Context) {
-	data := models.GetUserDashboardData()
+	data := dao.GetUserDashboardData()
+
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 		"msg":  "success",

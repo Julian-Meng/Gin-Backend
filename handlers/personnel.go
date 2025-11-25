@@ -1,197 +1,204 @@
 package handlers
 
 import (
+	"backend/dao"
 	"backend/models"
-	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-// ======================================
-// 用户或管理员创建人事变更申请
-// ======================================
-func CreatePersonnelChange(c *gin.Context) {
-	var req models.Personnel
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "请求格式错误",
-		})
-		return
+// ==============================
+// 获取人事变更列表（分页）
+// GET /personnel?page=&pageSize=
+// ==============================
+func GetPersonnelList(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 200 {
+		pageSize = 10
 	}
 
-	if req.EmpID == "" || req.TargetDpt == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "员工ID或目标部门不能为空",
-		})
-		return
-	}
+	limit := pageSize
+	offset := (page - 1) * pageSize
 
-	if err := models.CreatePersonnelChange(req); err != nil {
-		log.Println("❌ 变更申请失败:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":  1,
-			"msg":   "变更申请失败",
-			"error": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code": 0,
-		"msg":  "变更申请已提交",
-	})
-}
-
-// ======================================
-// 分页查询所有人事变更记录（管理员）
-// ======================================
-func GetAllPersonnelChanges(c *gin.Context) {
-	limitStr := c.DefaultQuery("limit", "10")
-	offsetStr := c.DefaultQuery("offset", "0")
-	limit, _ := strconv.Atoi(limitStr)
-	offset, _ := strconv.Atoi(offsetStr)
-
-	list, total, err := models.FetchPersonnelPaged(limit, offset)
+	list, total, err := dao.FetchPersonnelPaged(limit, offset)
 	if err != nil {
-		log.Println("❌ 查询变更记录失败:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":  1,
-			"msg":   "查询失败",
-			"error": err.Error(),
+			"code": 1,
+			"msg":  "获取人事变更记录失败",
+			"err":  err.Error(),
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{
-			"list":  list,
-			"total": total,
-		},
+		"code":  0,
+		"msg":   "ok",
+		"data":  list,
+		"total": total,
 	})
 }
 
-// ======================================
+// ==============================
 // 获取单条人事变更详情
-// ======================================
-func GetPersonnelChangeByID(c *gin.Context) {
+// GET /personnel/:id
+// ==============================
+func GetPersonnelByID(c *gin.Context) {
 	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "ID格式错误"})
+	id64, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil || id64 == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": 1,
+			"msg":  "无效的 ID",
+		})
 		return
 	}
 
-	p, err := models.GetPersonnelByID(id)
+	data, err := dao.GetPersonnelByID(uint(id64))
 	if err != nil {
-		log.Println("❌ 获取变更详情失败:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":  1,
-			"msg":   "查询失败",
-			"error": err.Error(),
+		c.JSON(http.StatusNotFound, gin.H{
+			"code": 1,
+			"msg":  "记录不存在",
+			"err":  err.Error(),
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
-		"msg":  "success",
-		"data": p,
+		"msg":  "ok",
+		"data": data,
 	})
 }
 
-// ======================================
-// 管理员审批人事变更
-// ======================================
-func ApprovePersonnelChange(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "ID格式错误"})
-		return
+// ==============================
+// 发起人事变更申请
+// POST /personnel
+//
+//	Body {
+//	   "emp_id": "...",
+//	   "target_dpt": 3,
+//	   "change_type": 1/2/3,
+//	   "description": "..."
+//	}
+//
+// ==============================
+func CreatePersonnel(c *gin.Context) {
+	var req struct {
+		EmpID       string `json:"emp_id"`
+		TargetDpt   uint   `json:"target_dpt"`
+		ChangeType  int    `json:"change_type"`
+		Description string `json:"description"`
 	}
 
-	var req struct {
-		Approve  bool   `json:"approve"`
-		Approver string `json:"approver"`
-	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": 1,
-			"msg":  "请求格式错误",
+			"msg":  "参数解析失败",
 		})
 		return
 	}
 
-	if req.Approver == "" {
-		req.Approver = "系统管理员"
+	req.EmpID = strings.TrimSpace(req.EmpID)
+	req.Description = strings.TrimSpace(req.Description)
+
+	if req.EmpID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "emp_id 不能为空"})
+		return
+	}
+	if req.ChangeType < 1 || req.ChangeType > 3 {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "无效的变更类型"})
+		return
+	}
+	if req.ChangeType == 1 && req.TargetDpt == 0 { // 调部门必须指定目标部门
+		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "调部门必须提供 target_dpt"})
+		return
+	}
+	if req.ChangeType == 2 && req.Description == "" { // 调岗必须提供岗位名
+		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "调岗必须提供 description（新岗位名）"})
+		return
 	}
 
-	if err := models.ApprovePersonnelChange(id, req.Approver, req.Approve); err != nil {
-		log.Println("❌ 审批失败:", err)
+	record := models.Personnel{
+		EmpID:       req.EmpID,
+		TargetDpt:   req.TargetDpt,
+		ChangeType:  req.ChangeType,
+		Description: req.Description,
+		State:       0, // 待审批
+	}
+
+	if err := dao.CreatePersonnelChange(&record); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":  1,
-			"msg":   "审批失败",
-			"error": err.Error(),
+			"code": 1,
+			"msg":  "提交人事变更失败",
+			"err":  err.Error(),
 		})
 		return
 	}
 
-	status := "已驳回"
-	if req.Approve {
-		status = "已通过"
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code": 0,
-		"msg":  "审批成功",
-		"data": gin.H{
-			"id":       id,
-			"status":   status,
-			"approver": req.Approver,
-		},
-	})
+	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "申请已提交"})
 }
 
-// ======================================
-// 用户查看自己的人事变更记录（可选）
-// ======================================
-func GetUserPersonnelChanges(c *gin.Context) {
-	empID := c.Query("emp_id")
-	if empID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "缺少 emp_id 参数"})
-		return
+// ==============================
+// 审批人事变更
+// PUT /personnel/approve
+//
+//	Body {
+//	   "id": 123,
+//	   "approver": "admin_name",
+//	   "approve": true/false
+//	}
+//
+// ==============================
+func ApprovePersonnel(c *gin.Context) {
+	var req struct {
+		ID       uint   `json:"id"`
+		Approver string `json:"approver"`
+		Approve  bool   `json:"approve"`
 	}
 
-	rows, _, err := models.FetchPersonnelPaged(100, 0) // ✅ 修正这里
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":  1,
-			"msg":   "查询失败",
-			"error": err.Error(),
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": 1,
+			"msg":  "参数解析失败",
 		})
 		return
 	}
 
-	// 过滤出该用户的记录
-	var userChanges []models.Personnel
-	for _, p := range rows {
-		if p.EmpID == empID {
-			userChanges = append(userChanges, p)
-		}
+	req.Approver = strings.TrimSpace(req.Approver)
+	if req.ID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "ID 不能为空"})
+		return
+	}
+	if req.Approver == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "审批人不能为空"})
+		return
+	}
+
+	// 审批逻辑（部门人数增减 / 调岗 / 离职 全部由 DAO 处理）
+	if err := dao.ApprovePersonnelChange(req.ID, req.Approver, req.Approve); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": 1,
+			"msg":  "审批失败",
+			"err":  err.Error(),
+		})
+		return
+	}
+
+	msg := "已驳回"
+	if req.Approve {
+		msg = "审批通过"
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
-		"msg":  "success",
-		"data": gin.H{
-			"list":  userChanges,
-			"total": len(userChanges),
-		},
+		"msg":  msg,
 	})
 }

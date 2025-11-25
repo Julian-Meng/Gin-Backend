@@ -7,15 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// SetupRouter 初始化路由配置
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	// ========================
-	//  CORS 中间件（允许跨域）
-	// ========================
+	// =====================================
+	// CORS
+	// =====================================
 	r.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*") // 开发阶段允许全部源,生产阶段需改为具体域名
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 		if c.Request.Method == "OPTIONS" {
@@ -25,72 +24,90 @@ func SetupRouter() *gin.Engine {
 		c.Next()
 	})
 
-	// ========================
-	//  静态文件
-	// ========================
+	// 静态文件
 	r.Static("/static", "./static")
 	r.StaticFile("/", "./static/backend_test.html")
 
-	// ========================
-	//  公共接口（无需登录）
-	// ========================
+	// =====================================
+	// 无需登录
+	// =====================================
 	r.POST("/api/login", handlers.Login)
 	r.POST("/api/register", handlers.Register)
 	r.GET("/api/notice", handlers.GetAllNotices)
 
-	// ========================
-	//  管理员接口（需管理员权限）
-	// ========================
+	// =====================================
+	// 管理员接口
+	// =====================================
 	admin := r.Group("/api/admin")
 	admin.Use(middlewares.JWTAuthMiddleware(), middlewares.AdminOnly())
 	{
 		// 仪表盘
 		admin.GET("/dashboard", handlers.AdminDashboard)
 
-		// 员工管理
-		admin.GET("/employees", handlers.GetAllPersons)
-		admin.POST("/employee", handlers.CreatePerson)
-		admin.PUT("/employee/:id", handlers.UpdatePerson)
-		admin.DELETE("/employee/:id", handlers.DeletePerson)
-		admin.GET("/employee/:id", handlers.GetPersonByID)
+		// ————————————
+		// 员工管理（person.go）
+		// ————————————
+		admin.GET("/persons", handlers.GetPersons)
+		admin.POST("/person", handlers.CreatePerson)
+		admin.PUT("/person/:id", handlers.UpdatePerson)
+		admin.DELETE("/person/:id", handlers.DeletePersonByID)
+		admin.DELETE("/person/emp/:emp_id", handlers.DeletePersonByEmpID)
+		admin.GET("/person/:id", handlers.GetPersonByID)
+		admin.PUT("/person/job", handlers.ChangePersonJob)
+		admin.PUT("/person/state", handlers.ChangePersonState)
+		admin.PUT("/person/change-dept", handlers.ChangePersonDepartment)
 
-		// 部门管理
-		admin.GET("/departments", handlers.GetAllDepartments)
+		// ————————————
+		// 部门管理（department.go）
+		// ————————————
+		admin.GET("/departments", handlers.GetDepartments)
 		admin.GET("/department/:id", handlers.GetDepartmentByID)
 		admin.POST("/department", handlers.CreateDepartment)
 		admin.PUT("/department/:id", handlers.UpdateDepartment)
 		admin.DELETE("/department/:id", handlers.DeleteDepartment)
 
-		// 人事变更管理
-		admin.GET("/changes", handlers.GetAllPersonnelChanges)
-		admin.POST("/change", handlers.CreatePersonnelChange)
-		admin.PUT("/changes/:id", handlers.ApprovePersonnelChange)
-		admin.GET("/changes/:id", handlers.GetPersonnelChangeByID)
+		// ————————————
+		// 人事变更（personnel.go）
+		// ————————————
+		admin.GET("/changes", handlers.GetPersonnelList)
+		admin.GET("/change/:id", handlers.GetPersonnelByID)
+		admin.POST("/change", handlers.CreatePersonnel)
+		admin.PUT("/change/approve", handlers.ApprovePersonnel)
 
-		// 账号管理
-		admin.GET("/auth", handlers.GetAllAccounts)
-		admin.PUT("/auth/:id", handlers.UpdateAccount)
-		admin.DELETE("/auth/:id", handlers.DeleteAccount)
+		// ————————————
+		// 账号管理（account.go）
+		// ————————————
+		admin.GET("/accounts", handlers.GetAllAccounts)
+		admin.POST("/account", handlers.CreateAccount)
+		admin.PUT("/account/:id", handlers.UpdateAccount)
+		admin.DELETE("/account/:id", handlers.DeleteAccount)
 
-		// 公告管理
+		// ————————————
+		// 公告管理（notice.go）
+		// ————————————
 		admin.POST("/notice", handlers.CreateNotice)
 		admin.PUT("/notice/:id", handlers.UpdateNotice)
 		admin.DELETE("/notice/:id", handlers.DeleteNotice)
 		admin.GET("/notice/:id", handlers.GetNoticeByID)
 	}
 
-	// ========================
-	//  普通用户接口（需登录）
-	// ========================
+	// =====================================
+	// 普通用户接口
+	// =====================================
 	user := r.Group("/api/user")
 	user.Use(middlewares.JWTAuthMiddleware())
 	{
 		user.GET("/dashboard", handlers.UserDashboard)
+
+		// 用户可查看自己的资料
 		user.GET("/profile/:id", handlers.GetPersonByID)
 		user.PUT("/profile/:id", handlers.UpdatePerson)
+
+		// 用户可查看部门信息
 		user.GET("/department/:id", handlers.GetDepartmentByID)
-		user.PUT("/account/:id", handlers.UpdateAccount)
-		user.POST("/change/request", handlers.CreatePersonnelChange)
+
+		// 用户提交变更申请
+		user.POST("/change/request", handlers.CreatePersonnel)
 	}
 
 	return r

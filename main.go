@@ -2,7 +2,6 @@ package main
 
 import (
 	"backend/db"
-	"backend/models"
 	"context"
 	"log"
 	"net/http"
@@ -15,61 +14,97 @@ import (
 )
 
 func main() {
-	//明文秘钥，生产环境请使用环境变量
-	os.Setenv("JWT_SECRET", "MyProductionSecretKey")
 
+	// ===============================
+	// Gin 运行模式（减少日志输出）
+	// 可选：gin.DebugMode / gin.ReleaseMode / gin.TestMode
+	// ===============================
+	gin.SetMode(gin.ReleaseMode) // 正式环境推荐使用，日志更干净
+	// gin.SetMode(gin.DebugMode) // 开发时可手动开启
+
+	// ===============================
+	// JWT Secret
+	// ===============================
+	if os.Getenv("JWT_SECRET") == "" {
+		os.Setenv("JWT_SECRET", "MyPrivateSecretKey")
+	}
+
+	// ===============================
+	// 启动时间统计（开始计时）
+	// ===============================
 	start := time.Now()
-	// 设置gin模式为release模式,控制台不打印日志
-	gin.SetMode(gin.ReleaseMode)
 
+	// ===============================
+	// 数据库配置：SQLite（默认）
+	// ===============================
+	cfg := db.Config{
+		Driver: "sqlite",     // "mysql" 或 "sqlite"
+		DSN:    "./db/hr.db", // SQLite 路径
+		Debug:  false,        // 关闭 SQL 日志（若你要更干净的输出）
+	}
+
+	// ===============================
+	//  MySQL 示例配置
+	// ===============================
+
+	// cfg := db.Config{
+	// 	Driver: "mysql",
+	// 	DSN:    "user:123@tcp(localhost:3306)/hrdb?charset=utf8mb4&parseTime=True&loc=Local",
+	// 	Debug:  false,
+	// }
+
+	// ===============================
 	// 初始化数据库
-	if err := db.InitDB(); err != nil {
+	// ===============================
+	if err := db.InitDB(cfg); err != nil {
 		log.Fatalf("❌ 数据库初始化失败: %v", err)
 	}
-	if err := models.EnsureDefaultDepartment(); err != nil {
-		log.Fatalf("❌ 检查默认部门失败: %v", err)
-	}
 
-	// 创建 Gin 路由
+	// ===============================
+	// 初始化路由
+	// ===============================
 	r := SetupRouter()
 
-	addr := ":8080"
-	srv := &http.Server{
-		Addr:    addr,
+	server := &http.Server{
+		Addr:    ":8080",
 		Handler: r,
 	}
 
-	log.Println("✅ 服务正在启动，请稍候...")
-
-	// 异步启动 HTTP 服务
+	// ===============================
+	// 启动服务
+	// ===============================
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("❌ 服务启动失败: %v", err)
 		}
 	}()
 
-	elapsed := time.Since(start)
-	log.Printf("✅ 服务已启动在 http://localhost%s", addr)
-	log.Printf("⏱️ 启动耗时: %v", elapsed)
+	// ===============================
+	// 启动完成 → 打印耗时
+	// ===============================
+	bootCost := time.Since(start)
+	log.Println("✅ 服务已启动 → http://localhost:8080")
+	log.Printf("✅ 启动耗时: %.2f 秒\n", bootCost.Seconds())
 
-	// 捕获系统信号（Ctrl + C / kill / systemctl stop）
+	// ===============================
+	// 退出
+	// ===============================
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
-	<-quit // ⏸ 阻塞等待信号
+	<-quit
 
-	log.Println("✅ 收到退出信号，正在安全关闭服务...")
-
-	// 设置超时上下文，防止卡死
+	log.Println("✅ 正在停止服务...")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// 优雅关闭 HTTP 服务
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Printf("⚠️ 服务关闭过程中出错: %v", err)
-	} else {
-		log.Println("✅ HTTP 服务已安全关闭")
+	if err := server.Shutdown(ctx); err != nil {
+		log.Println("❌ 关闭服务时出错:", err)
 	}
 
-	// 关闭数据库
+	// ===============================
+	// 关闭数据库连接
+	// ===============================
 	db.CloseDB()
+
+	log.Println("✅ 服务已安全退出")
 }

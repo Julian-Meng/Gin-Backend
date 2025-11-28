@@ -122,7 +122,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			c.Header("X-Refresh-Token", newToken)
 		}
 
-		// ✅ 写入上下文，供后续 handler 使用
+		// 写入上下文，供后续 handler 使用
 		c.Set("username", claims.Username)
 		c.Set("role", claims.Role)
 		c.Next()

@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Backend API Test Console</title>
+
     <style>
         body {
             font-family: Consolas, monospace;
@@ -13,8 +14,9 @@
             background: #f0f0f0;
         }
 
+        /* 左侧内容区 */
         #left {
-            width: 60%;
+            flex: 1;
             overflow-y: auto;
             padding: 20px;
         }
@@ -23,8 +25,15 @@
             margin: 0 0 20px 0;
         }
 
+        /* 两列布局容器 */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            /* 一行两列 */
+            gap: 15px;
+        }
+
         details {
-            margin-bottom: 15px;
             background: #fff;
             padding: 10px 15px;
             border-radius: 6px;
@@ -67,6 +76,7 @@
             background: #1976d2;
         }
 
+        /* 右侧 JSON 显示区域 */
         #right {
             width: 40%;
             background: #000;
@@ -75,20 +85,36 @@
             overflow-y: auto;
             white-space: pre-wrap;
             border-left: 3px solid #333;
+            transition: width 0.25s ease;
         }
 
-        #token {
-            width: 100%;
-            margin-bottom: 10px;
+        /* 隐藏控制台 */
+        #right.hidden {
+            width: 0px;
+            padding: 0;
+            overflow: hidden;
+            border-left: none;
+        }
+
+        /* 显示/隐藏按钮 */
+        #toggleConsoleBtn {
+            margin-bottom: 15px;
+            background: #333;
+            color: #fff;
         }
     </style>
 </head>
 
 <body>
 
+    <!-- 左侧 -->
     <div id="left">
         <h1>Backend API Test Console</h1>
 
+        <!-- 显示/隐藏按钮 -->
+        <button id="toggleConsoleBtn" onclick="toggleConsole()">隐藏右侧 JSON 控制台</button>
+
+        <!-- 打开 JSON Viewer -->
         <button onclick="openJSONViewer()">打开 JSON Viewer（推荐）</button>
         <br><br>
 
@@ -96,18 +122,27 @@
         <input id="token" placeholder="登录后自动填入" />
 
         <script>
-            // ============================
-            // 打开 JSON Viewer 窗口
-            // ============================
-            let jsonViewerWin = null;
+            /* JSON 控制台显隐 */
+            function toggleConsole() {
+                const right = document.getElementById("right");
+                const btn = document.getElementById("toggleConsoleBtn");
 
+                if (right.classList.contains("hidden")) {
+                    right.classList.remove("hidden");
+                    btn.innerText = "隐藏右侧 JSON 控制台";
+                } else {
+                    right.classList.add("hidden");
+                    btn.innerText = "显示右侧 JSON 控制台";
+                }
+            }
+
+            /* 打开 JSON Viewer */
+            let jsonViewerWin = null;
             function openJSONViewer() {
                 jsonViewerWin = window.open("/static/json_viewer.html", "json_viewer");
             }
 
-            // ============================
-            // 统一请求函数
-            // ============================
+            /* 统一请求函数 */
             async function call(method, url, body = null) {
                 let headers = { "Content-Type": "application/json" };
                 const token = document.getElementById('token').value.trim();
@@ -119,11 +154,11 @@
                 const res = await fetch(url, opts);
                 const text = await res.text();
 
-                // 右侧控制台输出
+                // 右侧打印
                 document.getElementById("right").innerText =
                     method + " " + url + "\n\n" + text;
 
-                // ========= 将 JSON 推送给 json_viewer.html =========
+                // 推送到 json_viewer
                 try {
                     const parsed = JSON.parse(text || "{}");
 
@@ -139,338 +174,218 @@
                     }
 
                     return parsed;
-                } catch (e) {
-                    console.log("JSON push error:", e);
+                } catch {
+                    return {};
                 }
-
-                return {};
             }
         </script>
 
-        <!-- =================================================================== -->
-        <!-- 登录 / 注册 -->
-        <!-- =================================================================== -->
-        <details>
-            <summary>登录 Login / 注册 Register</summary>
+        <!-- ========================== -->
+        <!-- 两列布局开始 -->
+        <!-- ========================== -->
+        <div class="grid">
 
-            <h3>登录 Login</h3>
-            <input id="login_user" placeholder="用户名" />
-            <input id="login_pass" placeholder="密码" type="password" />
-            <button onclick="login()">登录</button>
+            <!-- 登录 / 注册 -->
+            <details>
+                <summary>登录 Login / 注册 Register</summary>
 
-            <script>
-                async function login() {
-                    const u = login_user.value.trim();
-                    const p = login_pass.value.trim();
-                    const r = await call("POST", "/api/login", { username: u, password: p });
+                <h3>登录 Login</h3>
+                <input id="login_user" placeholder="用户名" />
+                <input id="login_pass" placeholder="密码" type="password" />
+                <button onclick="login()">登录</button>
 
-                    if (r.token) {
-                        token.value = r.token;
-                        alert("登录成功");
+                <script>
+                    async function login() {
+                        const r = await call("POST", "/api/login", {
+                            username: login_user.value.trim(),
+                            password: login_pass.value.trim(),
+                        });
+
+                        if (r.token) {
+                            token.value = r.token;
+                            alert("登录成功");
+                        }
                     }
-                }
-            </script>
+                </script>
 
-            <h3>注册 Register</h3>
-            <input id="reg_user" placeholder="用户名" />
-            <input id="reg_pass" placeholder="密码" type="password" />
-            <select id="reg_role">
-                <option value="staff">staff</option>
-                <option value="admin">admin</option>
-            </select>
-            <button onclick="registerUser()">注册</button>
+                <h3>注册 Register</h3>
+                <input id="reg_user" placeholder="用户名" />
+                <input id="reg_pass" placeholder="密码" type="password" />
+                <select id="reg_role">
+                    <option value="staff">staff</option>
+                    <option value="admin">admin</option>
+                </select>
+                <button onclick="registerUser()">注册</button>
 
-            <script>
-                async function registerUser() {
-                    await call("POST", "/api/register", {
-                        username: reg_user.value.trim(),
-                        password: reg_pass.value.trim(),
-                        role: reg_role.value
-                    });
-                }
-            </script>
-        </details>
+                <script>
+                    async function registerUser() {
+                        await call("POST", "/api/register", {
+                            username: reg_user.value.trim(),
+                            password: reg_pass.value.trim(),
+                            role: reg_role.value,
+                        });
+                    }
+                </script>
+            </details>
 
-        <!-- =================================================================== -->
-        <!-- 管理员 Dashboard -->
-        <!-- =================================================================== -->
-        <details>
-            <summary>管理员 Dashboard</summary>
-            <button onclick="call('GET','/api/admin/dashboard')">获取管理员仪表盘</button>
-        </details>
+            <!-- 管理员 Dashboard -->
+            <details>
+                <summary>管理员 Dashboard</summary>
+                <button onclick="call('GET','/api/admin/dashboard')">获取管理员仪表盘</button>
+            </details>
 
-        <!-- =================================================================== -->
-        <!-- 用户 Dashboard -->
-        <!-- =================================================================== -->
-        <details>
-            <summary>用户 Dashboard</summary>
-            <button onclick="call('GET','/api/user/dashboard')">获取用户仪表盘</button>
-        </details>
+            <!-- 用户 Dashboard -->
+            <details>
+                <summary>用户 Dashboard</summary>
+                <button onclick="call('GET','/api/user/dashboard')">获取用户仪表盘</button>
+            </details>
 
-        <!-- =================================================================== -->
-        <!-- 员工管理（Person） -->
-        <!-- =================================================================== -->
-        <details>
-            <summary>员工管理（Person）</summary>
+            <!-- 员工管理 -->
+            <details>
+                <summary>员工管理（Person）</summary>
 
-            <button onclick="call('GET','/api/admin/persons')">获取员工列表</button>
+                <button onclick="call('GET','/api/admin/persons')">获取员工列表</button>
 
-            <h3>员工详情</h3>
-            <input id="person_id" placeholder="员工ID" />
-            <button onclick="call('GET', `/api/admin/person/${person_id.value}`)">获取员工详情</button>
+                <h3>员工详情</h3>
+                <input id="person_id" placeholder="员工ID" />
+                <button onclick="call('GET', `/api/admin/person/${person_id.value}`)">获取详情</button>
 
-            <h3>创建员工</h3>
-            <input id="p_name" placeholder="姓名" />
-            <input id="p_empid" placeholder="工号（可空自动生成）" />
-            <input id="p_dptid" placeholder="部门ID" />
-            <input id="p_job" placeholder="岗位" />
-            <button onclick="createPerson()">创建员工</button>
+                <h3>创建员工</h3>
+                <input id="p_name" placeholder="姓名" />
+                <input id="p_empid" placeholder="工号（可空自动生成）" />
+                <input id="p_dptid" placeholder="部门ID" />
+                <input id="p_job" placeholder="岗位" />
+                <button onclick="createPerson()">创建</button>
 
-            <script>
-                async function createPerson() {
-                    await call("POST", "/api/admin/person", {
-                        name: p_name.value,
-                        emp_id: p_empid.value,
-                        dpt_id: parseInt(p_dptid.value),
-                        job: p_job.value
-                    });
-                }
-            </script>
+                <script>
+                    async function createPerson() {
+                        await call("POST", "/api/admin/person", {
+                            name: p_name.value,
+                            emp_id: p_empid.value,
+                            dpt_id: parseInt(p_dptid.value),
+                            job: p_job.value,
+                        });
+                    }
+                </script>
+            </details>
 
-            <h3>更新员工</h3>
-            <input id="upd_id" placeholder="员工ID" />
-            <input id="upd_name" placeholder="姓名" />
-            <input id="upd_job" placeholder="岗位" />
-            <button onclick="updatePerson()">更新</button>
+            <!-- 部门管理 -->
+            <details>
+                <summary>部门管理（Department）</summary>
 
-            <script>
-                async function updatePerson() {
-                    await call("PUT", `/api/admin/person/${upd_id.value}`, {
-                        name: upd_name.value,
-                        job: upd_job.value
-                    });
-                }
-            </script>
+                <button onclick="call('GET','/api/admin/departments')">获取部门列表</button>
 
-            <h3>删除员工</h3>
-            <input id="del_id" placeholder="员工ID" />
-            <button onclick="call('DELETE', `/api/admin/person/${del_id.value}`)">删除</button>
+                <h3>部门详情</h3>
+                <input id="dep_id" placeholder="部门ID" />
+                <button onclick="call('GET', `/api/admin/department/${dep_id.value}`)">查询</button>
 
-        </details>
+                <h3>创建部门</h3>
+                <input id="d_name" placeholder="部门名称" />
+                <input id="d_full" placeholder="最大人数" />
+                <button onclick="createDept()">创建</button>
 
-        <!-- =================================================================== -->
-        <!-- 部门管理 -->
-        <!-- =================================================================== -->
-        <details>
-            <summary>部门管理（Department）</summary>
+                <script>
+                    async function createDept() {
+                        await call("POST", "/api/admin/department", {
+                            name: d_name.value,
+                            full_num: parseInt(d_full.value),
+                        });
+                    }
+                </script>
+            </details>
 
-            <button onclick="call('GET','/api/admin/departments')">获取部门列表</button>
+            <!-- 人事变更 -->
+            <details>
+                <summary>人事变更（Personnel）</summary>
 
-            <h3>部门详情</h3>
-            <input id="dep_id" placeholder="部门ID" />
-            <button onclick="call('GET', `/api/admin/department/${dep_id.value}`)">获取部门详情</button>
+                <button onclick="call('GET','/api/admin/changes')">获取变更列表</button>
 
-            <h3>创建部门</h3>
-            <input id="d_name" placeholder="部门名称" />
-            <input id="d_full" placeholder="最大人数" />
-            <button onclick="createDept()">创建</button>
+                <h3>变更详情</h3>
+                <input id="ch_id" placeholder="变更ID" />
+                <button onclick="call('GET', `/api/admin/change/${ch_id.value}`)">查询</button>
 
-            <script>
-                async function createDept() {
-                    await call("POST", "/api/admin/department", {
-                        name: d_name.value,
-                        full_num: parseInt(d_full.value)
-                    });
-                }
-            </script>
+                <h3>发起变更申请</h3>
+                <input id="ch_emp" placeholder="员工工号" />
+                <input id="ch_target" placeholder="目标部门ID" />
+                <select id="ch_type">
+                    <option value="1">调部门</option>
+                    <option value="2">调岗</option>
+                    <option value="3">离职</option>
+                </select>
+                <input id="ch_desc" placeholder="描述" />
+                <button onclick="createChange()">提交</button>
 
-            <h3>更新部门</h3>
-            <input id="upd_did" placeholder="部门ID" />
-            <input id="upd_dname" placeholder="部门名称" />
-            <input id="upd_dfull" placeholder="最大人数" />
-            <button onclick="updateDept()">更新</button>
+                <script>
+                    async function createChange() {
+                        await call("POST", "/api/admin/change", {
+                            emp_id: ch_emp.value,
+                            target_dpt: parseInt(ch_target.value),
+                            change_type: parseInt(ch_type.value),
+                            description: ch_desc.value,
+                        });
+                    }
+                </script>
+            </details>
 
-            <script>
-                async function updateDept() {
-                    await call("PUT", `/api/admin/department/${upd_did.value}`, {
-                        name: upd_dname.value,
-                        full_num: parseInt(upd_dfull.value)
-                    });
-                }
-            </script>
+            <!-- 公告 Notice -->
+            <details>
+                <summary>公告 Notice</summary>
 
-            <h3>删除部门</h3>
-            <input id="del_did" placeholder="部门ID" />
-            <button onclick="call('DELETE', `/api/admin/department/${del_did.value}`)">删除</button>
+                <button onclick="call('GET','/api/notice')">获取公告列表</button>
 
-        </details>
+                <h3>公告详情</h3>
+                <input id="n_id" placeholder="公告ID" />
+                <button onclick="call('GET', `/api/admin/notice/${n_id.value}`)">查询</button>
 
-        <!-- =================================================================== -->
-        <!-- 人事变更 Personnel -->
-        <!-- =================================================================== -->
-        <details>
-            <summary>人事变更（Personnel）</summary>
+                <h3>发布公告</h3>
+                <input id="n_title" placeholder="标题" />
+                <textarea id="n_content" placeholder="内容"></textarea>
+                <input id="n_pub" placeholder="发布人" />
+                <button onclick="createNotice()">发布</button>
 
-            <button onclick="call('GET','/api/admin/changes')">获取变更列表</button>
+                <script>
+                    async function createNotice() {
+                        await call("POST", "/api/admin/notice", {
+                            title: n_title.value,
+                            content: n_content.value,
+                            publisher: n_pub.value,
+                        });
+                    }
+                </script>
+            </details>
 
-            <h3>变更详情</h3>
-            <input id="ch_id" placeholder="变更ID" />
-            <button onclick="call('GET', `/api/admin/change/${ch_id.value}`)">查询</button>
+            <!-- 账号管理 -->
+            <details>
+                <summary>账号管理 Account</summary>
 
-            <h3>发起变更申请</h3>
-            <input id="ch_emp" placeholder="员工工号（如 EMP0004）" />
-            <input id="ch_target" placeholder="目标部门ID" />
-            <select id="ch_type">
-                <option value="1">调部门</option>
-                <option value="2">调岗</option>
-                <option value="3">离职</option>
-            </select>
-            <input id="ch_desc" placeholder="描述（调岗写新岗位名）" />
-            <button onclick="createChange()">提交</button>
+                <button onclick="call('GET','/api/admin/accounts')">获取账号列表</button>
 
-            <script>
-                async function createChange() {
-                    await call("POST", "/api/admin/change", {
-                        emp_id: ch_emp.value,
-                        target_dpt: parseInt(ch_target.value),
-                        change_type: parseInt(ch_type.value),
-                        description: ch_desc.value
-                    });
-                }
-            </script>
+                <h3>创建账号</h3>
+                <input id="a_user" placeholder="用户名" />
+                <input id="a_pass" placeholder="密码" type="password" />
+                <select id="a_role">
+                    <option value="staff">staff</option>
+                    <option value="admin">admin</option>
+                </select>
+                <button onclick="createAccount()">创建账号</button>
 
-            <h3>审批变更</h3>
-            <input id="appr_id" placeholder="变更ID" />
-            <input id="appr_name" placeholder="审批人用户名" />
-            <select id="appr_pass">
-                <option value="true">通过</option>
-                <option value="false">驳回</option>
-            </select>
-            <button onclick="approveChange()">审批</button>
+                <script>
+                    async function createAccount() {
+                        await call("POST", "/api/account", {
+                            username: a_user.value,
+                            password: a_pass.value,
+                            role: a_role.value,
+                        });
+                    }
+                </script>
+            </details>
 
-            <script>
-                async function approveChange() {
-                    await call("PUT", "/api/admin/change/approve", {
-                        id: parseInt(appr_id.value),
-                        approver: appr_name.value,
-                        approve: appr_pass.value === "true"
-                    });
-                }
-            </script>
-
-        </details>
-
-        <!-- =================================================================== -->
-        <!-- 公告 Notice -->
-        <!-- =================================================================== -->
-        <details>
-            <summary>公告 Notice</summary>
-
-            <button onclick="call('GET','/api/notice')">获取公告列表</button>
-
-            <h3>公告详情</h3>
-            <input id="n_id" placeholder="公告ID" />
-            <button onclick="call('GET', `/api/admin/notice/${n_id.value}`)">查询</button>
-
-            <h3>发布公告</h3>
-            <input id="n_title" placeholder="标题" />
-            <textarea id="n_content" placeholder="内容"></textarea>
-            <input id="n_pub" placeholder="发布人" />
-            <button onclick="createNotice()">发布</button>
-
-            <script>
-                async function createNotice() {
-                    await call("POST", "/api/admin/notice", {
-                        title: n_title.value,
-                        content: n_content.value,
-                        publisher: n_pub.value
-                    });
-                }
-            </script>
-
-            <h3>更新公告</h3>
-            <input id="upd_nid" placeholder="公告ID" />
-            <input id="upd_ntitle" placeholder="标题" />
-            <textarea id="upd_ncontent" placeholder="内容"></textarea>
-            <input id="upd_npub" placeholder="发布人" />
-            <button onclick="updateNotice()">更新</button>
-
-            <script>
-                async function updateNotice() {
-                    await call("PUT", `/api/admin/notice/${upd_nid.value}`, {
-                        title: upd_ntitle.value,
-                        content: upd_ncontent.value,
-                        publisher: upd_npub.value
-                    });
-                }
-            </script>
-
-            <h3>删除公告</h3>
-            <input id="del_nid" placeholder="公告ID" />
-            <button onclick="call('DELETE', `/api/admin/notice/${del_nid.value}`)">删除</button>
-
-        </details>
-
-        <!-- =================================================================== -->
-        <!-- 账号管理 Account -->
-        <!-- =================================================================== -->
-        <details>
-            <summary>账号管理 Account</summary>
-
-            <button onclick="call('GET','/api/admin/accounts')">获取账号列表</button>
-
-            <h3>创建账号</h3>
-            <input id="a_user" placeholder="用户名" />
-            <input id="a_pass" placeholder="密码" type="password" />
-            <select id="a_role">
-                <option value="staff">staff</option>
-                <option value="admin">admin</option>
-            </select>
-            <button onclick="createAccount()">创建账号</button>
-
-            <script>
-                async function createAccount() {
-                    await call("POST", "/api/account", {
-                        username: a_user.value,
-                        password: a_pass.value,
-                        role: a_role.value
-                    });
-                }
-            </script>
-
-            <h3>更新账号</h3>
-            <input id="upd_aid" placeholder="账号ID" />
-            <select id="upd_arole">
-                <option value="staff">staff</option>
-                <option value="admin">admin</option>
-            </select>
-            <select id="upd_astatus">
-                <option value="1">启用</option>
-                <option value="0">禁用</option>
-            </select>
-            <button onclick="updateAccount()">更新账号</button>
-
-            <script>
-                async function updateAccount() {
-                    await call("PUT", `/api/account/${upd_aid.value}`, {
-                        role: upd_arole.value,
-                        status: parseInt(upd_astatus.value)
-                    });
-                }
-            </script>
-
-            <h3>删除账号</h3>
-            <input id="del_aid" placeholder="账号ID" />
-            <button onclick="call('DELETE', `/api/account/${del_aid.value}`)">删除账号</button>
-
-        </details>
+        </div> <!-- grid end -->
 
     </div>
 
-    <!-- 右侧 JSON 输出 -->
-    <div id="right">
-        (请求结果将显示在这里)
-    </div>
+    <!-- 右侧 JSON 控制台 -->
+    <div id="right">(请求结果将显示在这里)</div>
 
 </body>
 

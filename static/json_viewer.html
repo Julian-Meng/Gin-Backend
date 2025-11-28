@@ -40,7 +40,7 @@
 <body>
 
     <div id="header">
-        <strong>JSON Viewer（自动接收来自 backend_test.html 的数据）</strong>
+        <strong>JSON Viewer</strong>
     </div>
 
     <div id="body">
@@ -48,14 +48,62 @@
     </div>
 
     <script>
-        // 监听来自 backend_test.html 的 JSON 数据
+        const output = document.getElementById("json_output");
+
+        function printJSON(label, data) {
+            const time = new Date().toLocaleTimeString();
+            output.innerText =
+                `# [${time}] ${label}\n` +
+                JSON.stringify(data, null, 2) +
+                "\n\n" +
+                output.innerText;
+        }
+
+        // ============ Hook fetch ============
+        const originalFetch = window.fetch;
+        window.fetch = async (...args) => {
+            const res = await originalFetch(...args);
+
+            try {
+                const clone = res.clone();
+                const text = await clone.text();
+                try {
+                    const json = JSON.parse(text);
+                    printJSON(`FETCH ${args[0]}`, json);
+                } catch { }
+            } catch { }
+
+            return res;
+        };
+
+        // ============ Hook XHR ============
+        const originalOpen = XMLHttpRequest.prototype.open;
+        const originalSend = XMLHttpRequest.prototype.send;
+
+        XMLHttpRequest.prototype.open = function (method, url) {
+            this._url = url;
+            return originalOpen.apply(this, arguments);
+        };
+
+        XMLHttpRequest.prototype.send = function () {
+            this.addEventListener("load", () => {
+                try {
+                    const text = this.responseText;
+                    const json = JSON.parse(text);
+                    printJSON(`XHR ${this._url}`, json);
+                } catch { }
+            });
+            return originalSend.apply(this, arguments);
+        };
+
+        // ============ 继续兼容 postMessage（你原有功能） ============
         window.addEventListener("message", (event) => {
             if (event.data && event.data.type === "json_output") {
-                document.getElementById("json_output").innerText =
-                    JSON.stringify(event.data.payload, null, 2);
+                printJSON("POSTMESSAGE", event.data.payload);
             }
         });
     </script>
+
 
 </body>
 

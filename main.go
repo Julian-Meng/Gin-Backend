@@ -84,7 +84,7 @@ func main() {
 	// ===============================
 	bootCost := time.Since(start)
 	log.Println("✅ 服务已启动 → http://localhost:8080")
-	log.Printf("✅ 启动耗时: %.2f 秒\n", bootCost.Seconds())
+	log.Printf("✅ 启动耗时: %d ms\n", bootCost.Milliseconds())
 
 	// ===============================
 	// 退出

@@ -127,6 +127,7 @@ func autoMigrateAll() error {
 		&models.Department{},
 		&models.Personnel{},
 		&models.Notice{},
+		&models.Attendance{},
 	)
 }
 

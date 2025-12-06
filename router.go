@@ -44,9 +44,7 @@ func SetupRouter() *gin.Engine {
 		// 仪表盘
 		admin.GET("/dashboard", handlers.AdminDashboard)
 
-		// ————————————
 		// 员工管理（person.go）
-		// ————————————
 		admin.GET("/persons", handlers.GetPersons)
 		admin.POST("/person", handlers.CreatePerson)
 		admin.PUT("/person/:id", handlers.UpdatePerson)
@@ -57,38 +55,38 @@ func SetupRouter() *gin.Engine {
 		admin.PUT("/person/state", handlers.ChangePersonState)
 		admin.PUT("/person/change-dept", handlers.ChangePersonDepartment)
 
-		// ————————————
 		// 部门管理（department.go）
-		// ————————————
 		admin.GET("/departments", handlers.GetDepartments)
 		admin.GET("/department/:id", handlers.GetDepartmentByID)
 		admin.POST("/department", handlers.CreateDepartment)
 		admin.PUT("/department/:id", handlers.UpdateDepartment)
 		admin.DELETE("/department/:id", handlers.DeleteDepartment)
 
-		// ————————————
 		// 人事变更（personnel.go）
-		// ————————————
 		admin.GET("/changes", handlers.GetPersonnelList)
 		admin.GET("/change/:id", handlers.GetPersonnelByID)
 		admin.POST("/change", handlers.CreatePersonnel)
 		admin.PUT("/change/approve", handlers.ApprovePersonnel)
 
-		// ————————————
 		// 账号管理（account.go）
-		// ————————————
 		admin.GET("/accounts", handlers.GetAllAccounts)
 		admin.POST("/account", handlers.CreateAccount)
 		admin.PUT("/account/:id", handlers.UpdateAccount)
 		admin.DELETE("/account/:id", handlers.DeleteAccount)
 
-		// ————————————
 		// 公告管理（notice.go）
-		// ————————————
 		admin.POST("/notice", handlers.CreateNotice)
 		admin.PUT("/notice/:id", handlers.UpdateNotice)
 		admin.DELETE("/notice/:id", handlers.DeleteNotice)
 		admin.GET("/notice/:id", handlers.GetNoticeByID)
+
+		// 个人档案（profile.go）
+		admin.GET("/person/profile/:emp_id", handlers.GetPersonProfile)
+
+		// 考勤管理（attendance.go）
+		admin.GET("/attendance", handlers.AdminSearchAttendance)
+		admin.PUT("/attendance/:id", handlers.AdminUpdateAttendance)
+		admin.DELETE("/attendance/:id", handlers.AdminDeleteAttendance)
 	}
 
 	// =====================================
@@ -108,6 +106,17 @@ func SetupRouter() *gin.Engine {
 
 		// 用户提交变更申请
 		user.POST("/change/request", handlers.CreatePersonnel)
+
+		// 用户可查看自己的档案
+		user.GET("/profile", handlers.GetMyProfile)
+
+		// 用户可查看自己的考勤记录
+		user.POST("/attendance/checkin", handlers.UserCheckIn)
+		user.POST("/attendance/checkout", handlers.UserCheckOut)
+		user.GET("/attendance/my", handlers.GetMyAttendance)
+
+		//权限矩阵(handlers\permission.go手动添加)
+		user.GET("/permissions", handlers.GetPermissions)
 	}
 
 	return r

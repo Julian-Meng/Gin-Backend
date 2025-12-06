@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -20,7 +21,7 @@ var jwtSecret = []byte(getSecret())
 func getSecret() string {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		// 开发环境默认值
+		// 开发环境默认值，生产环境必须通过环境变量覆盖
 		secret = "ChangeThisToYourOwnSecret"
 	}
 	return secret
@@ -29,6 +30,7 @@ func getSecret() string {
 // Claims 定义 JWT Payload
 type Claims struct {
 	Username string `json:"username"`
+	EmpID    string `json:"emp_id"` // 新增：员工编号
 	Role     string `json:"role"`
 	jwt.RegisteredClaims
 }
@@ -37,9 +39,10 @@ type Claims struct {
 //  生成 Token
 // =============================
 
-func GenerateToken(username, role string) (string, error) {
+func GenerateToken(username, empID, role string) (string, error) {
 	claims := Claims{
 		Username: username,
+		EmpID:    empID,
 		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // 默认 24 小时有效
@@ -118,13 +121,19 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 
 		// 自动续签：如果剩余时间小于 6 小时，则返回新 token
 		if time.Until(claims.ExpiresAt.Time) < 6*time.Hour {
-			newToken, _ := GenerateToken(claims.Username, claims.Role)
-			c.Header("X-Refresh-Token", newToken)
+			newToken, err := GenerateToken(claims.Username, claims.EmpID, claims.Role)
+			if err != nil {
+				log.Printf("自动续签 Token 失败: %v", err)
+			} else {
+				c.Header("X-Refresh-Token", newToken)
+			}
 		}
 
 		// 写入上下文，供后续 handler 使用
 		c.Set("username", claims.Username)
+		c.Set("emp_id", claims.EmpID) // 新增：后续可以直接从 ctx 拿 emp_id
 		c.Set("role", claims.Role)
+
 		c.Next()
 	}
 }

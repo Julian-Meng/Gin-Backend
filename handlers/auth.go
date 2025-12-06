@@ -51,8 +51,6 @@ func Login(c *gin.Context) {
 	// 1. root 超级管理员特权
 	// ==========================
 	if req.Username == superAdminUsername {
-		// 原逻辑：用户名是 root 就能登录（无密码校验）:contentReference[oaicite:1]{index=1}
-		// 现在改为：必须匹配 superAdminPassword，避免任何人只凭用户名登录
 		if req.Password != superAdminPassword {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code": 1,
@@ -60,8 +58,8 @@ func Login(c *gin.Context) {
 			})
 			return
 		}
-
-		token, err := middlewares.GenerateToken(superAdminUsername, superAdminRole)
+		// root 超级管理员
+		token, err := middlewares.GenerateToken(superAdminUsername, "", superAdminRole)
 		if err != nil {
 			log.Println("❌ 生成 root Token 失败:", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "生成 Token 失败"})
@@ -89,8 +87,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// 生成 Token（保持原来的签名：username + role）
-	token, err := middlewares.GenerateToken(account.Username, account.Role)
+	//普通用户（有账号 + emp_id）
+	token, err := middlewares.GenerateToken(account.Username, account.EmpID, account.Role)
 	if err != nil {
 		log.Println("❌ 生成 Token 失败:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{

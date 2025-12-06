@@ -46,7 +46,7 @@ func InsertAccount(a models.Account) error {
 			if err := tx.Create(&defaultDept).Error; err != nil {
 				return fmt.Errorf("创建默认部门失败: %v", err)
 			}
-			log.Println("📦 自动创建默认部门成功: 未分配部门")
+			log.Println("✅ 自动创建默认部门成功: 未分配部门")
 		} else if err != nil {
 			return fmt.Errorf("查询默认部门失败: %v", err)
 		}
@@ -89,7 +89,7 @@ func InsertAccount(a models.Account) error {
 			Name:   defaultName,
 			Auth:   0,
 			Sex:    "",
-			Birth:  nil, // 如果你之后把 Birth 改成 time.Time，这里再一起升级
+			Birth:  nil, // 之后把 Birth 改成 time.Time，这里一起升级
 			DptID:  uint(defaultDept.ID),
 			Job:    "",
 			Addr:   "",
@@ -97,7 +97,7 @@ func InsertAccount(a models.Account) error {
 			Email:  "",
 			State:  1,
 			Remark: "",
-			// CreatedAt / UpdatedAt 交给 GORM 也可以，这里就不手动填了
+			// CreatedAt / UpdatedAt 交给 GORM 也可以，这里不手动填
 		}
 
 		if err := tx.Create(&p).Error; err != nil {

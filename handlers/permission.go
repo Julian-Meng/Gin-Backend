@@ -29,7 +29,7 @@ func roleInList(role string, list []string) bool {
 }
 
 // GetPermissions 返回一个“权限矩阵”，用于前端展示当前用户能干什么
-// 建议挂在：
+// 挂在：
 //
 //	user.GET("/permissions", handlers.GetPermissions)
 //

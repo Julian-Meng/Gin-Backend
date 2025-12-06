@@ -149,7 +149,9 @@
                 if (token) headers["Authorization"] = "Bearer " + token;
 
                 const opts = { method, headers };
-                if (body) opts.body = JSON.stringify(body);
+                if (body && (method === "POST" || method === "PUT" || method === "PATCH")) {
+                    opts.body = JSON.stringify(body);
+                }
 
                 const res = await fetch(url, opts);
                 const text = await res.text();
@@ -186,10 +188,10 @@
         <div class="grid">
 
             <!-- 登录 / 注册 -->
-            <details>
+            <details open>
                 <summary>登录 Login / 注册 Register</summary>
 
-                <h3>登录 Login</h3>
+                <h3>登录 Login （POST /api/login）</h3>
                 <input id="login_user" placeholder="用户名" />
                 <input id="login_pass" placeholder="密码" type="password" />
                 <button onclick="login()">登录</button>
@@ -200,15 +202,14 @@
                             username: login_user.value.trim(),
                             password: login_pass.value.trim(),
                         });
-
                         if (r.token) {
                             token.value = r.token;
-                            alert("登录成功");
+                            alert("登录成功，Token 已写入上方输入框");
                         }
                     }
                 </script>
 
-                <h3>注册 Register</h3>
+                <h3>注册 Register （POST /api/register）</h3>
                 <input id="reg_user" placeholder="用户名" />
                 <input id="reg_pass" placeholder="密码" type="password" />
                 <select id="reg_role">
@@ -231,39 +232,104 @@
             <!-- 管理员 Dashboard -->
             <details>
                 <summary>管理员 Dashboard</summary>
-                <button onclick="call('GET','/api/admin/dashboard')">获取管理员仪表盘</button>
+                <button onclick="call('GET', '/api/admin/dashboard')">
+                    GET /api/admin/dashboard
+                </button>
             </details>
 
             <!-- 用户 Dashboard -->
             <details>
                 <summary>用户 Dashboard</summary>
-                <button onclick="call('GET','/api/user/dashboard')">获取用户仪表盘</button>
+                <button onclick="call('GET', '/api/user/dashboard')">
+                    GET /api/user/dashboard
+                </button>
             </details>
 
             <!-- 员工管理 -->
             <details>
                 <summary>员工管理（Person）</summary>
 
-                <button onclick="call('GET','/api/admin/persons')">获取员工列表</button>
+                <button onclick="call('GET', '/api/admin/persons')">
+                    GET /api/admin/persons （分页列表，支持 query 参数）
+                </button>
 
-                <h3>员工详情</h3>
+                <h3>员工详情（管理员）</h3>
                 <input id="person_id" placeholder="员工ID" />
-                <button onclick="call('GET', `/api/admin/person/${person_id.value}`)">获取详情</button>
+                <button onclick="call('GET', `/api/admin/person/${person_id.value}`)">
+                    GET /api/admin/person/:id
+                </button>
 
-                <h3>创建员工</h3>
-                <input id="p_name" placeholder="姓名" />
-                <input id="p_empid" placeholder="工号（可空自动生成）" />
-                <input id="p_dptid" placeholder="部门ID" />
-                <input id="p_job" placeholder="岗位" />
-                <button onclick="createPerson()">创建</button>
+                <h3>创建员工（管理员）</h3>
+                <input id="p_name" placeholder="姓名 name" />
+                <input id="p_empid" placeholder="工号 emp_id（可空自动生成）" />
+                <input id="p_dptid" placeholder="部门ID dpt_id" />
+                <input id="p_job" placeholder="岗位 job" />
+                <button onclick="createPerson()">POST /api/admin/person</button>
 
                 <script>
                     async function createPerson() {
                         await call("POST", "/api/admin/person", {
                             name: p_name.value,
                             emp_id: p_empid.value,
-                            dpt_id: parseInt(p_dptid.value),
+                            dpt_id: p_dptid.value ? parseInt(p_dptid.value) : 0,
                             job: p_job.value,
+                        });
+                    }
+                </script>
+
+                <h3>删除员工（按 ID，管理员）</h3>
+                <input id="p_del_id" placeholder="员工ID" />
+                <button onclick="call('DELETE', `/api/admin/person/${p_del_id.value}`)">
+                    DELETE /api/admin/person/:id
+                </button>
+
+                <h3>删除员工（按 emp_id，管理员）</h3>
+                <input id="p_del_emp" placeholder="员工 emp_id" />
+                <button onclick="call('DELETE', `/api/admin/person/emp/${p_del_emp.value}`)">
+                    DELETE /api/admin/person/emp/:emp_id
+                </button>
+
+                <h3>修改员工部门（管理员 PUT /api/admin/person/change-dept）</h3>
+                <input id="p_ch_emp" placeholder="emp_id" />
+                <input id="p_ch_dept" placeholder="部门名称 dept" />
+                <button onclick="changeDept()">提交</button>
+
+                <script>
+                    async function changeDept() {
+                        await call("PUT", "/api/admin/person/change-dept", {
+                            emp_id: p_ch_emp.value,
+                            dept: p_ch_dept.value,
+                        });
+                    }
+                </script>
+
+                <h3>修改员工在职状态（管理员 PUT /api/admin/person/state）</h3>
+                <input id="p_state_emp" placeholder="emp_id" />
+                <select id="p_state_val">
+                    <option value="1">1 在职</option>
+                    <option value="0">0 离职</option>
+                </select>
+                <button onclick="changeState()">提交</button>
+
+                <script>
+                    async function changeState() {
+                        await call("PUT", "/api/admin/person/state", {
+                            emp_id: p_state_emp.value,
+                            state: parseInt(p_state_val.value),
+                        });
+                    }
+                </script>
+
+                <h3>修改员工职位（管理员 PUT /api/admin/person/job）</h3>
+                <input id="p_job_emp" placeholder="emp_id" />
+                <input id="p_job_new" placeholder="新职位 job" />
+                <button onclick="changeJob()">提交</button>
+
+                <script>
+                    async function changeJob() {
+                        await call("PUT", "/api/admin/person/job", {
+                            emp_id: p_job_emp.value,
+                            job: p_job_new.value,
                         });
                     }
                 </script>
@@ -273,55 +339,133 @@
             <details>
                 <summary>部门管理（Department）</summary>
 
-                <button onclick="call('GET','/api/admin/departments')">获取部门列表</button>
+                <h3>部门列表（管理员）</h3>
+                <input id="dep_page" placeholder="page 默认 1" />
+                <input id="dep_page_size" placeholder="pageSize 默认 10" />
+                <input id="dep_keyword" placeholder="关键字 keyword 可空" />
+                <button onclick="getDeptList()">GET /api/admin/departments</button>
 
-                <h3>部门详情</h3>
+                <script>
+                    async function getDeptList() {
+                        const params = new URLSearchParams();
+                        if (dep_page.value) params.append("page", dep_page.value);
+                        if (dep_page_size.value) params.append("pageSize", dep_page_size.value);
+                        if (dep_keyword.value) params.append("keyword", dep_keyword.value);
+                        const qs = params.toString();
+                        const url = qs ? `/api/admin/departments?${qs}` : "/api/admin/departments";
+                        await call("GET", url);
+                    }
+                </script>
+
+                <h3>部门详情（管理员 GET /api/admin/department/:id）</h3>
                 <input id="dep_id" placeholder="部门ID" />
-                <button onclick="call('GET', `/api/admin/department/${dep_id.value}`)">查询</button>
+                <button onclick="call('GET', `/api/admin/department/${dep_id.value}`)">
+                    查询
+                </button>
 
-                <h3>创建部门</h3>
-                <input id="d_name" placeholder="部门名称" />
-                <input id="d_full" placeholder="最大人数" />
+                <h3>创建部门（管理员 POST /api/admin/department）</h3>
+                <input id="d_name" placeholder="部门名称 name" />
+                <input id="d_full" placeholder="最大人数 full_num" />
                 <button onclick="createDept()">创建</button>
 
                 <script>
                     async function createDept() {
                         await call("POST", "/api/admin/department", {
                             name: d_name.value,
-                            full_num: parseInt(d_full.value),
+                            full_num: d_full.value ? parseInt(d_full.value) : 20,
                         });
                     }
                 </script>
+
+                <h3>删除部门（管理员 DELETE /api/admin/department/:id）</h3>
+                <input id="d_del_id" placeholder="部门ID" />
+                <button onclick="call('DELETE', `/api/admin/department/${d_del_id.value}`)">
+                    删除
+                </button>
+
+                <h3>普通用户查看部门（GET /api/user/department/:id）</h3>
+                <input id="u_dep_id" placeholder="部门ID" />
+                <button onclick="call('GET', `/api/user/department/${u_dep_id.value}`)">
+                    以普通用户接口查询
+                </button>
             </details>
 
             <!-- 人事变更 -->
             <details>
                 <summary>人事变更（Personnel）</summary>
 
-                <button onclick="call('GET','/api/admin/changes')">获取变更列表</button>
+                <h3>变更列表（管理员 GET /api/admin/changes）</h3>
+                <button onclick="call('GET', '/api/admin/changes')">
+                    获取变更列表
+                </button>
 
-                <h3>变更详情</h3>
+                <h3>变更详情（管理员 GET /api/admin/change/:id）</h3>
                 <input id="ch_id" placeholder="变更ID" />
-                <button onclick="call('GET', `/api/admin/change/${ch_id.value}`)">查询</button>
+                <button onclick="call('GET', `/api/admin/change/${ch_id.value}`)">
+                    查询
+                </button>
 
-                <h3>发起变更申请</h3>
-                <input id="ch_emp" placeholder="员工工号" />
-                <input id="ch_target" placeholder="目标部门ID" />
+                <h3>发起变更（管理员 POST /api/admin/change）</h3>
+                <input id="ch_emp" placeholder="员工工号 emp_id" />
+                <input id="ch_target" placeholder="目标部门ID target_dpt（调部门必填）" />
                 <select id="ch_type">
-                    <option value="1">调部门</option>
-                    <option value="2">调岗</option>
-                    <option value="3">离职</option>
+                    <option value="1">1 调部门</option>
+                    <option value="2">2 调岗</option>
+                    <option value="3">3 离职</option>
                 </select>
-                <input id="ch_desc" placeholder="描述" />
-                <button onclick="createChange()">提交</button>
+                <input id="ch_desc" placeholder="描述 / 新岗位名（调岗必填）" />
+                <button onclick="createChangeAdmin()">管理员提交</button>
 
                 <script>
-                    async function createChange() {
+                    async function createChangeAdmin() {
                         await call("POST", "/api/admin/change", {
                             emp_id: ch_emp.value,
-                            target_dpt: parseInt(ch_target.value),
+                            target_dpt: ch_target.value ? parseInt(ch_target.value) : 0,
                             change_type: parseInt(ch_type.value),
                             description: ch_desc.value,
+                        });
+                    }
+                </script>
+
+                <h3>审批变更（管理员 PUT /api/admin/change/approve）</h3>
+                <input id="ch_app_id" placeholder="变更ID id" />
+                <input id="ch_app_approver" placeholder="审批人 approver" />
+                <select id="ch_app_result">
+                    <option value="true">通过 approve = true</option>
+                    <option value="false">驳回 approve = false</option>
+                </select>
+                <button onclick="approveChange()">提交审批</button>
+
+                <script>
+                    async function approveChange() {
+                        await call("PUT", "/api/admin/change/approve", {
+                            id: ch_app_id.value ? parseInt(ch_app_id.value) : 0,
+                            approver: ch_app_approver.value,
+                            approve: ch_app_result.value === "true",
+                        });
+                    }
+                </script>
+
+                <hr>
+
+                <h3>普通用户提交变更申请（POST /api/user/change/request）</h3>
+                <input id="u_ch_emp" placeholder="本人 emp_id（一般由后台校验，可先填）" />
+                <input id="u_ch_target" placeholder="目标部门ID target_dpt（调部门必填）" />
+                <select id="u_ch_type">
+                    <option value="1">1 调部门</option>
+                    <option value="2">2 调岗</option>
+                    <option value="3">3 离职</option>
+                </select>
+                <input id="u_ch_desc" placeholder="描述 / 新岗位名（调岗必填）" />
+                <button onclick="createChangeUser()">用户提交申请</button>
+
+                <script>
+                    async function createChangeUser() {
+                        await call("POST", "/api/user/change/request", {
+                            emp_id: u_ch_emp.value,
+                            target_dpt: u_ch_target.value ? parseInt(u_ch_target.value) : 0,
+                            change_type: parseInt(u_ch_type.value),
+                            description: u_ch_desc.value,
                         });
                     }
                 </script>
@@ -331,16 +475,21 @@
             <details>
                 <summary>公告 Notice</summary>
 
-                <button onclick="call('GET','/api/notice')">获取公告列表</button>
+                <h3>公告列表（公开 GET /api/notice）</h3>
+                <button onclick="call('GET', '/api/notice')">
+                    获取公告列表
+                </button>
 
-                <h3>公告详情</h3>
+                <h3>公告详情（管理员 GET /api/admin/notice/:id）</h3>
                 <input id="n_id" placeholder="公告ID" />
-                <button onclick="call('GET', `/api/admin/notice/${n_id.value}`)">查询</button>
+                <button onclick="call('GET', `/api/admin/notice/${n_id.value}`)">
+                    查询
+                </button>
 
-                <h3>发布公告</h3>
-                <input id="n_title" placeholder="标题" />
-                <textarea id="n_content" placeholder="内容"></textarea>
-                <input id="n_pub" placeholder="发布人" />
+                <h3>发布公告（管理员 POST /api/admin/notice）</h3>
+                <input id="n_title" placeholder="标题 title" />
+                <textarea id="n_content" placeholder="内容 content"></textarea>
+                <input id="n_pub" placeholder="发布人 publisher" />
                 <button onclick="createNotice()">发布</button>
 
                 <script>
@@ -352,17 +501,26 @@
                         });
                     }
                 </script>
+
+                <h3>删除公告（管理员 DELETE /api/admin/notice/:id）</h3>
+                <input id="n_del_id" placeholder="公告ID" />
+                <button onclick="call('DELETE', `/api/admin/notice/${n_del_id.value}`)">
+                    删除
+                </button>
             </details>
 
             <!-- 账号管理 -->
             <details>
                 <summary>账号管理 Account</summary>
 
-                <button onclick="call('GET','/api/admin/accounts')">获取账号列表</button>
+                <h3>账号列表（管理员 GET /api/admin/accounts）</h3>
+                <button onclick="call('GET', '/api/admin/accounts')">
+                    获取账号列表
+                </button>
 
-                <h3>创建账号</h3>
-                <input id="a_user" placeholder="用户名" />
-                <input id="a_pass" placeholder="密码" type="password" />
+                <h3>创建账号（管理员 POST /api/admin/account）</h3>
+                <input id="a_user" placeholder="用户名 username" />
+                <input id="a_pass" placeholder="密码 password（可空默认）" type="password" />
                 <select id="a_role">
                     <option value="staff">staff</option>
                     <option value="admin">admin</option>
@@ -371,13 +529,186 @@
 
                 <script>
                     async function createAccount() {
-                        await call("POST", "/api/account", {
+                        await call("POST", "/api/admin/account", {
                             username: a_user.value,
                             password: a_pass.value,
                             role: a_role.value,
                         });
                     }
                 </script>
+
+                <h3>更新账号（管理员 PUT /api/admin/account/:id）</h3>
+                <input id="a_upd_id" placeholder="账号 ID" />
+                <select id="a_upd_role">
+                    <option value="staff">staff</option>
+                    <option value="admin">admin</option>
+                </select>
+                <select id="a_upd_status">
+                    <option value="1">1 启用</option>
+                    <option value="0">0 禁用</option>
+                </select>
+                <button onclick="updateAccount()">更新</button>
+
+                <script>
+                    async function updateAccount() {
+                        await call("PUT", `/api/admin/account/${a_upd_id.value}`, {
+                            role: a_upd_role.value,
+                            status: parseInt(a_upd_status.value),
+                        });
+                    }
+                </script>
+
+                <h3>删除账号（管理员 DELETE /api/admin/account/:id）</h3>
+                <input id="a_del_id" placeholder="账号 ID" />
+                <button onclick="call('DELETE', `/api/admin/account/${a_del_id.value}`)">
+                    删除账号
+                </button>
+            </details>
+
+            <!-- 个人档案 / Profile 扩展 -->
+            <details>
+                <summary>个人档案 Profile（Account + Person + Department）</summary>
+
+                <h3>当前登录用户档案（GET /api/user/profile）</h3>
+                <button onclick="call('GET', '/api/user/profile')">
+                    查看我的完整档案
+                </button>
+
+                <h3>管理员查看任意员工档案（GET /api/admin/person/profile/:emp_id）</h3>
+                <input id="prof_empid" placeholder="员工 emp_id" />
+                <button onclick="call('GET', `/api/admin/person/profile/${prof_empid.value}`)">
+                    查询档案
+                </button>
+
+                <h3>用户接口：按 ID 查看/更新（共用 Person Handler）</h3>
+                <input id="u_prof_id" placeholder="Person ID" />
+                <button onclick="call('GET', `/api/user/profile/${u_prof_id.value}`)">
+                    GET /api/user/profile/:id
+                </button>
+                <textarea id="u_prof_body" placeholder='PUT /api/user/profile/:id 时的 JSON（参考 Person 模型）'></textarea>
+                <button onclick="updateUserProfileRaw()">PUT /api/user/profile/:id</button>
+
+                <script>
+                    async function updateUserProfileRaw() {
+                        let body = {};
+                        try {
+                            body = JSON.parse(u_prof_body.value || "{}");
+                        } catch {
+                            alert("JSON 解析失败，请检查格式");
+                            return;
+                        }
+                        await call("PUT", `/api/user/profile/${u_prof_id.value}`, body);
+                    }
+                </script>
+            </details>
+
+            <!-- 考勤管理 Attendance -->
+            <details>
+                <summary>考勤管理 Attendance</summary>
+
+                <h3>用户签到 / 签退（POST /api/user/attendance/...）</h3>
+                <button onclick="call('POST', '/api/user/attendance/checkin')">
+                    签到（/api/user/attendance/checkin）
+                </button>
+                <button onclick="call('POST', '/api/user/attendance/checkout')">
+                    签退（/api/user/attendance/checkout）
+                </button>
+
+                <h3>我的考勤记录（GET /api/user/attendance/my）</h3>
+                <input id="att_my_start" placeholder="start YYYY-MM-DD，可空默认近 30 天" />
+                <input id="att_my_end" placeholder="end YYYY-MM-DD，可空默认今天" />
+                <input id="att_my_page" placeholder="page 默认 1" />
+                <input id="att_my_page_size" placeholder="pageSize 默认 10" />
+                <button onclick="getMyAttendance()">查询</button>
+
+                <script>
+                    async function getMyAttendance() {
+                        const params = new URLSearchParams();
+                        if (att_my_start.value) params.append("start", att_my_start.value);
+                        if (att_my_end.value) params.append("end", att_my_end.value);
+                        if (att_my_page.value) params.append("page", att_my_page.value);
+                        if (att_my_page_size.value) params.append("pageSize", att_my_page_size.value);
+                        const qs = params.toString();
+                        const url = qs ? `/api/user/attendance/my?${qs}` : "/api/user/attendance/my";
+                        await call("GET", url);
+                    }
+                </script>
+
+                <hr>
+
+                <h3>管理员查询考勤（GET /api/admin/attendance）</h3>
+                <input id="att_ad_emp" placeholder="emp_id，可空" />
+                <input id="att_ad_dpt" placeholder="dpt_id（数字，可空）" />
+                <input id="att_ad_start" placeholder="start YYYY-MM-DD，可空" />
+                <input id="att_ad_end" placeholder="end YYYY-MM-DD，可空" />
+                <input id="att_ad_page" placeholder="page 默认 1" />
+                <input id="att_ad_page_size" placeholder="pageSize 默认 10" />
+                <button onclick="adminSearchAttendance()">查询</button>
+
+                <script>
+                    async function adminSearchAttendance() {
+                        const params = new URLSearchParams();
+                        if (att_ad_emp.value) params.append("emp_id", att_ad_emp.value);
+                        if (att_ad_dpt.value) params.append("dpt_id", att_ad_dpt.value);
+                        if (att_ad_start.value) params.append("start", att_ad_start.value);
+                        if (att_ad_end.value) params.append("end", att_ad_end.value);
+                        if (att_ad_page.value) params.append("page", att_ad_page.value);
+                        if (att_ad_page_size.value) params.append("pageSize", att_ad_page_size.value);
+                        const qs = params.toString();
+                        const url = qs ? `/api/admin/attendance?${qs}` : "/api/admin/attendance";
+                        await call("GET", url);
+                    }
+                </script>
+
+                <h3>管理员修改考勤记录（PUT /api/admin/attendance/:id）</h3>
+                <input id="att_upd_id" placeholder="考勤记录 ID" />
+                <input id="att_upd_status" placeholder="status（可空，整数）" />
+                <input id="att_upd_remark" placeholder="remark（可空）" />
+                <input id="att_upd_in" placeholder="check_in 时间，ISO 字符串，如 2025-01-01T09:00:00+08:00" />
+                <input id="att_upd_out" placeholder="check_out 时间，ISO 字符串" />
+                <button onclick="adminUpdateAttendance()">提交修改</button>
+
+                <script>
+                    async function adminUpdateAttendance() {
+                        const body = {};
+                        if (att_upd_status.value.trim() !== "") {
+                            body.status = parseInt(att_upd_status.value);
+                        }
+                        if (att_upd_remark.value.trim() !== "") {
+                            body.remark = att_upd_remark.value;
+                        }
+                        if (att_upd_in.value.trim() !== "") {
+                            body.check_in = att_upd_in.value;
+                        }
+                        if (att_upd_out.value.trim() !== "") {
+                            body.check_out = att_upd_out.value;
+                        }
+                        if (Object.keys(body).length === 0) {
+                            alert("至少填写一个要更新的字段");
+                            return;
+                        }
+                        await call("PUT", `/api/admin/attendance/${att_upd_id.value}`, body);
+                    }
+                </script>
+
+                <h3>管理员删除考勤记录（DELETE /api/admin/attendance/:id）</h3>
+                <input id="att_del_id" placeholder="考勤记录 ID" />
+                <button onclick="call('DELETE', `/api/admin/attendance/${att_del_id.value}`)">
+                    删除
+                </button>
+            </details>
+
+            <!-- 权限矩阵 / Permissions -->
+            <details>
+                <summary>权限矩阵 Permission Matrix</summary>
+
+                <h3>当前登录用户权限（GET /api/user/permissions）</h3>
+                <button onclick="call('GET', '/api/user/permissions')">
+                    获取权限矩阵
+                </button>
+                <p style="font-size:12px;color:#666;">
+                    返回所有功能项（Path / Method / Group 等），以及当前用户是否有权限 (HasAccess)。可用于前端自动渲染权限说明页面。
+                </p>
             </details>
 
         </div> <!-- grid end -->

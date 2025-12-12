@@ -44,9 +44,8 @@ func main() {
 	}
 
 	// ===============================
-	//  MySQL 示例配置
+	//  数据库配置：MySQL
 	// ===============================
-
 	// cfg := db.Config{
 	// 	Driver: "mysql",
 	// 	DSN:    "user:123@tcp(localhost:3306)/hrdb?charset=utf8mb4&parseTime=True&loc=Local",

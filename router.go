@@ -27,6 +27,7 @@ func SetupRouter() *gin.Engine {
 	// 静态文件
 	r.Static("/static", "./static")
 	r.StaticFile("/", "./static/backend_test.html")
+	r.StaticFile("/favicon.ico", "./static/favicon.ico")
 
 	// =====================================
 	// 无需登录

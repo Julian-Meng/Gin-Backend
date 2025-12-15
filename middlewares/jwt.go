@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -12,25 +13,60 @@ import (
 )
 
 // =============================
-//  JWT 配置与结构
+//  JWT 配置与结构（支持环境变量，缺省允许默认值）
 // =============================
 
-// 优先使用环境变量（默认值仅供开发环境测试）
-var jwtSecret = []byte(getSecret())
+type jwtConfig struct {
+	Secret                []byte
+	ExpireHours           int
+	Issuer                string
+	RefreshThresholdHours int
+}
 
-func getSecret() string {
-	secret := os.Getenv("JWT_SECRET")
+func loadJWTConfig() jwtConfig {
+	// 1) Secret（允许默认值：仅用于开发环境）
+	secret := strings.TrimSpace(os.Getenv("JWT_SECRET"))
 	if secret == "" {
-		// 开发环境默认值，生产环境必须通过环境变量覆盖
 		secret = "ChangeThisToYourOwnSecret"
 	}
-	return secret
+
+	// 2) ExpireHours（默认 24）
+	expireHours := getenvInt("JWT_EXPIRE_HOURS", 24)
+
+	// 3) Issuer（默认 gin-backend）
+	issuer := strings.TrimSpace(os.Getenv("JWT_ISSUER"))
+	if issuer == "" {
+		issuer = "gin-backend"
+	}
+
+	// 4) Refresh threshold（默认 6）
+	refreshThresholdHours := getenvInt("JWT_REFRESH_THRESHOLD_HOURS", 6)
+
+	// 一些轻量校验，避免写 0 或负数导致奇怪行为
+	if expireHours <= 0 {
+		log.Printf("⚠️ JWT_EXPIRE_HOURS=%d 非法，将使用默认值 24", expireHours)
+		expireHours = 24
+	}
+	if refreshThresholdHours < 0 {
+		log.Printf("⚠️ JWT_REFRESH_THRESHOLD_HOURS=%d 非法，将使用默认值 6", refreshThresholdHours)
+		refreshThresholdHours = 6
+	}
+
+	return jwtConfig{
+		Secret:                []byte(secret),
+		ExpireHours:           expireHours,
+		Issuer:                issuer,
+		RefreshThresholdHours: refreshThresholdHours,
+	}
 }
+
+// 全局配置（一次加载）
+var cfg = loadJWTConfig()
 
 // Claims 定义 JWT Payload
 type Claims struct {
 	Username string `json:"username"`
-	EmpID    string `json:"emp_id"` // 新增：员工编号
+	EmpID    string `json:"emp_id"`
 	Role     string `json:"role"`
 	jwt.RegisteredClaims
 }
@@ -40,19 +76,22 @@ type Claims struct {
 // =============================
 
 func GenerateToken(username, empID, role string) (string, error) {
+	now := time.Now()
+	exp := now.Add(time.Duration(cfg.ExpireHours) * time.Hour)
+
 	claims := Claims{
 		Username: username,
 		EmpID:    empID,
 		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // 默认 24 小时有效
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Issuer:    "gin-backend",
+			ExpiresAt: jwt.NewNumericDate(exp),
+			IssuedAt:  jwt.NewNumericDate(now),
+			Issuer:    cfg.Issuer,
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+	return token.SignedString(cfg.Secret)
 }
 
 // =============================
@@ -61,7 +100,7 @@ func GenerateToken(username, empID, role string) (string, error) {
 
 func ParseToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return jwtSecret, nil
+		return cfg.Secret, nil
 	})
 	if err != nil {
 		return nil, err
@@ -80,7 +119,7 @@ func ParseToken(tokenString string) (*Claims, error) {
 func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
+		if strings.TrimSpace(authHeader) == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code": 1,
 				"msg":  "缺少 Authorization Header",
@@ -119,21 +158,24 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// 自动续签：如果剩余时间小于 6 小时，则返回新 token
-		if time.Until(claims.ExpiresAt.Time) < 6*time.Hour {
-			newToken, err := GenerateToken(claims.Username, claims.EmpID, claims.Role)
-			if err != nil {
-				log.Printf("自动续签 Token 失败: %v", err)
-			} else {
-				c.Header("X-Refresh-Token", newToken)
+		// 自动续签：如果剩余时间小于阈值，则返回新 token
+		// 注意：claims.ExpiresAt 可能为空（理论上不会）
+		if claims.ExpiresAt != nil {
+			threshold := time.Duration(cfg.RefreshThresholdHours) * time.Hour
+			if time.Until(claims.ExpiresAt.Time) < threshold {
+				newToken, err := GenerateToken(claims.Username, claims.EmpID, claims.Role)
+				if err != nil {
+					log.Printf("自动续签 Token 失败: %v", err)
+				} else {
+					c.Header("X-Refresh-Token", newToken)
+				}
 			}
 		}
 
 		// 写入上下文，供后续 handler 使用
 		c.Set("username", claims.Username)
-		c.Set("emp_id", claims.EmpID) // 新增：后续可以直接从 ctx 拿 emp_id
+		c.Set("emp_id", claims.EmpID)
 		c.Set("role", claims.Role)
-
 		c.Next()
 	}
 }
@@ -165,4 +207,21 @@ func AdminOnly() gin.HandlerFunc {
 		})
 		c.Abort()
 	}
+}
+
+// =============================
+//  环境变量加载校验
+// =============================
+
+func getenvInt(key string, def int) int {
+	v := strings.TrimSpace(os.Getenv(key))
+	if v == "" {
+		return def
+	}
+	i, err := strconv.Atoi(v)
+	if err != nil {
+		log.Printf("⚠️ 环境变量 %s=%q 不是合法 int，将使用默认值 %d", key, v, def)
+		return def
+	}
+	return i
 }

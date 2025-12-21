@@ -9,17 +9,13 @@ import (
 	"gorm.io/gorm"
 )
 
-// =============================
 // 创建公告
-// =============================
 func CreateNotice(n *models.Notice) error {
 	dbConn := db.GetDB()
 	return dbConn.Create(n).Error
 }
 
-// =============================
 // 更新公告
-// =============================
 func UpdateNotice(id uint, n models.Notice) error {
 	dbConn := db.GetDB()
 
@@ -35,17 +31,13 @@ func UpdateNotice(id uint, n models.Notice) error {
 		Updates(updates).Error
 }
 
-// =============================
 // 删除公告
-// =============================
 func DeleteNotice(id uint) error {
 	dbConn := db.GetDB()
 	return dbConn.Delete(&models.Notice{}, id).Error
 }
 
-// =============================
 // 分页获取公告
-// =============================
 func GetAllNotices(page, pageSize int) ([]models.Notice, int64, error) {
 	dbConn := db.GetDB()
 
@@ -70,9 +62,7 @@ func GetAllNotices(page, pageSize int) ([]models.Notice, int64, error) {
 	return list, total, nil
 }
 
-// =============================
 // 查询单条公告
-// =============================
 func GetNoticeByID(id uint) (*models.Notice, error) {
 	dbConn := db.GetDB()
 

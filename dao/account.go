@@ -12,9 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// ==========================
 // 内部工具：生成 EMP 编号
-// ==========================
 func generateEmpID(tx *gorm.DB) (string, error) {
 	var maxID int64
 	if err := tx.Table("ACCOUNT").Select("IFNULL(MAX(id),0)").Scan(&maxID).Error; err != nil {
@@ -23,9 +21,7 @@ func generateEmpID(tx *gorm.DB) (string, error) {
 	return fmt.Sprintf("EMP%04d", maxID+1), nil
 }
 
-// ==========================
 // 注册新用户（自动生成 emp_id + Person）
-// ==========================
 func InsertAccount(a models.Account) error {
 	dbConn := db.GetDB()
 
@@ -108,9 +104,7 @@ func InsertAccount(a models.Account) error {
 	})
 }
 
-// ==========================
 // 登录验证
-// ==========================
 func ValidateLogin(username, password string) (models.Account, bool) {
 	dbConn := db.GetDB()
 
@@ -137,9 +131,7 @@ func ValidateLogin(username, password string) (models.Account, bool) {
 	return acc, true
 }
 
-// ==========================
 // 获取所有账号列表
-// ==========================
 func GetAllAccounts() []models.Account {
 	dbConn := db.GetDB()
 
@@ -153,9 +145,7 @@ func GetAllAccounts() []models.Account {
 	return accounts
 }
 
-// ==========================
 // 更新账号信息（角色 / 状态）
-// ==========================
 func UpdateAccount(id string, a models.Account) error {
 	// 只允许 admin 或 staff
 	if a.Role != "admin" && a.Role != "staff" {
@@ -184,9 +174,7 @@ func UpdateAccount(id string, a models.Account) error {
 	return nil
 }
 
-// ==========================
 // 根据用户名查询账号信息
-// ==========================
 func GetAccountByUsername(username string) (models.Account, bool) {
 	dbConn := db.GetDB()
 
@@ -201,9 +189,7 @@ func GetAccountByUsername(username string) (models.Account, bool) {
 	return acc, true
 }
 
-// ==========================
 // 删除账号
-// ==========================
 func DeleteAccount(id string) error {
 	dbConn := db.GetDB()
 

@@ -12,9 +12,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-// =============================
 //  JWT 配置与结构（支持环境变量，缺省允许默认值）
-// =============================
 
 type jwtConfig struct {
 	Secret                []byte
@@ -71,9 +69,7 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-// =============================
 //  生成 Token
-// =============================
 
 func GenerateToken(username, empID, role string) (string, error) {
 	now := time.Now()
@@ -94,9 +90,7 @@ func GenerateToken(username, empID, role string) (string, error) {
 	return token.SignedString(cfg.Secret)
 }
 
-// =============================
 //  解析 Token
-// =============================
 
 func ParseToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
@@ -112,9 +106,7 @@ func ParseToken(tokenString string) (*Claims, error) {
 	return nil, err
 }
 
-// =============================
 //  登录验证中间件
-// =============================
 
 func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -180,9 +172,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-// =============================
 //  管理员专用中间件
-// =============================
 
 func AdminOnly() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -209,9 +199,7 @@ func AdminOnly() gin.HandlerFunc {
 	}
 }
 
-// =============================
 //  环境变量加载校验
-// =============================
 
 func getenvInt(key string, def int) int {
 	v := strings.TrimSpace(os.Getenv(key))

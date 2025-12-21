@@ -10,9 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// =============================
 // 工具：解析日期（YYYY-MM-DD），带默认值
-// =============================
 
 func parseDateOrDefault(str string, def time.Time) time.Time {
 	str = strings.TrimSpace(str)
@@ -27,10 +25,8 @@ func parseDateOrDefault(str string, def time.Time) time.Time {
 	return t
 }
 
-// =============================
 // 1. 用户签到
 // POST /api/user/attendance/checkin
-// =============================
 
 func UserCheckIn(c *gin.Context) {
 	val, exists := c.Get("emp_id")
@@ -65,10 +61,8 @@ func UserCheckIn(c *gin.Context) {
 	})
 }
 
-// =============================
 // 2. 用户签退
 // POST /api/user/attendance/checkout
-// =============================
 
 func UserCheckOut(c *gin.Context) {
 	val, exists := c.Get("emp_id")
@@ -103,10 +97,8 @@ func UserCheckOut(c *gin.Context) {
 	})
 }
 
-// =============================
 // 3. 用户查看自己的考勤记录
 // GET /api/user/attendance/my?start=2025-01-01&end=2025-01-31&page=1&pageSize=10
-// =============================
 
 func GetMyAttendance(c *gin.Context) {
 	val, exists := c.Get("emp_id")
@@ -164,10 +156,8 @@ func GetMyAttendance(c *gin.Context) {
 	})
 }
 
-// =============================
 // 4. 管理员：按条件搜索考勤记录
 // GET /api/admin/attendance?emp_id=EMP0001&dpt_id=3&start=2025-01-01&end=2025-01-31&page=1&pageSize=10
-// =============================
 
 func AdminSearchAttendance(c *gin.Context) {
 	empID := strings.TrimSpace(c.Query("emp_id"))
@@ -223,7 +213,6 @@ func AdminSearchAttendance(c *gin.Context) {
 	})
 }
 
-// =============================
 // 5. 管理员：更新考勤记录
 // PUT /api/admin/attendance/:id
 // Body 示例：{
@@ -232,7 +221,6 @@ func AdminSearchAttendance(c *gin.Context) {
 //   "check_in": "2025-01-01T09:10:00+08:00",
 //   "check_out": "2025-01-01T18:02:00+08:00"
 // }
-// =============================
 
 func AdminUpdateAttendance(c *gin.Context) {
 	idStr := c.Param("id")
@@ -298,10 +286,8 @@ func AdminUpdateAttendance(c *gin.Context) {
 	})
 }
 
-// =============================
 // 6. 管理员：删除考勤记录
 // DELETE /api/admin/attendance/:id
-// =============================
 
 func AdminDeleteAttendance(c *gin.Context) {
 	idStr := c.Param("id")

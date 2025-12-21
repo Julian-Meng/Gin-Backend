@@ -7,10 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ===========================
 // 管理员仪表盘
 // GET /dashboard/admin
-// ===========================
 func AdminDashboard(c *gin.Context) {
 	data := dao.GetAdminDashboardData()
 
@@ -21,10 +19,8 @@ func AdminDashboard(c *gin.Context) {
 	})
 }
 
-// ===========================
 // 普通用户仪表盘
 // GET /dashboard/user
-// ===========================
 func UserDashboard(c *gin.Context) {
 	data := dao.GetUserDashboardData()
 

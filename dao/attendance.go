@@ -9,9 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// =========================
 // 工具：获取“当天日期”（去掉时分秒）
-// =========================
 func todayDate() time.Time {
 	now := time.Now()
 	return time.Date(
@@ -21,11 +19,9 @@ func todayDate() time.Time {
 	)
 }
 
-// =========================
 // 员工签到
 // - 若当天已有签到，则返回错误
 // - 若已有记录但缺少签到时间，则补上签到时间
-// =========================
 func CheckIn(empID string) error {
 	dbConn := db.GetDB()
 	today := todayDate()
@@ -71,11 +67,9 @@ func CheckIn(empID string) error {
 	})
 }
 
-// =========================
 // 员工签退
 // - 若当天记录不存在，可以选择报错
 // - 若存在但已签退，则返回错误
-// =========================
 func CheckOut(empID string) error {
 	dbConn := db.GetDB()
 	today := todayDate()
@@ -111,11 +105,9 @@ func CheckOut(empID string) error {
 	})
 }
 
-// =========================
 // 员工个人考勤查询（分页）
 // - 按 emp_id + 日期区间
 // - 按日期倒序
-// =========================
 func GetAttendanceByEmpID(empID string, startDate, endDate time.Time, page, pageSize int) ([]models.Attendance, int64, error) {
 	dbConn := db.GetDB()
 
@@ -155,11 +147,9 @@ func GetAttendanceByEmpID(empID string, startDate, endDate time.Time, page, page
 	return list, total, nil
 }
 
-// =========================
 // 管理员：按条件搜索考勤记录（分页）
 // 支持：emp_id、dpt_id、日期区间
 // 返回联表后的 AttendanceDetail
-// =========================
 func SearchAttendance(empID string, dptID uint, startDate, endDate time.Time, page, pageSize int) ([]models.AttendanceDetail, int64, error) {
 	dbConn := db.GetDB()
 
@@ -240,10 +230,8 @@ func SearchAttendance(empID string, dptID uint, startDate, endDate time.Time, pa
 	return list, total, nil
 }
 
-// =========================
 // 管理员：更新考勤记录（如状态 / 备注 / 时间）
 // 仅更新调用方提供的字段
-// =========================
 func UpdateAttendance(id uint, updates map[string]interface{}) error {
 	dbConn := db.GetDB()
 
@@ -257,9 +245,7 @@ func UpdateAttendance(id uint, updates map[string]interface{}) error {
 		Updates(updates).Error
 }
 
-// =========================
 // 管理员：删除考勤记录
-// =========================
 func DeleteAttendance(id uint) error {
 	dbConn := db.GetDB()
 

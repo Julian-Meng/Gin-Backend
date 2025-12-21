@@ -11,10 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// =============================
 // 分页获取员工列表
 // GET /persons?page=&pageSize=&keyword=
-// =============================
 func GetPersons(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
@@ -45,10 +43,8 @@ func GetPersons(c *gin.Context) {
 	})
 }
 
-// =============================
 // 获取员工详情（ID）
 // GET /persons/:id
-// =============================
 func GetPersonByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
@@ -74,10 +70,8 @@ func GetPersonByID(c *gin.Context) {
 	})
 }
 
-// =============================
 // 创建员工
 // POST /persons
-// =============================
 func CreatePerson(c *gin.Context) {
 	var req models.Person
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -107,10 +101,8 @@ func CreatePerson(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "员工创建成功"})
 }
 
-// =============================
 // 更新员工信息（不含部门、职位、离职）
 // PUT /persons/:id
-// =============================
 func UpdatePerson(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
@@ -144,10 +136,8 @@ func UpdatePerson(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "员工信息更新成功"})
 }
 
-// =============================
 // 删除员工（依 emp_id）
 // DELETE /persons/emp/:emp_id
-// =============================
 func DeletePersonByEmpID(c *gin.Context) {
 	empID := strings.TrimSpace(c.Param("emp_id"))
 	if empID == "" {
@@ -167,10 +157,8 @@ func DeletePersonByEmpID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "员工已删除"})
 }
 
-// =============================
 // 删除员工（按 ID）
 // DELETE /persons/:id
-// =============================
 func DeletePersonByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
@@ -191,11 +179,9 @@ func DeletePersonByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "员工已删除"})
 }
 
-// =============================
 // 更改员工部门
 // PUT /persons/change-dept
 // Body: { "emp_id": "...", "dept": "部门名称" }
-// =============================
 func ChangePersonDepartment(c *gin.Context) {
 	var req struct {
 		EmpID string `json:"emp_id"`
@@ -222,11 +208,9 @@ func ChangePersonDepartment(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "部门调整成功"})
 }
 
-// =============================
 // 修改员工状态（离职或在职）
 // PUT /persons/state
 // Body: { "emp_id": "...", "state": 0/1 }
-// =============================
 func ChangePersonState(c *gin.Context) {
 	var req struct {
 		EmpID string `json:"emp_id"`
@@ -251,11 +235,9 @@ func ChangePersonState(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "状态更新成功"})
 }
 
-// =============================
 // 修改员工职位
 // PUT /persons/job
 // Body: { "emp_id": "...", "job": "..." }
-// =============================
 func ChangePersonJob(c *gin.Context) {
 	var req struct {
 		EmpID string `json:"emp_id"`

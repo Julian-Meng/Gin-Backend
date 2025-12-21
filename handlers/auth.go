@@ -12,19 +12,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ==========================
 // superadmin / root 配置
-// ==========================
 // 这里先用硬编码，建议后面改成从 env / config 读取
 const superAdminUsername = "root"
 const superAdminPassword = "root123"
 const superAdminRole = "superadmin"
 
-// ==========================
 // 登录逻辑
 // POST /auth/login
 // Body: { "username": "...", "password": "..." }
-// ==========================
 func Login(c *gin.Context) {
 	var req models.Account
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -47,9 +43,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// ==========================
 	// 1. root 超级管理员特权
-	// ==========================
+
 	if req.Username == superAdminUsername {
 		if req.Password != superAdminPassword {
 			c.JSON(http.StatusUnauthorized, gin.H{
@@ -75,9 +70,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// ==========================
 	// 2. 普通用户登录（走 DAO）
-	// ==========================
+
 	account, ok := dao.ValidateLogin(req.Username, req.Password)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -108,11 +102,9 @@ func Login(c *gin.Context) {
 	})
 }
 
-// ==========================
 // 注册逻辑
 // POST /auth/register
 // Body: { "username": "...", "password": "...", "role": "staff|admin" }
-// ==========================
 func Register(c *gin.Context) {
 	var acc models.Account
 	if err := c.ShouldBindJSON(&acc); err != nil {

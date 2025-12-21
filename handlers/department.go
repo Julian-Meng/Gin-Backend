@@ -10,10 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ==============================
 // 获取部门列表（分页 + 搜索）
 // GET /departments?page=&pageSize=&keyword=
-// ==============================
 func GetDepartments(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
@@ -44,10 +42,8 @@ func GetDepartments(c *gin.Context) {
 	})
 }
 
-// ==============================
 // 获取单个部门（ID）
 // GET /departments/:id
-// ==============================
 func GetDepartmentByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
@@ -76,11 +72,9 @@ func GetDepartmentByID(c *gin.Context) {
 	})
 }
 
-// ==============================
 // 创建部门
 // POST /departments
 // Body: { "name": "...", "manager": "...", "intro": "...", ... }
-// ==============================
 func CreateDepartment(c *gin.Context) {
 	var req models.Department
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -122,10 +116,8 @@ func CreateDepartment(c *gin.Context) {
 	})
 }
 
-// ==============================
 // 更新部门
 // PUT /departments/:id
-// ==============================
 func UpdateDepartment(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
@@ -165,10 +157,8 @@ func UpdateDepartment(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "部门更新成功"})
 }
 
-// ==============================
 // 删除部门
 // DELETE /departments/:id
-// ==============================
 func DeleteDepartment(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)

@@ -33,44 +33,15 @@
 
 ```
 backend/
-├── dao/              # 数据访问层
-│   ├── account.go
-│   ├── attendance.go       # 新增：考勤管理 DAO
-│   ├── dashboard.go
-│   ├── department.go
-│   ├── notice.go
-│   ├── person.go
-│   └── personnel.go
-│
-├── db/
+├── dao/                    # 数据访问层
+├── db/                     # 数据库逻辑层
 │   └── database.go         # 数据库初始化、自动迁移
-│
 ├── handlers/               # HTTP 处理逻辑
-│   ├── account.go
-│   ├── attendance.go       # 新增：考勤管理接口
-│   ├── auth.go
-│   ├── dashboard.go
-│   ├── department.go
-│   ├── notice.go
-│   ├── permission.go       # 新增：权限展示接口
-│   ├── person.go
-│   └── personnel.go
-│
-├── middlewares/
+├── middlewares/            # 中间件
 │   └── jwt.go              # JWT 登录与角色验证
-│
 ├── models/                 # 数据模型
-│   ├── account.go
-│   ├── attendance.go       # 新增：考勤模型
-│   ├── dashboard.go
-│   ├── department.go
-│   ├── notice.go
-│   ├── person.go
-│   └── personnel.go
-│
 ├── static/                 # 测试页面与静态文件
-│   └── attendance_test.html（可选）
-│
+├──.env                     # 环境配置文件
 ├── router.go               # 路由注册
 └── main.go                 # 程序入口
 ```
@@ -79,156 +50,128 @@ backend/
 
 ## API 接口文档（概要）
 
-以下为主要模块的 API 概览，完整参数请参考 handlers 文件。
+**通用规则**：
+- 认证方式：大多数接口需要在 Header 中携带 `Authorization: Bearer <token>`（登录后获取）
+- `/api/admin/*`：仅管理员（role=admin）可访问
+- `/api/user/*`：普通员工（role=staff）可访问
+- 请求/响应内容类型：`application/json`
+- 成功响应通常包含 `{ code: 0, msg: "success", data: ... }`（具体以实际返回为准）
 
 ---
 
-### 1. 认证相关 (/api/login, /api/register)
+### 1. 登录与注册
 
-#### POST /api/login
-
-用户登录，返回 JWT token。
-
-#### POST /api/register
-
-注册新账户（仅管理员场景使用）。
+| 方法 | 路径                  | 权限     | 请求体 (JSON)                                      | 说明                          |
+|------|-----------------------|----------|----------------------------------------------------|-------------------------------|
+| POST | `/api/login`          | 公开     | `{ "username": string, "password": string }`       | 登录，返回 `{ token: string }` |
+| POST | `/api/register`       | 公开？   | `{ "username": string, "password": string, "role": "staff"/"admin" }` | 注册新账号（需确认是否需要管理员权限） |
 
 ---
 
-### 2. 仪表盘
+### 2. Dashboard 概览
 
-#### GET /api/admin/dashboard
-
-管理员仪表盘数据。
-
-#### GET /api/user/dashboard
-
-普通用户仪表盘数据。
+| 方法 | 路径                        | 权限   | 请求参数 | 请求体 | 说明                  |
+|------|-----------------------------|--------|----------|--------|-----------------------|
+| GET  | `/api/admin/dashboard`      | admin  | 无       | 无     | 管理员全局数据概览    |
+| GET  | `/api/user/dashboard`       | staff  | 无       | 无     | 普通用户个人数据概览  |
 
 ---
 
-### 3. 账户管理 (/api/admin/account)
+### 3. 员工管理 (Person)
 
-* GET /api/admin/accounts
-* POST /api/admin/account
-* PUT /api/admin/account/:id
-* DELETE /api/admin/account/:id
-
----
-
-### 4. 员工管理 (/api/admin/person)
-
-* GET /api/admin/persons
-* POST /api/admin/person
-* GET /api/admin/person/:id
-* PUT /api/admin/person/:id
-* DELETE /api/admin/person/:id
-* DELETE /api/admin/person/emp/:emp_id
-* PUT /api/admin/person/job
-* PUT /api/admin/person/state
-* PUT /api/admin/person/change-dept
+| 方法   | 路径                                 | 权限   | 请求参数 / 路径参数          | 请求体 (JSON)                                      | 说明                          |
+|--------|--------------------------------------|--------|------------------------------|----------------------------------------------------|-------------------------------|
+| GET    | `/api/admin/persons`                 | admin  | 无（分页由后端默认）         | 无                                                 | 获取所有员工列表（分页）      |
+| GET    | `/api/admin/person/:id`              | admin  | `:id` (数据库 Person ID)     | 无                                                 | 查询单个员工详情              |
+| GET    | `/api/admin/person/profile/:emp_id`  | admin  | `:emp_id` (工号)             | 无                                                 | 管理员查询员工档案            |
+| DELETE | `/api/admin/person/:id`              | admin  | `:id` (数据库 ID)            | 无                                                 | 删除员工（按数据库 ID）       |
+| DELETE | `/api/admin/person/emp/:emp_id`      | admin  | `:emp_id` (工号)             | 无                                                 | 删除员工（按工号）            |
+| POST   | `/api/admin/person`                  | admin  | 无                           | `{ "name": string, "emp_id": string (可选), "dpt_id": number, "job": string }` | 创建新员工                    |
+| PUT    | `/api/admin/person/change-dept`       | admin  | 无                           | `{ "emp_id": string, "dept": string (新部门名) }` | 修改员工部门                  |
+| PUT    | `/api/admin/person/state`            | admin  | 无                           | `{ "emp_id": string, "state": 0/1 }`               | 修改员工在职状态（0离职，1在职）|
+| PUT    | `/api/admin/person/job`              | admin  | 无                           | `{ "emp_id": string, "job": string }`             | 修改员工岗位                  |
 
 ---
 
-### 5. 员工档案扩展（新功能）
+### 4. 部门管理 (Department)
 
-#### GET /api/user/profile
-
-查看当前登录用户完整档案（Account + Person + Department 信息）。
-
-#### GET /api/admin/person/profile/:emp_id
-
-管理员查看任意员工档案。
-
----
-
-### 6. 部门管理 (/api/admin/department)
-
-* GET /api/admin/departments
-* GET /api/admin/department/:id
-* POST /api/admin/department
-* PUT /api/admin/department/:id
-* DELETE /api/admin/department/:id
-
-普通用户也能查看：
-
-* GET /api/user/department/:id
+| 方法   | 路径                                 | 权限   | 查询参数                              | 请求体 (JSON)                               | 说明                          |
+|--------|--------------------------------------|--------|---------------------------------------|---------------------------------------------|-------------------------------|
+| GET    | `/api/admin/departments`             | admin  | `page`, `pageSize`, `keyword` (可选)  | 无                                          | 部门列表（支持分页+搜索）     |
+| GET    | `/api/admin/department/:id`          | admin  | `:id` (部门 ID)                       | 无                                          | 查询单个部门详情              |
+| GET    | `/api/user/department/:id`           | staff  | `:id` (部门 ID)                       | 无                                          | 普通用户查询部门（权限受限？）|
+| DELETE | `/api/admin/department/:id`          | admin  | `:id` (部门 ID)                       | 无                                          | 删除部门                      |
+| POST   | `/api/admin/department`              | admin  | 无                                    | `{ "name": string, "full_num": number (可选，默认20) }` | 创建新部门                    |
 
 ---
 
-### 7. 人事变动 (/api/admin/change, /api/user/change/request)
+### 5. 人事变更 (Personnel Change)
 
-管理员接口：
+| 方法   | 路径                                 | 权限   | 请求体 (JSON)                                                                 | 说明                              |
+|--------|--------------------------------------|--------|-------------------------------------------------------------------------------|-----------------------------------|
+| GET    | `/api/admin/changes`                 | admin  | 无                                                                            | 获取所有变更记录列表              |
+| GET    | `/api/admin/change/:id`              | admin  | `:id` (变更 ID)                                                               | 查询单条变更详情                  |
+| POST   | `/api/admin/change`                  | admin  | `{ "emp_id": string, "change_type": 1/2/3, "target_dpt": number (可选), "description": string }` | 管理员直接发起变更（调部门/调岗/离职）|
+| PUT    | `/api/admin/change/approve`          | admin  | `{ "id": number, "approver": string, "approve": true/false }`                | 审批变更（通过/驳回）             |
+| POST   | `/api/user/change/request`           | staff  | `{ "emp_id": string, "change_type": 1/2/3, "target_dpt": number (可选), "description": string }` | 员工提交变更申请                  |
 
-* GET /api/admin/changes
-* GET /api/admin/change/:id
-* POST /api/admin/change
-* PUT /api/admin/change/approve
-
-普通用户提交申请：
-
-* POST /api/user/change/request
-
----
-
-### 8. 公告管理 (/api/admin/notice)
-
-管理员：
-
-* POST /api/admin/notice
-* PUT /api/admin/notice/:id
-* DELETE /api/admin/notice/:id
-* GET /api/admin/notice/:id
-
-公开接口：
-
-* GET /api/notice
+**change_type 值**：
+- 1：调部门
+- 2：调岗
+- 3：离职
 
 ---
 
-### 9. 考勤管理（新增模块）
+### 6. 公告管理 (Notice)
 
-#### 用户接口 (/api/user/attendance)
-
-* POST /api/user/attendance/checkin —— 签到
-* POST /api/user/attendance/checkout —— 签退
-* GET  /api/user/attendance/my —— 查询自己的考勤记录（支持日期区间 + 分页）
-
-#### 管理员接口 (/api/admin/attendance)
-
-* GET    /api/admin/attendance —— 条件查询（emp_id / dpt_id / 日期区间）
-* PUT    /api/admin/attendance/:id —— 修正考勤（状态/备注/时间）
-* DELETE /api/admin/attendance/:id —— 删除记录
+| 方法   | 路径                          | 权限   | 请求体 (JSON)                                      | 说明                     |
+|--------|-------------------------------|--------|----------------------------------------------------|--------------------------|
+| GET    | `/api/notice`                 | 公开？ | 无                                                 | 获取公开公告列表         |
+| GET    | `/api/admin/notice/:id`       | admin  | `:id`                                              | 查询公告详情             |
+| DELETE | `/api/admin/notice/:id`       | admin  | `:id`                                              | 删除公告                 |
+| POST   | `/api/admin/notice`           | admin  | `{ "title": string, "content": string, "publisher": string }` | 发布新公告               |
 
 ---
 
-### 10. 权限展示接口（新增模块）
+### 7. 账号管理 (Account)
 
-#### GET /api/user/permissions
-
-返回系统全部权限项 + 当前用户是否拥有（HasAccess）。
-
-前端可用此接口自动构建“权限说明”页面，无需手动维护权限表。
+| 方法   | 路径                          | 权限   | 请求体 (JSON)                                      | 说明                     |
+|--------|-------------------------------|--------|----------------------------------------------------|--------------------------|
+| GET    | `/api/admin/accounts`         | admin  | 无                                                 | 获取所有账号列表         |
+| POST   | `/api/admin/account`          | admin  | `{ "username": string, "password": string, "role": "staff"/"admin" }` | 创建新账号               |
+| PUT    | `/api/admin/account/:id`      | admin  | `:id` + `{ "role": "staff"/"admin", "status": 0/1 }` | 更新账号角色或状态       |
+| DELETE | `/api/admin/account/:id`      | admin  | `:id`                                              | 删除账号                 |
 
 ---
 
-## 数据模型（新增部分）
+### 8. 个人档案 (Profile)
 
-### Attendance (考勤)
+| 方法   | 路径                              | 权限   | 请求体 (JSON)                                      | 说明                          |
+|--------|-----------------------------------|--------|----------------------------------------------------|-------------------------------|
+| GET    | `/api/user/profile`               | staff  | 无                                                 | 查看当前登录用户的完整档案    |
+| GET    | `/api/user/profile/:person_id`    | staff  | `:person_id` (Person 数据库 ID)                    | 查询指定 Person ID 的档案     |
+| PUT    | `/api/user/profile/:person_id`    | staff  | 任意可更新字段（如 `{ "name": "...", "job": "..." }`） | 更新档案（部分字段）          |
 
-```go
-type Attendance struct {
-    ID        uint
-    EmpID     string     // 关联 Person.EmpID
-    Date      time.Time  // 考勤日期
-    CheckIn   *time.Time // 签到
-    CheckOut  *time.Time // 签退
-    Status    int        // 0缺勤 1正常 2迟到 3早退 4迟到且早退
-    Remark    string
-    CreatedAt time.Time
-    UpdatedAt time.Time
-}
-```
+---
+
+### 9. 考勤管理 (Attendance)
+
+| 方法   | 路径                                   | 权限   | 请求参数 / 请求体                                  | 说明                          |
+|--------|----------------------------------------|--------|----------------------------------------------------|-------------------------------|
+| POST   | `/api/user/attendance/checkin`         | staff  | 无（空体）                                         | 上班签到                      |
+| POST   | `/api/user/attendance/checkout`        | staff  | 无（空体）                                         | 下班签退                      |
+| GET    | `/api/user/attendance/my`              | staff  | Query: `start` (YYYY-MM-DD), `end`, `page`, `pageSize` (可选) | 查询我的考勤记录              |
+| GET    | `/api/admin/attendance`                | admin  | Query: `emp_id`, `dpt_id`, `start`, `end` 等       | 管理员查询考勤列表             |
+| PUT    | `/api/admin/attendance/:id`            | admin  | `:id` + 可选字段 `{ "status": number, "remark": string, "check_in": ISO string, "check_out": ISO string }` | 修改单条考勤记录              |
+| DELETE | `/api/admin/attendance/:id`            | admin  | `:id`                                              | 删除考勤记录                  |
+
+---
+
+### 10. 权限矩阵
+
+| 方法 | 路径                      | 权限   | 请求体 | 说明                        |
+|------|---------------------------|--------|--------|-----------------------------|
+| GET  | `/api/user/permissions`   | staff  | 无     | 获取当前用户对所有接口的权限状态 |
 
 ---
 

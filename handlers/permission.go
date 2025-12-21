@@ -61,9 +61,7 @@ func GetPermissions(c *gin.Context) {
 	userRoles := []string{"staff", "admin", "superadmin"}
 
 	perms := []PermissionItem{
-		// ======================
 		// 仪表盘
-		// ======================
 		{
 			Key:          "admin_dashboard_view",
 			Group:        "仪表盘",
@@ -83,9 +81,7 @@ func GetPermissions(c *gin.Context) {
 			AllowedRoles: userRoles,
 		},
 
-		// ======================
 		// 员工管理
-		// ======================
 		{
 			Key:          "admin_person_list",
 			Group:        "员工管理",
@@ -206,9 +202,7 @@ func GetPermissions(c *gin.Context) {
 			AllowedRoles: adminRoles,
 		},
 
-		// ======================
 		// 部门管理
-		// ======================
 		{
 			Key:          "admin_department_list",
 			Group:        "部门管理",
@@ -264,9 +258,7 @@ func GetPermissions(c *gin.Context) {
 			AllowedRoles: userRoles,
 		},
 
-		// ======================
 		// 人事变更（Personnel）
-		// ======================
 		{
 			Key:          "admin_personnel_list",
 			Group:        "人事变更",
@@ -313,9 +305,7 @@ func GetPermissions(c *gin.Context) {
 			AllowedRoles: userRoles,
 		},
 
-		// ======================
 		// 账号管理
-		// ======================
 		{
 			Key:          "admin_account_list",
 			Group:        "账号管理",
@@ -353,9 +343,7 @@ func GetPermissions(c *gin.Context) {
 			AllowedRoles: adminRoles,
 		},
 
-		// ======================
 		// 公告管理
-		// ======================
 		{
 			Key:          "admin_notice_create",
 			Group:        "公告管理",
@@ -402,9 +390,7 @@ func GetPermissions(c *gin.Context) {
 			AllowedRoles: []string{}, // 代表不限角色（公开接口）
 		},
 
-		// ======================
 		// 考勤管理
-		// ======================
 		{
 			Key:          "user_attendance_checkin",
 			Group:        "考勤管理",

@@ -16,9 +16,7 @@ import (
 
 var DB *gorm.DB
 
-// ===============================
 // 数据库配置结构体
-// ===============================
 type Config struct {
 	Driver string
 	DSN    string
@@ -26,9 +24,7 @@ type Config struct {
 	DBName string // MySQL 自动建库
 }
 
-// ===============================
 // MySQL 自动创建数据库
-// ===============================
 func ensureMySQLDatabase(cfg Config) error {
 	if cfg.Driver != "mysql" || cfg.DBName == "" {
 		return nil
@@ -55,12 +51,10 @@ func ensureMySQLDatabase(cfg Config) error {
 	return nil
 }
 
-// ===============================
 // InitDB - 初始化数据库
-// ===============================
 func InitDB(cfg Config) error {
 
-	// ========= 先尝试自动建库（MySQL） =========
+	// 先尝试自动建库（MySQL）
 	if cfg.Driver == "mysql" {
 		if err := ensureMySQLDatabase(cfg); err != nil {
 			return err
@@ -117,9 +111,7 @@ func InitDB(cfg Config) error {
 	return nil
 }
 
-// ===============================
 // AutoMigrate 所有模型
-// ===============================
 func autoMigrateAll() error {
 	return DB.AutoMigrate(
 		&models.Account{},
@@ -131,9 +123,7 @@ func autoMigrateAll() error {
 	)
 }
 
-// ===============================
 // SQLite 目录创建（移除未使用参数警告）
-// ===============================
 func ensureSQLiteDir() {
 	dir := "db"
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
@@ -141,9 +131,7 @@ func ensureSQLiteDir() {
 	}
 }
 
-// ===============================
 // 创建默认部门
-// ===============================
 func ensureDefaultDepartment() error {
 	var count int64
 	DB.Model(&models.Department{}).Count(&count)
@@ -165,14 +153,10 @@ func ensureDefaultDepartment() error {
 	return nil
 }
 
-// ===============================
 // 返回全局 DB
-// ===============================
 func GetDB() *gorm.DB { return DB }
 
-// ===============================
 // 关闭数据库连接
-// ===============================
 func CloseDB() {
 	if DB == nil {
 		return

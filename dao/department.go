@@ -9,9 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// ================================
 // 分页 + 搜索 + 成员数量统计
-// ================================
 func FetchDepartmentsPaged(page, pageSize int, keyword string) ([]models.DepartmentWithCount, int64, error) {
 	dbConn := db.GetDB()
 
@@ -53,9 +51,7 @@ func FetchDepartmentsPaged(page, pageSize int, keyword string) ([]models.Departm
 	return list, total, nil
 }
 
-// ================================
 // 新增部门
-// ================================
 func InsertDepartment(d models.Department) error {
 	dbConn := db.GetDB()
 
@@ -75,9 +71,7 @@ func InsertDepartment(d models.Department) error {
 	return dbConn.Create(&d).Error
 }
 
-// ================================
 // 更新部门
-// ================================
 func UpdateDepartment(id uint, d models.Department) error {
 	dbConn := db.GetDB()
 
@@ -103,9 +97,7 @@ func UpdateDepartment(id uint, d models.Department) error {
 		Updates(updates).Error
 }
 
-// ================================
 // 删除部门（需检查人数）
-// ================================
 func DeleteDepartment(id uint) error {
 	dbConn := db.GetDB()
 
@@ -122,9 +114,7 @@ func DeleteDepartment(id uint) error {
 	return dbConn.Delete(&models.Department{}, id).Error
 }
 
-// ================================
 // 查询单个部门
-// ================================
 func FetchDepartmentByID(id uint) (*models.Department, error) {
 	dbConn := db.GetDB()
 
@@ -141,9 +131,7 @@ func FetchDepartmentByID(id uint) (*models.Department, error) {
 	return &d, nil
 }
 
-// ================================
 // 部门人数增减（按 ID）
-// ================================
 func UpdateDepartmentCount(dptID uint, delta int) error {
 	dbConn := db.GetDB()
 
@@ -153,9 +141,7 @@ func UpdateDepartmentCount(dptID uint, delta int) error {
 		Error
 }
 
-// ================================
 // 部门人数增减（按名称）
-// ================================
 func UpdateDepartmentCountByName(name string, delta int) error {
 	dbConn := db.GetDB()
 

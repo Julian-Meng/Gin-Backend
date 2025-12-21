@@ -17,42 +17,32 @@ import (
 )
 
 func main() {
-	// ===============================
 	// 1) 加载 .env
-	// ===============================
 	if err := godotenv.Load(); err != nil {
 		// 不强制报错：允许你在生产环境不使用 .env
 		log.Println("⚠️ 未找到 .env，将使用系统环境变量")
 	}
 
-	// ===============================
 	// 2) Gin Mode
-	// ===============================
 	ginMode := strings.TrimSpace(getEnv("GIN_MODE", gin.ReleaseMode))
 	gin.SetMode(ginMode)
 
-	// ===============================
-	// 3) JWT Secret（先校验：避免启动后才发现 token 全都不对）
-	// ===============================
+	// 3) JWT Secret
 	jwtSecret := strings.TrimSpace(os.Getenv("JWT_SECRET"))
 	if jwtSecret == "" {
 		log.Fatal("❌ JWT_SECRET 未设置：请在 .env 或系统环境变量中配置 JWT_SECRET")
 	}
 
-	// ===============================
 	// 4) 启动时间统计
-	// ===============================
 	start := time.Now()
 
-	// ===============================
-	// 5) 数据库配置（从环境变量读取）
-	// ===============================
+	// 5) 数据库配置
 	dbDriver := strings.TrimSpace(getEnv("DB_DRIVER", "sqlite"))
 	dbDSN := strings.TrimSpace(getEnv("DB_DSN", "./db/hr.db"))
 	dbDebug := getEnvBool("DB_DEBUG", false)
 
 	cfg := db.Config{
-		Driver: dbDriver, // "mysql" 或 "sqlite"
+		Driver: dbDriver,
 		DSN:    dbDSN,
 		Debug:  dbDebug,
 	}
@@ -62,14 +52,10 @@ func main() {
 		log.Fatalf("❌ 数据库初始化失败: %v", err)
 	}
 
-	// ===============================
 	// 6) 初始化路由
-	// ===============================
 	r := SetupRouter()
 
-	// ===============================
 	// 7) Server 配置（地址/端口从环境变量读取）
-	// ===============================
 	addr := strings.TrimSpace(getEnv("SERVER_ADDR", ":2077"))
 	server := &http.Server{
 		Addr:    addr,
@@ -89,9 +75,7 @@ func main() {
 	log.Printf("✅ 启动耗时: %d ms\n", bootCost.Milliseconds())
 	log.Printf("✅ 后端模式: %s | 数据库: %s | 数据库Debug: %v\n", ginMode, dbDriver, dbDebug)
 
-	// ===============================
 	// 8) 优雅退出
-	// ===============================
 	shutdownTimeoutSec := getEnvInt("SHUTDOWN_TIMEOUT_SECONDS", 5)
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
@@ -111,10 +95,6 @@ func main() {
 
 	log.Println("✅ 服务已安全退出")
 }
-
-// -------------------------------
-// helpers
-// -------------------------------
 
 func getEnv(key, defaultVal string) string {
 	v := strings.TrimSpace(os.Getenv(key))

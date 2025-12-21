@@ -11,9 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// =============================
 // 档案返回结构体（组合 Account + Person + Department）
-// =============================
 
 type DepartmentInfo struct {
 	ID   uint   `json:"id"`
@@ -40,9 +38,7 @@ type ProfileResponse struct {
 	UpdatedAt time.Time       `json:"update_at"`
 }
 
-// =============================
 // 工具：根据 Person 拼出 Profile（可选带账号信息）
-// =============================
 
 func buildProfile(person *models.Person, account *models.Account) (*ProfileResponse, error) {
 	var deptInfo *DepartmentInfo
@@ -86,11 +82,9 @@ func buildProfile(person *models.Person, account *models.Account) (*ProfileRespo
 	return resp, nil
 }
 
-// =============================
 // 1. 当前登录用户查看自己的档案
 // GET /api/user/profile
 // 依赖：JWT 中间件已在 context 中设置 "username"
-// =============================
 
 func GetMyProfile(c *gin.Context) {
 	// 从 JWT 中拿 username
@@ -151,10 +145,8 @@ func GetMyProfile(c *gin.Context) {
 	})
 }
 
-// =============================
 // 2. 管理员查看指定员工档案（含部门信息）
 // GET /api/admin/person/profile/:emp_id
-// =============================
 
 func GetPersonProfile(c *gin.Context) {
 	empID := strings.TrimSpace(c.Param("emp_id"))

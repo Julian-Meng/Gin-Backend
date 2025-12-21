@@ -349,6 +349,8 @@
             <li class="nav-item" onclick="switchTab('tab-profile')">📄 <span>个人档案</span></li>
             <li class="nav-item" onclick="switchTab('tab-attend')">📅 <span>考勤管理</span></li>
             <li class="nav-item" onclick="switchTab('tab-perm')">🛡️ <span>权限矩阵</span></li>
+            <li class="nav-item" onclick="switchTab('tab-ai-chat')">🤖 <span>AI聊天</span></li>
+
         </ul>
         <div style="margin-top: auto; padding: 15px;">
             <div class="nav-item" onclick="document.body.classList.toggle('sidebar-collapsed')"
@@ -740,6 +742,25 @@
                 </div>
             </div>
 
+            <!-- 模块 11: AI聊天 -->
+            <div id="tab-ai-chat" class="view-section">
+                <div class="card">
+                    <h2 class="section-title">AI 聊天 (Chat with AI)</h2>
+
+                    <div class="form-row">
+                        <textarea id="ai_message" placeholder="输入您的问题..." rows="4"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <button onclick="sendAIMessage()">发送</button>
+                    </div>
+
+                    <h3>聊天记录</h3>
+                    <div id="ai_chat_log"
+                        style="border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; height: 200px; overflow-y: auto;">
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -1004,6 +1025,31 @@
             }
             await call("PUT", `/api/admin/attendance/${att_upd_id.value}`, body);
         }
+
+        async function sendAIMessage() {
+
+            const message = ai_message.value.trim();
+            if (!message) {
+                alert('请输入消息');
+                return;
+            }
+
+            ai_message.value = '';
+
+            const chatLog = document.getElementById('ai_chat_log');
+            chatLog.innerHTML += `<div><strong>你：</strong>${message}</div>`;
+
+            const response = await call('POST', '/api/chat', {
+                message: message,
+                session_id: "web-test-session"
+            });
+
+            chatLog.innerHTML += `<div><strong>AI：</strong>${response?.message || '无法获取回复'
+                }</div>`;
+
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
     </script>
 </body>
 

@@ -10,9 +10,7 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	// =====================================
 	// CORS
-	// =====================================
 	r.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -29,16 +27,13 @@ func SetupRouter() *gin.Engine {
 	r.StaticFile("/", "./static/backend_test.html")
 	r.StaticFile("/favicon.ico", "./static/favicon.ico")
 
-	// =====================================
 	// 无需登录
-	// =====================================
 	r.POST("/api/login", handlers.Login)
 	r.POST("/api/register", handlers.Register)
 	r.GET("/api/notice", handlers.GetAllNotices)
+	r.POST("/api/chat", handlers.ChatWithAI)
 
-	// =====================================
 	// 管理员接口
-	// =====================================
 	admin := r.Group("/api/admin")
 	admin.Use(middlewares.JWTAuthMiddleware(), middlewares.AdminOnly())
 	{
@@ -90,9 +85,7 @@ func SetupRouter() *gin.Engine {
 		admin.DELETE("/attendance/:id", handlers.AdminDeleteAttendance)
 	}
 
-	// =====================================
 	// 普通用户接口
-	// =====================================
 	user := r.Group("/api/user")
 	user.Use(middlewares.JWTAuthMiddleware())
 	{

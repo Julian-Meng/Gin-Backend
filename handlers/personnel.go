@@ -10,10 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ==============================
 // 获取人事变更列表（分页）
 // GET /personnel?page=&pageSize=
-// ==============================
 func GetPersonnelList(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
@@ -46,10 +44,8 @@ func GetPersonnelList(c *gin.Context) {
 	})
 }
 
-// ==============================
 // 获取单条人事变更详情
 // GET /personnel/:id
-// ==============================
 func GetPersonnelByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
@@ -78,7 +74,6 @@ func GetPersonnelByID(c *gin.Context) {
 	})
 }
 
-// ==============================
 // 发起人事变更申请
 // POST /personnel
 //
@@ -88,8 +83,6 @@ func GetPersonnelByID(c *gin.Context) {
 //	   "change_type": 1/2/3,
 //	   "description": "..."
 //	}
-//
-// ==============================
 func CreatePersonnel(c *gin.Context) {
 	var req struct {
 		EmpID       string `json:"emp_id"`
@@ -146,7 +139,6 @@ func CreatePersonnel(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "申请已提交"})
 }
 
-// ==============================
 // 审批人事变更
 // PUT /personnel/approve
 //
@@ -155,8 +147,6 @@ func CreatePersonnel(c *gin.Context) {
 //	   "approver": "admin_name",
 //	   "approve": true/false
 //	}
-//
-// ==============================
 func ApprovePersonnel(c *gin.Context) {
 	var req struct {
 		ID       uint   `json:"id"`

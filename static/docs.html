@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 技术文档 - Gin-Backend</title>
+    <style>
+        body {
+            font-family: Menlo, Monaco, Consolas, "Courier New", monospace, "Microsoft YaHei";
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #fff;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #000;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        .nav-box {
+            background: #f9f9f9;
+            padding: 15px;
+            border: 1px solid #ddd;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            color: #2563eb;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 2px 5px;
+        }
+
+        .nav-links a:hover {
+            background: #e2e8f0;
+            border-radius: 3px;
+        }
+
+        .test-link {
+            background: #000;
+            color: #fff !important;
+            padding: 8px 16px;
+            text-decoration: none;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 13px;
+            table-layout: fixed;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+
+        th {
+            background: #f4f4f4;
+            font-weight: bold;
+            width: 100px;
+        }
+
+        .col-path {
+            width: 250px;
+        }
+
+        .col-auth {
+            width: 80px;
+        }
+
+        .method {
+            font-weight: bold;
+        }
+
+        .get {
+            color: #22863a;
+        }
+
+        .post {
+            color: #005cc5;
+        }
+
+        .put {
+            color: #e36209;
+        }
+
+        .delete {
+            color: #d73a49;
+        }
+
+        code {
+            background: #f6f8fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            color: #c7254e;
+            font-size: 12px;
+        }
+
+        pre {
+            background: #2d333b;
+            color: #adbac7;
+            padding: 15px;
+            overflow-x: auto;
+            border-radius: 6px;
+            font-size: 12px;
+            margin: 5px 0;
+        }
+
+        .section-desc {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .auth-tag {
+            display: inline-block;
+            background: #e1e4e8;
+            padding: 1px 6px;
+            font-size: 11px;
+            border-radius: 3px;
+        }
+
+        .admin {
+            color: #cf222e;
+            border: 1px solid #d73a49;
+        }
+
+        .staff {
+            color: #24292e;
+            border: 1px solid #bbb;
+        }
+
+        .open {
+            color: #22863a;
+            border: 1px solid #22863a;
+        }
+
+        .api-block {
+            margin-bottom: 30px;
+            border: 1px solid #eee;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .api-title {
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Gin Backend API 文档</h1>
+
+    <div class="nav-box">
+        <div class="nav-links">
+            <a href="#rules">通用规则</a>
+            <a href="#mod1">账户</a>
+            <a href="#mod2">档案</a>
+            <a href="#mod3">部门</a>
+            <a href="#mod4">变动</a>
+            <a href="#mod5">公告</a>
+            <a href="#mod6">仪表盘</a>
+            <a href="#mod7">考勤</a>
+            <a href="#mod8">权限</a>
+            <a href="#mod9">AI</a>
+        </div>
+        <a href="" onclick="window.open('/bt', '_blank')" class="test-link">接口在线测试页 →</a>
+    </div>
+
+    <section id="rules">
+        <h2>0. 通用规则与认证</h2>
+        <div class="section-desc">所有接口请求均需遵循以下规范。</div>
+        <table>
+            <tr>
+                <th>认证方式</th>
+                <td>Header 携带：<code>Authorization: Bearer &lt;JWT_TOKEN&gt;</code></td>
+            </tr>
+            <tr>
+                <th>响应格式</th>
+                <td>
+                    <pre>{
+  "code": 0,       // 0: 成功, 其他: 错误码
+  "msg": "success",
+  "data": { ... }  // 业务数据
+}</pre>
+                </td>
+            </tr>
+            <tr>
+                <th>系统角色</th>
+                <td>
+                    <code>superadmin</code>: 无视权限检查 |
+                    <code>admin</code>: 管理端接口 |
+                    <code>staff</code>: 员工端接口
+                </td>
+            </tr>
+        </table>
+    </section>
+
+    <!-- 1. 账户管理 -->
+    <section id="mod1">
+        <h2>1. 账户管理 (Account)</h2>
+        <div class="api-block">
+            <div class="api-title"><span class="method post">POST</span> <code>/api/login</code> <span
+                    class="auth-tag open">公开</span></div>
+            <div class="section-desc">用户身份验证</div>
+            <strong>Request Body:</strong>
+            <pre>{
+  "username": "admin",
+  "password": "password123"
+}</pre>
+            <strong>Response Data:</strong>
+            <pre>{ "token": "eyJhbGciOi..." }</pre>
+        </div>
+
+        <div class="api-block">
+            <div class="api-title"><span class="method get">GET</span> <code>/api/admin/accounts</code> <span
+                    class="auth-tag admin">admin</span></div>
+            <div class="section-desc">账户列表分页查询（支持 username/role 筛选）</div>
+        </div>
+    </section>
+
+    <!-- 2. 员工档案 -->
+    <section id="mod2">
+        <h2>2. 员工档案管理 (Person)</h2>
+        <div class="api-block">
+            <div class="api-title"><span class="method get">GET</span> <code>/api/admin/persons</code> <span
+                    class="auth-tag admin">admin</span></div>
+            <div class="section-desc">员工分页列表。Query 参数: <code>page</code>, <code>pageSize</code>, <code>name</code>,
+                <code>dept_id</code></div>
+        </div>
+
+        <div class="api-block">
+            <div class="api-title"><span class="method post">POST</span> <code>/api/admin/persons</code> <span
+                    class="auth-tag admin">admin</span></div>
+            <div class="section-desc">创建新员工，同时可关联创建账户。</div>
+            <strong>Request Body:</strong>
+            <pre>{
+  "name": "张三",
+  "gender": "男",
+  "birthday": "1995-01-01",
+  "entry_date": "2023-10-01",
+  "dept_id": 1,
+  "job_title": "开发工程师",
+  "create_account": true,
+  "username": "zhangsan"
+}</pre>
+        </div>
+    </section>
+
+    <!-- 3. 部门管理 -->
+    <section id="mod3">
+        <h2>3. 部门管理 (Department)</h2>
+        <div class="api-block">
+            <div class="api-title"><span class="method get">GET</span> <code>/api/admin/departments</code> <span
+                    class="auth-tag admin">admin</span></div>
+            <div class="section-desc">获取所有部门列表。</div>
+        </div>
+        <div class="api-block">
+            <div class="api-title"><span class="method post">POST</span> <code>/api/admin/departments</code> <span
+                    class="auth-tag admin">admin</span></div>
+            <strong>Request Body:</strong>
+            <pre>{ "name": "研发部", "manager": "李四" }</pre>
+        </div>
+    </section>
+
+    <!-- 4. 人事变动 -->
+    <section id="mod4">
+        <h2>4. 人事变动 (Personnel)</h2>
+        <div class="api-block">
+            <div class="api-title"><span class="method post">POST</span> <code>/api/admin/personnel-changes</code> <span
+                    class="auth-tag admin">admin</span></div>
+            <div class="section-desc">提交人事变动申请。类型 1:调岗, 2:离职, 3:部门调整。</div>
+            <strong>Request Body:</strong>
+            <pre>{
+  "emp_id": "EMP231001",
+  "change_type": 3,
+  "new_value": "12", // 新部门ID或职位名称
+  "reason": "业务调整",
+  "execute_date": "2023-12-01"
+}</pre>
+        </div>
+    </section>
+
+    <!-- 5. 公告管理 -->
+    <section id="mod5">
+        <h2>5. 公告管理 (Notice)</h2>
+        <div class="api-block">
+            <div class="api-title"><span class="method get">GET</span> <code>/api/user/notices</code> <span
+                    class="auth-tag staff">staff</span></div>
+            <div class="section-desc">员工查看最新公告。</div>
+        </div>
+        <div class="api-block">
+            <div class="api-title"><span class="method post">POST</span> <code>/api/admin/notices</code> <span
+                    class="auth-tag admin">admin</span></div>
+            <strong>Request Body:</strong>
+            <pre>{ "title": "国庆放假通知", "content": "1-7号放假...", "type": "通知" }</pre>
+        </div>
+    </section>
+
+    <!-- 6. 仪表盘 -->
+    <section id="mod6">
+        <h2>6. 仪表盘数据 (Dashboard)</h2>
+        <div class="api-block">
+            <div class="api-title"><span class="method get">GET</span> <code>/api/admin/dashboard/stats</code> <span
+                    class="auth-tag admin">admin</span></div>
+            <div class="section-desc">返回统计数字（总人数、今日打卡率、待办审批等）。</div>
+        </div>
+    </section>
+
+    <!-- 7. 考勤管理 -->
+    <section id="mod7">
+        <h2>7. 考勤管理 (Attendance)</h2>
+        <div class="api-block">
+            <div class="api-title"><span class="method post">POST</span> <code>/api/user/attendance/checkin</code> <span
+                    class="auth-tag staff">staff</span></div>
+            <div class="section-desc">员工打卡（由后端判断签到/签退时间窗）。</div>
+        </div>
+        <div class="api-block">
+            <div class="api-title"><span class="method get">GET</span> <code>/api/admin/attendance</code> <span
+                    class="auth-tag admin">admin</span></div>
+            <div class="section-desc">全局考勤查询。参数: <code>emp_id</code>, <code>date_start</code>, <code>date_end</code>
+            </div>
+        </div>
+        <div class="api-block">
+            <div class="api-title"><span class="method put">PUT</span> <code>/api/admin/attendance/:id</code> <span
+                    class="auth-tag admin">admin</span></div>
+            <div class="section-desc">管理员修正考勤。</div>
+            <strong>Request Body:</strong>
+            <pre>{
+  "status": 1, // 1:正常, 2:异常, 3:迟到, 4:早退
+  "check_in": "2023-10-01T09:00:00Z",
+  "remark": "补签"
+}</pre>
+        </div>
+    </section>
+
+    <!-- 8. 权限展示 -->
+    <section id="mod8">
+        <h2>8. 权限展示 (Permission)</h2>
+        <div class="api-block">
+            <div class="api-title"><span class="method get">GET</span> <code>/api/user/permissions</code> <span
+                    class="auth-tag staff">staff</span></div>
+            <div class="section-desc">获取当前用户对所有接口的权限明细，用于前端动态菜单渲染。</div>
+        </div>
+    </section>
+
+    <!-- 9. AI聊天 -->
+    <section id="mod9">
+        <h2>9. AI 聊天 (AIChat)</h2>
+        <div class="api-block">
+            <div class="api-title"><span class="method post">POST</span> <code>/api/chat</code> <span
+                    class="auth-tag staff">staff</span></div>
+            <strong>Request Body:</strong>
+            <pre>{
+  "message": "示例聊天内容",
+  "session_id": "user-unique-session-123"
+}</pre>
+            <strong>Response Data:</strong>
+            <pre>{ "message": "示例AI返回内容" }</pre>
+        </div>
+    </section>
+
+    <div
+        style="margin-top: 100px; padding: 20px; background: #f1f1f1; text-align: center; border-top: 1px solid #ccc; font-size: 12px; color: #666;">
+        <p>文档最后更新日期：2025-12-22</p>
+        <p>所有受保护接口必须验证 JWT。Superadmin 可绕过所有 <code>AdminOnly</code> 检查。</p>
+    </div>
+
+</body>
+
+</html>

@@ -41,21 +41,37 @@ backend/
 │   └── jwt.go              # JWT 登录与角色验证
 ├── models/                 # 数据模型
 ├── static/                 # 测试页面与静态文件
-├──.env                     # 环境配置文件
+├── tmp/                    # 临时文件
+├──.env.example             # 环境配置文件
 ├── router.go               # 路由注册
 └── main.go                 # 程序入口
 ```
 
 ---
 
-## API 接口文档（概要）
+## API 接口文档
 
 **通用规则**：
 - 认证方式：大多数接口需要在 Header 中携带 `Authorization: Bearer <token>`（登录后获取）
 - `/api/admin/*`：仅管理员（role=admin）可访问
 - `/api/user/*`：普通员工（role=staff）可访问
 - 请求/响应内容类型：`application/json`
-- 成功响应通常包含 `{ code: 0, msg: "success", data: ... }`（具体以实际返回为准）
+
+---
+
+**统一响应格式**：
+- 所有接口统一返回 JSON，基本结构如下：
+```json
+{
+  "code": 0,
+  "msg": "success",
+  "data": {}
+}
+```
+- 其中：
+- code：业务状态码，0 表示成功
+- msg：提示信息
+- data：返回数据内容（不同接口含义不同）
 
 ---
 
@@ -167,11 +183,19 @@ backend/
 
 ---
 
-### 10. 权限矩阵
+### 10. 权限矩阵 (Permissions)
 
 | 方法 | 路径                      | 权限   | 请求体 | 说明                        |
 |------|---------------------------|--------|--------|-----------------------------|
 | GET  | `/api/user/permissions`   | staff  | 无     | 获取当前用户对所有接口的权限状态 |
+
+---
+
+### 11. AI聊天 (AIChat)
+
+| 方法 | 路径                      | 权限   | 请求体                                        | 说明                        |
+|------|---------------------------|--------|---------------------------------------------|-----------------------------|
+| POST | `/api/chat`   | staff  | `{ "message": "Message", "session_id": "web-session" }` | 返回结果中包含 AI 回复内容  |
 
 ---
 
@@ -186,6 +210,7 @@ backend/
 权限控制方式：
 
 * JWT 中写入 role
+* **superadmin** 权限由 `handlers\auth.go` 配置管理，可访问所有页面，作为最高权限管理其他所有权限角色
 * `/api/admin/**` 由 `AdminOnly()` 中间件保护
 * `/api/user/**` 任何登录用户可访问
 * 权限展示接口 `/api/user/permissions` 返回每个接口可访问角色明细
@@ -232,26 +257,18 @@ go run .
 
 ---
 
-## 注意事项
+## Superadmin 权限账号（必填配置）
 
-1. 密码全部采用 bcrypt 加密
-2. JWT 密钥建议使用环境变量
-3. 所有数据表由 GORM 自动迁移创建
-4. 考勤表建议在数据库中为 `(emp_id, date)` 添加唯一索引
-5. 权限展示无需数据库，直接由后端维护静态权限表即可
+项目包含一个用于演示/紧急情况的 superadmin 账号，**必须通过环境变量配置**，不得硬编码。
+
+请在 `.env` 中设置：
+
+- SUPERADMIN_USERNAME
+- SUPERADMIN_PASSWORD
+- SUPERADMIN_ROLE（默认 superadmin）
+- SUPERADMIN_ENABLED（true/false）
+
+> 注意：若启用 SUPERADMIN_ENABLED=true 但未设置用户名或密码，服务将拒绝启动。
+
 
 ---
-
-## 常见问题
-
-### 1. 如何修改 JWT 密钥？
-
-编辑 `middlewares/jwt.go` 内的 `getSecret()` 函数。
-
-### 2. 如何新增业务模块？
-
-创建 `models/xxx.go` → `dao/xxx.go` → `handlers/xxx.go` → 在 `router.go` 注册路由。
-
-### 3. 如何初始化 SQLite？
-
-确保 `db/` 目录存在，或在 `database.go` 内配置 SQLite 文件路径。

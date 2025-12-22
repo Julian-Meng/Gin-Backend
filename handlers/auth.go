@@ -7,21 +7,91 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 )
 
-// superadmin / root 配置
-// 这里先用硬编码，建议后面改成从 env / config 读取
-const superAdminUsername = "root"
-const superAdminPassword = "root123"
-const superAdminRole = "superadmin"
+type SuperAdminConfig struct {
+	Enabled  bool
+	Username string
+	Password string
+	Role     string
+}
 
-// 登录逻辑
-// POST /auth/login
-// Body: { "username": "...", "password": "..." }
+var (
+	superAdminOnce sync.Once
+	superAdminCfg  SuperAdminConfig
+	superAdminErr  error
+)
+
+// MustInitAuthConfig 应当在 main() 中、godotenv.Load() 之后调用一次。
+// 目的：fail-fast 校验必要的 env 配置，避免“运行起来才发现配置缺失”。
+func MustInitAuthConfig() {
+	_ = mustLoadSuperAdminConfig()
+}
+
+func mustLoadSuperAdminConfig() SuperAdminConfig {
+	superAdminOnce.Do(func() {
+		cfg, err := loadSuperAdminConfig()
+		if err != nil {
+			superAdminErr = err
+			return
+		}
+		superAdminCfg = cfg
+	})
+
+	if superAdminErr != nil {
+		log.Fatal("❌ Superadmin权限配置出错: ", superAdminErr)
+	}
+	return superAdminCfg
+}
+
+func loadSuperAdminConfig() (SuperAdminConfig, error) {
+	enabledRaw := strings.TrimSpace(os.Getenv("SUPERADMIN_ENABLED"))
+	if enabledRaw == "" {
+		return SuperAdminConfig{}, fmt.Errorf("缺少所需的env变量: SUPERADMIN_ENABLED (必须是 true/false)")
+	}
+	enabled, err := strconv.ParseBool(enabledRaw)
+	if err != nil {
+		return SuperAdminConfig{}, fmt.Errorf("无效的 SUPERADMIN_ENABLED=%q (必须是 true/false)", enabledRaw)
+	}
+
+	// 禁用时：不要求其他字段
+	if !enabled {
+		return SuperAdminConfig{Enabled: false}, nil
+	}
+
+	username := strings.TrimSpace(os.Getenv("SUPERADMIN_USERNAME"))
+	if username == "" {
+		return SuperAdminConfig{}, fmt.Errorf("缺少所需的env变量: SUPERADMIN_USERNAME")
+	}
+
+	password := strings.TrimSpace(os.Getenv("SUPERADMIN_PASSWORD"))
+	if password == "" {
+		return SuperAdminConfig{}, fmt.Errorf("缺少所需的env变量: SUPERADMIN_PASSWORD")
+	}
+
+	role := strings.TrimSpace(os.Getenv("SUPERADMIN_ROLE"))
+	if role == "" {
+		return SuperAdminConfig{}, fmt.Errorf("缺少所需的env变量: SUPERADMIN_ROLE")
+	}
+
+	return SuperAdminConfig{
+		Enabled:  true,
+		Username: username,
+		Password: password,
+		Role:     role,
+	}, nil
+}
+
+// POST /api/login
 func Login(c *gin.Context) {
+	cfg := mustLoadSuperAdminConfig()
+
 	var req models.Account
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -43,35 +113,37 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// 1. root 超级管理员特权
-
-	if req.Username == superAdminUsername {
-		if req.Password != superAdminPassword {
+	// 1) superadmin 兜底账号（仅启用时）
+	if cfg.Enabled && req.Username == cfg.Username {
+		if req.Password != cfg.Password {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code": 1,
-				"msg":  "root 密码错误",
+				"msg":  "superadmin 密码错误",
 			})
 			return
 		}
-		// root 超级管理员
-		token, err := middlewares.GenerateToken(superAdminUsername, "", superAdminRole)
+
+		token, err := middlewares.GenerateToken(cfg.Username, "", cfg.Role)
 		if err != nil {
-			log.Println("❌ 生成 root Token 失败:", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "生成 Token 失败"})
+			log.Println("❌ 生成 superadmin Token 失败:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"code": 1,
+				"msg":  "生成 Token 失败",
+			})
 			return
 		}
+
 		c.JSON(http.StatusOK, gin.H{
 			"code":     0,
 			"msg":      "登录成功",
 			"token":    token,
-			"username": superAdminUsername,
-			"role":     superAdminRole,
+			"username": cfg.Username,
+			"role":     cfg.Role,
 		})
 		return
 	}
 
-	// 2. 普通用户登录（走 DAO）
-
+	// 2) 普通用户登录
 	account, ok := dao.ValidateLogin(req.Username, req.Password)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -81,7 +153,6 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	//普通用户（有账号 + emp_id）
 	token, err := middlewares.GenerateToken(account.Username, account.EmpID, account.Role)
 	if err != nil {
 		log.Println("❌ 生成 Token 失败:", err)
@@ -102,10 +173,10 @@ func Login(c *gin.Context) {
 	})
 }
 
-// 注册逻辑
-// POST /auth/register
-// Body: { "username": "...", "password": "...", "role": "staff|admin" }
+// POST /api/register
 func Register(c *gin.Context) {
+	cfg := mustLoadSuperAdminConfig()
+
 	var acc models.Account
 	if err := c.ShouldBindJSON(&acc); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -126,8 +197,8 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// 禁止通过注册接口创建 / 覆盖 root 账号
-	if acc.Username == superAdminUsername {
+	// 启用 superadmin 时：保留用户名不可注册
+	if cfg.Enabled && acc.Username == cfg.Username {
 		c.JSON(http.StatusForbidden, gin.H{
 			"code": 1,
 			"msg":  "不允许注册保留用户名",
@@ -135,21 +206,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// 可选：用户名长度限制
-	if len(acc.Username) < 3 || len(acc.Username) > 32 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "用户名长度需在 3-32 之间",
-		})
-		return
-	}
-
-	// 若密码为空，交给 DAO 里兜底（默认为 123456），也可以这里兜一层
-	if strings.TrimSpace(acc.Password) == "" {
-		acc.Password = ""
-	}
-
-	// 检查重名（原来是直接 InsertAccount，遇到唯一索引冲突就 500）:contentReference[oaicite:2]{index=2}
+	// 检查重名
 	if _, exists := dao.GetAccountByUsername(acc.Username); exists {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": 1,
@@ -158,11 +215,6 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// 调用 DAO：
-	// - 默认密码处理
-	// - 密码加密
-	// - 生成 EmpID
-	// - 创建 PERSON 记录
 	if err := dao.InsertAccount(acc); err != nil {
 		log.Println("❌ 注册失败:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{

@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/db"
+	"backend/handlers"
 	"context"
 	"log"
 	"net/http"
@@ -20,8 +21,10 @@ func main() {
 	// 1) 加载 .env
 	if err := godotenv.Load(); err != nil {
 		// 不强制报错：允许你在生产环境不使用 .env
-		log.Println("⚠️ 未找到 .env，将使用系统环境变量")
+		log.Println("⚠️ 未找到 .env 文件")
 	}
+	// 初始化 Auth 配置读取.env
+	handlers.MustInitAuthConfig()
 
 	// 2) Gin Mode
 	ginMode := strings.TrimSpace(getEnv("GIN_MODE", gin.ReleaseMode))

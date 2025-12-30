@@ -42,6 +42,9 @@ func SetupRouter() *gin.Engine {
 		// 仪表盘
 		admin.GET("/dashboard", handlers.AdminDashboard)
 
+		// 管理员组AI分析
+		admin.GET("/ai/analyze/dashboard", handlers.AdminAnalyzeDashboardAI)
+
 		// 员工管理（person.go）
 		admin.GET("/persons", handlers.GetPersons)
 		admin.POST("/person", handlers.CreatePerson)
@@ -92,6 +95,9 @@ func SetupRouter() *gin.Engine {
 	user.Use(middlewares.JWTAuthMiddleware())
 	{
 		user.GET("/dashboard", handlers.UserDashboard)
+
+		// 用户组AI分析
+		user.GET("/ai/analyze/dashboard", handlers.UserAnalyzeDashboardAI)
 
 		// 用户可查看自己的资料
 		user.GET("/profile/:id", handlers.GetPersonByID)

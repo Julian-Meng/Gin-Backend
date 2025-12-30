@@ -349,7 +349,7 @@
             <li class="nav-item" onclick="switchTab('tab-profile')">📄 <span>个人档案</span></li>
             <li class="nav-item" onclick="switchTab('tab-attend')">📅 <span>考勤管理</span></li>
             <li class="nav-item" onclick="switchTab('tab-perm')">🛡️ <span>权限矩阵</span></li>
-            <li class="nav-item" onclick="switchTab('tab-ai-chat')">🤖 <span>AI聊天</span></li>
+            <li class="nav-item" onclick="switchTab('tab-ai-chat')">🤖 <span>AI 聊天</span></li>
 
         </ul>
         <div style="margin-top: auto; padding: 15px;">
@@ -752,6 +752,8 @@
                     </div>
                     <div class="form-row">
                         <button onclick="sendAIMessage()">发送</button>
+                        <button class="secondary" onclick="aiAnalyzeAdminDashboard()">🤖 解读管理员 Dashboard</button>
+                        <button class="secondary" onclick="aiAnalyzeUserDashboard()">🤖 解读用户 Dashboard</button>
                     </div>
 
                     <h3>聊天记录</h3>
@@ -1047,6 +1049,28 @@
             chatLog.innerHTML += `<div><strong>AI：</strong>${response?.message || '无法获取回复'
                 }</div>`;
 
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        async function aiAnalyzeAdminDashboard() {
+            const chatLog = document.getElementById('ai_chat_log');
+            chatLog.innerHTML += `<div><strong>你：</strong>请解读管理员 Dashboard 数据</div>`;
+
+            const response = await call('GET', '/api/admin/ai/analyze/dashboard');
+
+            const analysis = response?.data?.analysis;
+            chatLog.innerHTML += `<div><strong>AI：</strong>${analysis || (response?.msg || '无法获取分析结果')}</div>`;
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        async function aiAnalyzeUserDashboard() {
+            const chatLog = document.getElementById('ai_chat_log');
+            chatLog.innerHTML += `<div><strong>你：</strong>请解读用户的 Dashboard 数据</div>`;
+
+            const response = await call('GET', '/api/user/ai/analyze/dashboard');
+
+            const analysis = response?.data?.analysis;
+            chatLog.innerHTML += `<div><strong>AI：</strong>${analysis || (response?.msg || '无法获取分析结果')}</div>`;
             chatLog.scrollTop = chatLog.scrollHeight;
         }
 

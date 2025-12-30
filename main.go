@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	// 1) 加载 .env
+	// 加载 .env
 	if err := godotenv.Load(); err != nil {
 		// 不强制报错：允许你在生产环境不使用 .env
 		log.Println("⚠️ 未找到 .env 文件")
@@ -26,20 +26,20 @@ func main() {
 	// 初始化 Auth 配置读取.env
 	handlers.MustInitAuthConfig()
 
-	// 2) Gin Mode
+	// Gin Mode
 	ginMode := strings.TrimSpace(getEnv("GIN_MODE", gin.ReleaseMode))
 	gin.SetMode(ginMode)
 
-	// 3) JWT Secret
+	// JWT Secret
 	jwtSecret := strings.TrimSpace(os.Getenv("JWT_SECRET"))
 	if jwtSecret == "" {
 		log.Fatal("❌ JWT_SECRET 未设置：请在 .env 或系统环境变量中配置 JWT_SECRET")
 	}
 
-	// 4) 启动时间统计
+	// 启动时间统计
 	start := time.Now()
 
-	// 5) 数据库配置
+	// 数据库配置
 	dbDriver := strings.TrimSpace(getEnv("DB_DRIVER", "sqlite"))
 	dbDSN := strings.TrimSpace(getEnv("DB_DSN", "./db/hr.db"))
 	dbDebug := getEnvBool("DB_DEBUG", false)
@@ -55,10 +55,10 @@ func main() {
 		log.Fatalf("❌ 数据库初始化失败: %v", err)
 	}
 
-	// 6) 初始化路由
+	// 初始化路由
 	r := SetupRouter()
 
-	// 7) Server 配置（地址/端口从环境变量读取）
+	// Server 配置（地址/端口从环境变量读取）
 	addr := strings.TrimSpace(getEnv("SERVER_ADDR", ":2077"))
 	server := &http.Server{
 		Addr:    addr,
@@ -78,7 +78,7 @@ func main() {
 	log.Printf("✅ 启动耗时: %d ms\n", bootCost.Milliseconds())
 	log.Printf("✅ 后端模式: %s | 数据库: %s | 数据库Debug: %v\n", ginMode, dbDriver, dbDebug)
 
-	// 8) 优雅退出
+	// 退出
 	shutdownTimeoutSec := getEnvInt("SHUTDOWN_TIMEOUT_SECONDS", 5)
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
@@ -99,6 +99,7 @@ func main() {
 	log.Println("✅ 服务已安全退出")
 }
 
+// getEnv 获取环境变量，若未设置则返回默认值
 func getEnv(key, defaultVal string) string {
 	v := strings.TrimSpace(os.Getenv(key))
 	if v == "" {
@@ -107,6 +108,7 @@ func getEnv(key, defaultVal string) string {
 	return v
 }
 
+// getEnvBool 获取布尔类型的环境变量，若未设置或解析失败则返回默认值
 func getEnvBool(key string, defaultVal bool) bool {
 	v := strings.TrimSpace(os.Getenv(key))
 	if v == "" {
@@ -120,6 +122,7 @@ func getEnvBool(key string, defaultVal bool) bool {
 	return b
 }
 
+// getEnvInt 获取整数类型的环境变量，若未设置或解析失败则返回默认值
 func getEnvInt(key string, defaultVal int) int {
 	v := strings.TrimSpace(os.Getenv(key))
 	if v == "" {

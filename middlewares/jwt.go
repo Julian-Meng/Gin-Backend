@@ -42,11 +42,11 @@ func loadJWTConfig() jwtConfig {
 
 	// 一些轻量校验，避免写 0 或负数导致奇怪行为
 	if expireHours <= 0 {
-		log.Printf("⚠️ JWT_EXPIRE_HOURS=%d 非法，将使用默认值 24", expireHours)
+		log.Printf("\033[43mJWT_EXPIRE_HOURS=%d 非法，将使用默认值 24\033[0m", expireHours)
 		expireHours = 24
 	}
 	if refreshThresholdHours < 0 {
-		log.Printf("⚠️ JWT_REFRESH_THRESHOLD_HOURS=%d 非法，将使用默认值 6", refreshThresholdHours)
+		log.Printf("\033[43mJWT_REFRESH_THRESHOLD_HOURS=%d 非法，将使用默认值 6\033[0m", refreshThresholdHours)
 		refreshThresholdHours = 6
 	}
 
@@ -208,7 +208,7 @@ func getenvInt(key string, def int) int {
 	}
 	i, err := strconv.Atoi(v)
 	if err != nil {
-		log.Printf("⚠️ 环境变量 %s=%q 不是合法 int，将使用默认值 %d", key, v, def)
+		log.Printf("\033[43m环境变量 %s=%q 不是合法 int，将使用默认值 %d\033[0m", key, v, def)
 		return def
 	}
 	return i

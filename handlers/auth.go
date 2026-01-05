@@ -45,7 +45,7 @@ func mustLoadSuperAdminConfig() SuperAdminConfig {
 	})
 
 	if superAdminErr != nil {
-		log.Fatal("❌ Superadmin权限配置出错: ", superAdminErr)
+		log.Fatal("\033[31mSuperadmin权限配置出错: \033[0m", superAdminErr)
 	}
 	return superAdminCfg
 }
@@ -125,7 +125,7 @@ func Login(c *gin.Context) {
 
 		token, err := middlewares.GenerateToken(cfg.Username, "", cfg.Role)
 		if err != nil {
-			log.Println("❌ 生成 superadmin Token 失败:", err)
+			log.Println("\033[31m生成 superadmin Token 失败:\033[0m", err)
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"code": 1,
 				"msg":  "生成 Token 失败",
@@ -155,7 +155,7 @@ func Login(c *gin.Context) {
 
 	token, err := middlewares.GenerateToken(account.Username, account.EmpID, account.Role)
 	if err != nil {
-		log.Println("❌ 生成 Token 失败:", err)
+		log.Println("\033[31m生成 Token 失败:\033[0m", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":  1,
 			"msg":   "Token 生成失败",
@@ -216,7 +216,7 @@ func Register(c *gin.Context) {
 	}
 
 	if err := dao.InsertAccount(acc); err != nil {
-		log.Println("❌ 注册失败:", err)
+		log.Println("\033[31m注册失败:\033[0m", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":  1,
 			"msg":   "注册失败",

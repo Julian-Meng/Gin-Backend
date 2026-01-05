@@ -42,7 +42,7 @@ func InsertAccount(a models.Account) error {
 			if err := tx.Create(&defaultDept).Error; err != nil {
 				return fmt.Errorf("创建默认部门失败: %v", err)
 			}
-			log.Println("✅ 自动创建默认部门成功: 未分配部门")
+			log.Println("\033[32m自动创建默认部门成功: 未分配部门\033[0m")
 		} else if err != nil {
 			return fmt.Errorf("查询默认部门失败: %v", err)
 		}
@@ -168,7 +168,7 @@ func UpdateAccount(id string, a models.Account) error {
 	if err := dbConn.Model(&models.Account{}).
 		Where("id = ?", uid).
 		Updates(updates).Error; err != nil {
-		log.Printf("❌ 更新账号失败: %v", err)
+		log.Printf("\033[31m更新账号失败: %v\033[0m", err)
 		return err
 	}
 	return nil

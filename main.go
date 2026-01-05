@@ -21,7 +21,7 @@ func main() {
 	// 加载 .env
 	if err := godotenv.Load(); err != nil {
 		// 不强制报错：允许你在生产环境不使用 .env
-		log.Println("⚠️ 未找到 .env 文件")
+		log.Println("\033[43m未找到 .env 文件\033[0m")
 	}
 	// 初始化 Auth 配置读取.env
 	handlers.MustInitAuthConfig()
@@ -33,7 +33,7 @@ func main() {
 	// JWT Secret
 	jwtSecret := strings.TrimSpace(os.Getenv("JWT_SECRET"))
 	if jwtSecret == "" {
-		log.Fatal("❌ JWT_SECRET 未设置：请在 .env 或系统环境变量中配置 JWT_SECRET")
+		log.Fatal("\033[31mJWT_SECRET 未设置：请在 .env 或系统环境变量中配置 JWT_SECRET\033[0m")
 	}
 
 	// 启动时间统计
@@ -52,7 +52,7 @@ func main() {
 
 	// 初始化数据库
 	if err := db.InitDB(cfg); err != nil {
-		log.Fatalf("❌ 数据库初始化失败: %v", err)
+		log.Fatalf("\033[31m数据库初始化失败: %v\033[0m", err)
 	}
 
 	// 初始化路由
@@ -68,15 +68,15 @@ func main() {
 	// 启动服务
 	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("❌ 服务启动失败: %v", err)
+			log.Fatalf("\033[31m服务启动失败: %v\033[0m", err)
 		}
 	}()
 
 	// 启动完成 → 打印耗时
 	bootCost := time.Since(start)
-	log.Printf("✅ 服务运行于 → http://localhost%s\n", server.Addr)
-	log.Printf("✅ 启动耗时: %d ms\n", bootCost.Milliseconds())
-	log.Printf("✅ 后端模式: %s | 数据库: %s | 数据库Debug: %v\n", ginMode, dbDriver, dbDebug)
+	log.Printf("\033[32m服务运行于 → http://localhost%s\033[0m\n", server.Addr)
+	log.Printf("\033[32m启动耗时: %d ms\033[0m\n", bootCost.Milliseconds())
+	log.Printf("\033[32m后端模式: %s | 数据库: %s | 数据库Debug: %v\033[0m\n", ginMode, dbDriver, dbDebug)
 
 	// 退出
 	shutdownTimeoutSec := getEnvInt("SHUTDOWN_TIMEOUT_SECONDS", 5)
@@ -84,19 +84,19 @@ func main() {
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 	<-quit
 
-	log.Println("✅ 正在停止服务...")
+	log.Println("\033[33m正在停止服务...\033[0m")
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(shutdownTimeoutSec)*time.Second)
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {
-		log.Println("❌ 关闭服务时出错:", err)
+		log.Println("\033[31m关闭服务时出错:\033[0m", err)
 	}
 
 	// 关闭数据库连接
 	db.CloseDB()
 
-	log.Println("✅ 服务已安全退出")
+	log.Println("\033[32m服务已安全退出\033[0m")
 }
 
 // getEnv 获取环境变量，若未设置则返回默认值
@@ -116,7 +116,7 @@ func getEnvBool(key string, defaultVal bool) bool {
 	}
 	b, err := strconv.ParseBool(v)
 	if err != nil {
-		log.Printf("⚠️ 环境变量 %s=%q 不是合法 bool，将使用默认值 %v\n", key, v, defaultVal)
+		log.Printf("\033[43m环境变量 %s=%q 不是合法 bool，将使用默认值 %v\033[0m\n", key, v, defaultVal)
 		return defaultVal
 	}
 	return b
@@ -130,7 +130,7 @@ func getEnvInt(key string, defaultVal int) int {
 	}
 	i, err := strconv.Atoi(v)
 	if err != nil {
-		log.Printf("⚠️ 环境变量 %s=%q 不是合法 int，将使用默认值 %d\n", key, v, defaultVal)
+		log.Printf("\033[43m环境变量 %s=%q 不是合法 int，将使用默认值 %d\033[0m\n", key, v, defaultVal)
 		return defaultVal
 	}
 	return i

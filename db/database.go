@@ -89,7 +89,7 @@ func InitDB(cfg Config) error {
 	}
 
 	DB = db
-	log.Printf("✅ 数据库连接成功 → [%s]", cfg.Driver)
+	log.Printf("\033[32m数据库连接成功 → [%s]\033[0m", cfg.Driver)
 
 	// MySQL 设置连接池
 	if sqlDB, err := db.DB(); err == nil {
@@ -148,7 +148,7 @@ func ensureDefaultDepartment() error {
 		if err := DB.Create(&def).Error; err != nil {
 			return fmt.Errorf("创建默认部门失败: %v", err)
 		}
-		log.Println("✅ 已自动创建默认部门: 未分配部门")
+		log.Println("\033[32m已自动创建默认部门: 未分配部门\033[0m")
 	}
 	return nil
 }

@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: backend-mysql
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    ports:
+      - "127.0.0.1:${MYSQL_PORT:-3306}:3306"
+
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_0900_ai_ci
+
+    # 持久化数据
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: backend-ollama
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:${OLLAMA_PORT:-11434}:11434"
+
+    # 持久化模型
+    volumes:
+      - ollama_data:/root/.ollama
+
+volumes:
+  mysql_data:
+  ollama_data:

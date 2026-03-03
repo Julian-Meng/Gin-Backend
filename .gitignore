@@ -1,5 +1,7 @@
 /.vscode
 
+/.idea
+
 /*.txt
 
 **/.env

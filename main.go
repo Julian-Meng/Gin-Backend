@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/handlers"
 	"context"
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -67,7 +68,7 @@ func main() {
 
 	// 启动服务
 	go func() {
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("\033[31m服务启动失败: %v\033[0m", err)
 		}
 	}()

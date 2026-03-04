@@ -16,7 +16,7 @@ import (
 
 var DB *gorm.DB
 
-// 数据库配置结构体
+// Config 数据库配置结构体
 type Config struct {
 	Driver string
 	DSN    string
@@ -127,7 +127,10 @@ func autoMigrateAll() error {
 func ensureSQLiteDir() {
 	dir := "db"
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		os.MkdirAll(dir, 0755)
+		err := os.MkdirAll(dir, 0755)
+		if err != nil {
+			return
+		}
 	}
 }
 
@@ -153,16 +156,19 @@ func ensureDefaultDepartment() error {
 	return nil
 }
 
-// 返回全局 DB
+// GetDB 返回全局 DB
 func GetDB() *gorm.DB { return DB }
 
-// 关闭数据库连接
+// CloseDB 关闭数据库连接
 func CloseDB() {
 	if DB == nil {
 		return
 	}
 	sqlDB, err := DB.DB()
 	if err == nil {
-		sqlDB.Close()
+		err := sqlDB.Close()
+		if err != nil {
+			return
+		}
 	}
 }

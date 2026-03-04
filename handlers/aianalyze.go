@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 管理员：AI 解读仪表盘（全局数据）
+// AdminAnalyzeDashboardAI 管理员：AI 解读仪表盘（全局数据）
 // GET /api/admin/ai/analyze/dashboard
 func AdminAnalyzeDashboardAI(c *gin.Context) {
 	data := dao.GetAdminDashboardData()
@@ -31,7 +31,7 @@ func AdminAnalyzeDashboardAI(c *gin.Context) {
 	})
 }
 
-// 普通用户：AI 解读仪表盘（个人数据）
+// UserAnalyzeDashboardAI 普通用户：AI 解读仪表盘（个人数据）
 // GET /api/user/ai/analyze/dashboard
 func UserAnalyzeDashboardAI(c *gin.Context) {
 	data := dao.GetUserDashboardData()

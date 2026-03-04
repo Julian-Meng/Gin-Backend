@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 获取部门列表（分页 + 搜索）
+// GetDepartments 获取部门列表（分页 + 搜索）
 // GET /departments?page=&pageSize=&keyword=
 func GetDepartments(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -42,7 +42,7 @@ func GetDepartments(c *gin.Context) {
 	})
 }
 
-// 获取单个部门（ID）
+// GetDepartmentByID 获取单个部门（ID）
 // GET /departments/:id
 func GetDepartmentByID(c *gin.Context) {
 	idStr := c.Param("id")
@@ -72,7 +72,7 @@ func GetDepartmentByID(c *gin.Context) {
 	})
 }
 
-// 创建部门
+// CreateDepartment 创建部门
 // POST /departments
 // Body: { "name": "...", "manager": "...", "intro": "...", ... }
 func CreateDepartment(c *gin.Context) {
@@ -116,7 +116,7 @@ func CreateDepartment(c *gin.Context) {
 	})
 }
 
-// 更新部门
+// UpdateDepartment 更新部门
 // PUT /departments/:id
 func UpdateDepartment(c *gin.Context) {
 	idStr := c.Param("id")
@@ -157,7 +157,7 @@ func UpdateDepartment(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "部门更新成功"})
 }
 
-// 删除部门
+// DeleteDepartment 删除部门
 // DELETE /departments/:id
 func DeleteDepartment(c *gin.Context) {
 	idStr := c.Param("id")

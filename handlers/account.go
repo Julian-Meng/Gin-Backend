@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 获取全部账号（建议管理员权限）
+// GetAllAccounts 获取全部账号（建议管理员权限）
 // GET /accounts
 func GetAllAccounts(c *gin.Context) {
 	accounts := dao.GetAllAccounts()
@@ -27,7 +27,7 @@ func GetAllAccounts(c *gin.Context) {
 	})
 }
 
-// 创建账号（注册 / 后台新增）
+// CreateAccount 创建账号（注册 / 后台新增）
 // POST /accounts
 // Body: { "username": "...", "password": "...", "role": "admin|staff" }
 func CreateAccount(c *gin.Context) {
@@ -95,7 +95,7 @@ func CreateAccount(c *gin.Context) {
 	})
 }
 
-// 更新账号信息（角色 / 状态）
+// UpdateAccount 更新账号信息（角色 / 状态）
 // PUT /accounts/:id
 // Body: { "role": "admin|staff", "status": 0|1 }
 func UpdateAccount(c *gin.Context) {
@@ -151,7 +151,7 @@ func UpdateAccount(c *gin.Context) {
 	})
 }
 
-// 删除账号
+// DeleteAccount 删除账号
 // DELETE /accounts/:id
 func DeleteAccount(c *gin.Context) {
 	id := c.Param("id")

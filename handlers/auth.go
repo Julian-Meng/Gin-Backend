@@ -88,7 +88,7 @@ func loadSuperAdminConfig() (SuperAdminConfig, error) {
 	}, nil
 }
 
-// POST /api/login
+// Login POST /api/login
 func Login(c *gin.Context) {
 	cfg := mustLoadSuperAdminConfig()
 
@@ -173,7 +173,7 @@ func Login(c *gin.Context) {
 	})
 }
 
-// POST /api/register
+// Register POST /api/register
 func Register(c *gin.Context) {
 	cfg := mustLoadSuperAdminConfig()
 

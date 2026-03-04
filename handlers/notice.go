@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 获取公告列表（分页）
+// GetAllNotices 获取公告列表（分页）
 // GET /notices?page=&pageSize=
 func GetAllNotices(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -41,7 +41,7 @@ func GetAllNotices(c *gin.Context) {
 	})
 }
 
-// 获取单条公告
+// GetNoticeByID 获取单条公告
 // GET /notices/:id
 func GetNoticeByID(c *gin.Context) {
 	idStr := c.Param("id")
@@ -71,7 +71,7 @@ func GetNoticeByID(c *gin.Context) {
 	})
 }
 
-// 创建公告
+// CreateNotice 创建公告
 // POST /notices
 // Body: { "title": "...", "content": "...", "publisher": "..." }
 func CreateNotice(c *gin.Context) {
@@ -113,7 +113,7 @@ func CreateNotice(c *gin.Context) {
 	})
 }
 
-// 更新公告
+// UpdateNotice 更新公告
 // PUT /notices/:id
 func UpdateNotice(c *gin.Context) {
 	idStr := c.Param("id")
@@ -160,7 +160,7 @@ func UpdateNotice(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "公告更新成功"})
 }
 
-// 删除公告
+// DeleteNotice 删除公告
 // DELETE /notices/:id
 func DeleteNotice(c *gin.Context) {
 	idStr := c.Param("id")

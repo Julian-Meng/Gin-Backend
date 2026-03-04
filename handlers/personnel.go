@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 获取人事变更列表（分页）
+// GetPersonnelList 获取人事变更列表（分页）
 // GET /personnel?page=&pageSize=
 func GetPersonnelList(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -44,7 +44,7 @@ func GetPersonnelList(c *gin.Context) {
 	})
 }
 
-// 获取单条人事变更详情
+// GetPersonnelByID 获取单条人事变更详情
 // GET /personnel/:id
 func GetPersonnelByID(c *gin.Context) {
 	idStr := c.Param("id")
@@ -74,7 +74,7 @@ func GetPersonnelByID(c *gin.Context) {
 	})
 }
 
-// 发起人事变更申请
+// CreatePersonnel 发起人事变更申请
 // POST /personnel
 //
 //	Body {
@@ -139,7 +139,7 @@ func CreatePersonnel(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "申请已提交"})
 }
 
-// 审批人事变更
+// ApprovePersonnel 审批人事变更
 // PUT /personnel/approve
 //
 //	Body {

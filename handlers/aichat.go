@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 处理AI聊天请求
+// ChatWithAI 处理AI聊天请求
 func ChatWithAI(c *gin.Context) {
 	var req models.AIRequest
 

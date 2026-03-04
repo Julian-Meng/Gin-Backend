@@ -17,7 +17,7 @@ func (Department) TableName() string {
 	return "DEPARTMENT"
 }
 
-// 用于列表返回的结构
+// DepartmentWithCount 用于列表返回的结构
 type DepartmentWithCount struct {
 	Department
 	MemberCount int    `json:"member_count"`

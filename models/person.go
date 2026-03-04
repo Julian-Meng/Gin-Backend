@@ -25,7 +25,7 @@ func (Person) TableName() string {
 	return "PERSON"
 }
 
-// 列表显示结构
+// EmployeeInfo 列表显示结构
 type EmployeeInfo struct {
 	ID         uint   `json:"id"`
 	EmpID      string `json:"emp_id"`

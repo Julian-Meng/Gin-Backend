@@ -224,11 +224,6 @@
             flex-shrink: 0;
         }
 
-        #right.hidden {
-            margin-right: calc(var(--console-width) * -1);
-            display: none;
-        }
-
         /* === 复用之前的表单样式 === */
         h3 {
             font-size: 14px;
@@ -367,7 +362,7 @@
         <header id="top-bar">
             <div class="token-area">
                 <span style="font-size:12px; color:#64748b; font-weight:600;">TOKEN:</span>
-                <input id="token" placeholder="Login to get token..." />
+                <label for="token"></label><input id="token" placeholder="Login to get token..." />
             </div>
             <div class="top-actions">
                 <button onclick="openJSONViewer()">打开JSON监控窗口</button>
@@ -385,8 +380,8 @@
 
                     <h3>登录 (POST /api/login)</h3>
                     <div class="form-row">
-                        <input id="login_user" placeholder="用户名" />
-                        <input id="login_pass" placeholder="密码" type="password" />
+                        <label for="login_user"></label><input id="login_user" placeholder="用户名" />
+                        <label for="login_pass"></label><input id="login_pass" placeholder="密码" type="password" />
                         <button onclick="login()">登录</button>
                     </div>
 
@@ -394,9 +389,9 @@
 
                     <h3>注册 (POST /api/register)</h3>
                     <div class="form-row">
-                        <input id="reg_user" placeholder="用户名" />
-                        <input id="reg_pass" placeholder="密码" type="password" />
-                        <select id="reg_role" style="flex:0.5">
+                        <label for="reg_user"></label><input id="reg_user" placeholder="用户名" />
+                        <label for="reg_pass"></label><input id="reg_pass" placeholder="密码" type="password" />
+                        <label for="reg_role"></label><select id="reg_role" style="flex:0.5">
                             <option value="staff">staff</option>
                             <option value="admin">admin</option>
                         </select>
@@ -436,24 +431,24 @@
 
                     <h3>员工详情 & 删除</h3>
                     <div class="form-row">
-                        <input id="person_id" placeholder="员工 ID (DB ID)" />
+                        <label for="person_id"></label><input id="person_id" placeholder="员工 ID (DB ID)" />
                         <button onclick="call('GET', `/api/admin/person/${person_id.value}`)">查询</button>
                         <button class="secondary" style="color: #ef4444;"
                             onclick="call('DELETE', `/api/admin/person/${person_id.value}`)">删除</button>
                     </div>
 
                     <div class="form-row">
-                        <input id="p_del_emp" placeholder="员工工号 (Emp ID)" />
+                        <label for="p_del_emp"></label><input id="p_del_emp" placeholder="员工工号 (Emp ID)" />
                         <button class="secondary" style="color: #ef4444;"
                             onclick="call('DELETE', `/api/admin/person/emp/${p_del_emp.value}`)">按工号删除</button>
                     </div>
 
                     <h3>创建新员工</h3>
                     <div class="form-row">
-                        <input id="p_name" placeholder="姓名" />
-                        <input id="p_empid" placeholder="工号 (空则自动)" />
-                        <input id="p_dptid" placeholder="部门 ID" />
-                        <input id="p_job" placeholder="岗位" />
+                        <label for="p_name"></label><input id="p_name" placeholder="姓名" />
+                        <label for="p_empid"></label><input id="p_empid" placeholder="工号 (空则自动)" />
+                        <label for="p_dptid"></label><input id="p_dptid" placeholder="部门 ID" />
+                        <label for="p_job"></label><input id="p_job" placeholder="岗位" />
                     </div>
                     <div class="form-row">
                         <button onclick="createPerson()">创建</button>
@@ -461,21 +456,21 @@
 
                     <h3>属性修改</h3>
                     <div class="form-row">
-                        <input id="p_ch_emp" placeholder="工号" />
-                        <input id="p_ch_dept" placeholder="新部门名" />
+                        <label for="p_ch_emp"></label><input id="p_ch_emp" placeholder="工号" />
+                        <label for="p_ch_dept"></label><input id="p_ch_dept" placeholder="新部门名" />
                         <button class="secondary" onclick="changeDept()">改部门</button>
                     </div>
                     <div class="form-row">
-                        <input id="p_state_emp" placeholder="工号" />
-                        <select id="p_state_val">
+                        <label for="p_state_emp"></label><input id="p_state_emp" placeholder="工号" />
+                        <label for="p_state_val"></label><select id="p_state_val">
                             <option value="1">在职 (1)</option>
                             <option value="0">离职 (0)</option>
                         </select>
                         <button class="secondary" onclick="changeState()">改状态</button>
                     </div>
                     <div class="form-row">
-                        <input id="p_job_emp" placeholder="工号" />
-                        <input id="p_job_new" placeholder="新职位" />
+                        <label for="p_job_emp"></label><input id="p_job_emp" placeholder="工号" />
+                        <label for="p_job_new"></label><input id="p_job_new" placeholder="新职位" />
                         <button class="secondary" onclick="changeJob()">改职位</button>
                     </div>
                 </div>
@@ -488,34 +483,34 @@
 
                     <h3>部门列表</h3>
                     <div class="form-row">
-                        <input id="dep_page" placeholder="页码 (1)" style="flex:0.5" />
-                        <input id="dep_page_size" placeholder="数量 (10)" style="flex:0.5" />
-                        <input id="dep_keyword" placeholder="关键字" />
+                        <label for="dep_page"></label><input id="dep_page" placeholder="页码 (1)" style="flex:0.5" />
+                        <label for="dep_page_size"></label><input id="dep_page_size" placeholder="数量 (10)" style="flex:0.5" />
+                        <label for="dep_keyword"></label><input id="dep_keyword" placeholder="关键字" />
                         <button onclick="getDeptList()">搜索</button>
                     </div>
 
                     <h3>部门操作</h3>
                     <div class="form-row">
-                        <input id="dep_id" placeholder="部门 ID" />
+                        <label for="dep_id"></label><input id="dep_id" placeholder="部门 ID" />
                         <button onclick="call('GET', `/api/admin/department/${dep_id.value}`)">详情</button>
                         <button class="secondary" style="color: #ef4444;"
                             onclick="call('DELETE', `/api/admin/department/${dep_id.value}`)">删除</button>
                     </div>
                     <div class="form-row">
-                        <input id="u_dep_id" placeholder="部门 ID (User视角的接口)" />
+                        <label for="u_dep_id"></label><input id="u_dep_id" placeholder="部门 ID (User视角的接口)" />
                         <button class="secondary"
                             onclick="call('GET', `/api/user/department/${u_dep_id.value}`)">User查询</button>
                     </div>
 
                     <!-- 兼容旧ID -->
                     <div class="form-row" style="display:none">
-                        <input id="d_del_id" />
+                        <label for="d_del_id"></label><input id="d_del_id" />
                     </div>
 
                     <h3>创建部门</h3>
                     <div class="form-row">
-                        <input id="d_name" placeholder="部门名称" />
-                        <input id="d_full" placeholder="最大人数 (20)" />
+                        <label for="d_name"></label><input id="d_name" placeholder="部门名称" />
+                        <label for="d_full"></label><input id="d_full" placeholder="最大人数 (20)" />
                         <button onclick="createDept()">创建</button>
                     </div>
                 </div>
@@ -530,28 +525,28 @@
                     <div class="form-row">
                         <button style="flex:0.5" class="secondary" onclick="call('GET', '/api/admin/changes')">列表
                             List</button>
-                        <input id="ch_id" placeholder="变更 ID" />
+                        <label for="ch_id"></label><input id="ch_id" placeholder="变更 ID" />
                         <button style="flex:0.5" onclick="call('GET', `/api/admin/change/${ch_id.value}`)">详情</button>
                     </div>
 
                     <h3>发起变更 (管理员)</h3>
                     <div class="form-row">
-                        <input id="ch_emp" placeholder="工号" />
-                        <select id="ch_type">
+                        <label for="ch_emp"></label><input id="ch_emp" placeholder="工号" />
+                        <label for="ch_type"></label><select id="ch_type">
                             <option value="1">1 调部门</option>
                             <option value="2">2 调岗</option>
                             <option value="3">3 离职</option>
                         </select>
-                        <input id="ch_target" placeholder="目标部门ID" />
-                        <input id="ch_desc" placeholder="描述" />
+                        <label for="ch_target"></label><input id="ch_target" placeholder="目标部门ID" />
+                        <label for="ch_desc"></label><input id="ch_desc" placeholder="描述" />
                         <button onclick="createChangeAdmin()">提交</button>
                     </div>
 
                     <h3>审批变更</h3>
                     <div class="form-row">
-                        <input id="ch_app_id" placeholder="变更 ID" style="flex:0.5" />
-                        <input id="ch_app_approver" placeholder="审批人姓名" />
-                        <select id="ch_app_result">
+                        <label for="ch_app_id"></label><input id="ch_app_id" placeholder="变更 ID" style="flex:0.5" />
+                        <label for="ch_app_approver"></label><input id="ch_app_approver" placeholder="审批人姓名" />
+                        <label for="ch_app_result"></label><select id="ch_app_result">
                             <option value="true">通过 (Approve)</option>
                             <option value="false">驳回 (Reject)</option>
                         </select>
@@ -562,14 +557,14 @@
 
                     <h3>用户申请变更</h3>
                     <div class="form-row">
-                        <input id="u_ch_emp" placeholder="本人工号" />
-                        <select id="u_ch_type">
+                        <label for="u_ch_emp"></label><input id="u_ch_emp" placeholder="本人工号" />
+                        <label for="u_ch_type"></label><select id="u_ch_type">
                             <option value="1">调部门</option>
                             <option value="2">调岗</option>
                             <option value="3">离职</option>
                         </select>
-                        <input id="u_ch_target" placeholder="目标部门ID" />
-                        <input id="u_ch_desc" placeholder="描述" />
+                        <label for="u_ch_target"></label><input id="u_ch_target" placeholder="目标部门ID" />
+                        <label for="u_ch_desc"></label><input id="u_ch_desc" placeholder="描述" />
                         <button class="secondary" onclick="createChangeUser()">申请</button>
                     </div>
                 </div>
@@ -583,19 +578,19 @@
                     <h3>查询</h3>
                     <div class="form-row">
                         <button style="flex:0.4" class="secondary" onclick="call('GET', '/api/notice')">公开列表</button>
-                        <input id="n_id" placeholder="公告 ID" />
+                        <label for="n_id"></label><input id="n_id" placeholder="公告 ID" />
                         <button style="flex:0.3" onclick="call('GET', `/api/admin/notice/${n_id.value}`)">详情</button>
-                        <input id="n_del_id" placeholder="删除ID" />
+                        <label for="n_del_id"></label><input id="n_del_id" placeholder="删除ID" />
                         <button style="flex:0.3; color:#ef4444" class="secondary"
                             onclick="call('DELETE', `/api/admin/notice/${n_del_id.value}`)">删除</button>
                     </div>
 
                     <h3>发布公告</h3>
                     <div class="form-row">
-                        <input id="n_title" placeholder="标题 Title" />
-                        <input id="n_pub" placeholder="发布人 Publisher" />
+                        <label for="n_title"></label><input id="n_title" placeholder="标题 Title" />
+                        <label for="n_pub"></label><input id="n_pub" placeholder="发布人 Publisher" />
                     </div>
-                    <textarea id="n_content" placeholder="公告内容 Content..."></textarea>
+                    <label for="n_content"></label><textarea id="n_content" placeholder="公告内容 Content..."></textarea>
                     <div class="form-row">
                         <button style="width:100%" onclick="createNotice()">发布</button>
                     </div>
@@ -614,9 +609,9 @@
 
                     <h3>创建账号</h3>
                     <div class="form-row">
-                        <input id="a_user" placeholder="用户名" />
-                        <input id="a_pass" placeholder="密码" type="password" />
-                        <select id="a_role" style="flex:0.6">
+                        <label for="a_user"></label><input id="a_user" placeholder="用户名" />
+                        <label for="a_pass"></label><input id="a_pass" placeholder="密码" type="password" />
+                        <label for="a_role"></label><select id="a_role" style="flex:0.6">
                             <option value="staff">staff</option>
                             <option value="admin">admin</option>
                         </select>
@@ -625,12 +620,12 @@
 
                     <h3>更新账号</h3>
                     <div class="form-row">
-                        <input id="a_upd_id" placeholder="账号ID" />
-                        <select id="a_upd_role">
+                        <label for="a_upd_id"></label><input id="a_upd_id" placeholder="账号ID" />
+                        <label for="a_upd_role"></label><select id="a_upd_role">
                             <option value="staff">staff</option>
                             <option value="admin">admin</option>
                         </select>
-                        <select id="a_upd_status">
+                        <label for="a_upd_status"></label><select id="a_upd_status">
                             <option value="1">启用</option>
                             <option value="0">禁用</option>
                         </select>
@@ -639,7 +634,7 @@
 
                     <h3>删除账号</h3>
                     <div class="form-row">
-                        <input id="a_del_id" placeholder="账号ID" />
+                        <label for="a_del_id"></label><input id="a_del_id" placeholder="账号ID" />
                         <button class="secondary" style="color:#ef4444"
                             onclick="call('DELETE', `/api/admin/account/${a_del_id.value}`)">删除账号</button>
                     </div>
@@ -658,18 +653,18 @@
 
                     <h3>管理员查询</h3>
                     <div class="form-row">
-                        <input id="prof_empid" placeholder="员工工号 (Emp ID)" />
+                        <label for="prof_empid"></label><input id="prof_empid" placeholder="员工工号 (Emp ID)" />
                         <button class="secondary"
                             onclick="call('GET', `/api/admin/person/profile/${prof_empid.value}`)">查询</button>
                     </div>
 
                     <h3>通用操作 (按 Person ID)</h3>
                     <div class="form-row">
-                        <input id="u_prof_id" placeholder="Person ID" />
+                        <label for="u_prof_id"></label><input id="u_prof_id" placeholder="Person ID" />
                         <button class="secondary"
                             onclick="call('GET', `/api/user/profile/${u_prof_id.value}`)">查询</button>
                     </div>
-                    <textarea id="u_prof_body" placeholder='PUT JSON Body: {"name": "...", "job": "..."}'></textarea>
+                    <label for="u_prof_body"></label><textarea id="u_prof_body" placeholder='PUT JSON Body: {"name": "...", "job": "..."}'></textarea>
                     <button style="width:100%" onclick="updateUserProfileRaw()">更新 (PUT)</button>
                 </div>
             </div>
@@ -689,8 +684,8 @@
 
                     <h3>我的考勤</h3>
                     <div class="form-row">
-                        <input id="att_my_start" placeholder="开始日期 (YYYY-MM-DD)" />
-                        <input id="att_my_end" placeholder="结束日期" />
+                        <label for="att_my_start"></label><input id="att_my_start" placeholder="开始日期 (YYYY-MM-DD)" />
+                        <label for="att_my_end"></label><input id="att_my_end" placeholder="结束日期" />
                         <button onclick="getMyAttendance()">查询</button>
                     </div>
                     <!-- 隐藏参数 -->
@@ -701,8 +696,8 @@
 
                     <h3>管理员管理</h3>
                     <div class="form-row">
-                        <input id="att_ad_emp" placeholder="工号" />
-                        <input id="att_ad_dpt" placeholder="部门ID" />
+                        <label for="att_ad_emp"></label><input id="att_ad_emp" placeholder="工号" />
+                        <label for="att_ad_dpt"></label><input id="att_ad_dpt" placeholder="部门ID" />
                         <button class="secondary" onclick="adminSearchAttendance()">查询列表</button>
                     </div>
                     <!-- 隐藏参数 -->
@@ -713,17 +708,17 @@
 
                     <h3>单条修改</h3>
                     <div class="form-row">
-                        <input id="att_upd_id" placeholder="记录ID" style="flex:0.5" />
-                        <input id="att_upd_status" placeholder="状态Int" style="flex:0.5" />
-                        <input id="att_upd_remark" placeholder="备注" />
+                        <label for="att_upd_id"></label><input id="att_upd_id" placeholder="记录ID" style="flex:0.5" />
+                        <label for="att_upd_status"></label><input id="att_upd_status" placeholder="状态Int" style="flex:0.5" />
+                        <label for="att_upd_remark"></label><input id="att_upd_remark" placeholder="备注" />
                     </div>
                     <div class="form-row">
-                        <input id="att_upd_in" placeholder="In Time (ISO)" />
-                        <input id="att_upd_out" placeholder="Out Time (ISO)" />
+                        <label for="att_upd_in"></label><input id="att_upd_in" placeholder="In Time (ISO)" />
+                        <label for="att_upd_out"></label><input id="att_upd_out" placeholder="Out Time (ISO)" />
                         <button class="secondary" onclick="adminUpdateAttendance()">更新</button>
                     </div>
                     <div class="form-row">
-                        <input id="att_del_id" placeholder="记录ID" />
+                        <label for="att_del_id"></label><input id="att_del_id" placeholder="记录ID" />
                         <button class="secondary" style="color:#ef4444"
                             onclick="call('DELETE', `/api/admin/attendance/${att_del_id.value}`)">删除记录</button>
                     </div>
@@ -748,7 +743,7 @@
                     <h2 class="section-title">AI 聊天 (Chat with AI)</h2>
 
                     <div class="form-row">
-                        <textarea id="ai_message" placeholder="输入您的问题..." rows="4"></textarea>
+                        <label for="ai_message"></label><textarea id="ai_message" placeholder="输入您的问题..." rows="4"></textarea>
                     </div>
                     <div class="form-row">
                         <button onclick="sendAIMessage()">发送</button>

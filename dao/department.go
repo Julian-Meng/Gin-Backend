@@ -3,13 +3,14 @@ package dao
 import (
 	"backend/db"
 	"backend/models"
+	"errors"
 	"fmt"
 	"strings"
 
 	"gorm.io/gorm"
 )
 
-// 分页 + 搜索 + 成员数量统计
+// FetchDepartmentsPaged 分页 + 搜索 + 成员数量统计
 func FetchDepartmentsPaged(page, pageSize int, keyword string) ([]models.DepartmentWithCount, int64, error) {
 	dbConn := db.GetDB()
 
@@ -51,7 +52,7 @@ func FetchDepartmentsPaged(page, pageSize int, keyword string) ([]models.Departm
 	return list, total, nil
 }
 
-// 新增部门
+// InsertDepartment 新增部门
 func InsertDepartment(d models.Department) error {
 	dbConn := db.GetDB()
 
@@ -71,7 +72,7 @@ func InsertDepartment(d models.Department) error {
 	return dbConn.Create(&d).Error
 }
 
-// 更新部门
+// UpdateDepartment 更新部门
 func UpdateDepartment(id uint, d models.Department) error {
 	dbConn := db.GetDB()
 
@@ -97,7 +98,7 @@ func UpdateDepartment(id uint, d models.Department) error {
 		Updates(updates).Error
 }
 
-// 删除部门（需检查人数）
+// DeleteDepartment 删除部门（需检查人数）
 func DeleteDepartment(id uint) error {
 	dbConn := db.GetDB()
 
@@ -114,7 +115,7 @@ func DeleteDepartment(id uint) error {
 	return dbConn.Delete(&models.Department{}, id).Error
 }
 
-// 查询单个部门
+// FetchDepartmentByID 查询单个部门
 func FetchDepartmentByID(id uint) (*models.Department, error) {
 	dbConn := db.GetDB()
 
@@ -122,7 +123,7 @@ func FetchDepartmentByID(id uint) (*models.Department, error) {
 	err := dbConn.First(&d, id).Error
 
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("未找到部门 ID: %d", id)
 		}
 		return nil, err
@@ -131,7 +132,7 @@ func FetchDepartmentByID(id uint) (*models.Department, error) {
 	return &d, nil
 }
 
-// 部门人数增减（按 ID）
+// UpdateDepartmentCount 部门人数增减（按 ID）
 func UpdateDepartmentCount(dptID uint, delta int) error {
 	dbConn := db.GetDB()
 
@@ -141,7 +142,7 @@ func UpdateDepartmentCount(dptID uint, delta int) error {
 		Error
 }
 
-// 部门人数增减（按名称）
+// UpdateDepartmentCountByName 部门人数增减（按名称）
 func UpdateDepartmentCountByName(name string, delta int) error {
 	dbConn := db.GetDB()
 

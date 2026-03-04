@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// 创建人事变更申请
+// CreatePersonnelChange 创建人事变更申请
 func CreatePersonnelChange(p *models.Personnel) error {
 	dbConn := db.GetDB()
 
@@ -23,7 +23,7 @@ func CreatePersonnelChange(p *models.Personnel) error {
 	return dbConn.Create(p).Error
 }
 
-// 分页查询（带员工 & 部门信息）
+// FetchPersonnelPaged 分页查询（带员工 & 部门信息）
 func FetchPersonnelPaged(limit, offset int) ([]models.Personnel, int64, error) {
 	dbConn := db.GetDB()
 
@@ -64,7 +64,7 @@ func FetchPersonnelPaged(limit, offset int) ([]models.Personnel, int64, error) {
 	return list, total, nil
 }
 
-// 获取单条人事变更详情
+// GetPersonnelByID 获取单条人事变更详情
 func GetPersonnelByID(id uint) (*models.Personnel, error) {
 	dbConn := db.GetDB()
 
@@ -98,7 +98,7 @@ func GetPersonnelByID(id uint) (*models.Personnel, error) {
 	return &p, nil
 }
 
-// 管理员审批（通过 / 驳回）
+// ApprovePersonnelChange 管理员审批（通过 / 驳回）
 //
 // 变更类型：
 // 1 → 调部门（更新 PERSON.dpt_id + 部门人数 +/-）

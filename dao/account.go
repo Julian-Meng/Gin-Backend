@@ -3,6 +3,7 @@ package dao
 import (
 	"backend/db"
 	"backend/models"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -21,7 +22,7 @@ func generateEmpID(tx *gorm.DB) (string, error) {
 	return fmt.Sprintf("EMP%04d", maxID+1), nil
 }
 
-// 注册新用户（自动生成 emp_id + Person）
+// InsertAccount 注册新用户（自动生成 emp_id + Person）
 func InsertAccount(a models.Account) error {
 	dbConn := db.GetDB()
 
@@ -29,7 +30,7 @@ func InsertAccount(a models.Account) error {
 		// 1. 确保存在一个默认部门（未分配部门）
 		var defaultDept models.Department
 		err := tx.Order("id").First(&defaultDept).Error
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			defaultDept = models.Department{
 				Name:     "未分配部门",
 				Manager:  "系统",
@@ -86,7 +87,7 @@ func InsertAccount(a models.Account) error {
 			Auth:   0,
 			Sex:    "",
 			Birth:  nil, // 之后把 Birth 改成 time.Time，这里一起升级
-			DptID:  uint(defaultDept.ID),
+			DptID:  defaultDept.ID,
 			Job:    "",
 			Addr:   "",
 			Tel:    "",
@@ -104,13 +105,13 @@ func InsertAccount(a models.Account) error {
 	})
 }
 
-// 登录验证
+// ValidateLogin 登录验证
 func ValidateLogin(username, password string) (models.Account, bool) {
 	dbConn := db.GetDB()
 
 	var acc models.Account
 	err := dbConn.Where("username = ?", username).First(&acc).Error
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return models.Account{}, false
 	}
 	if err != nil {
@@ -131,7 +132,7 @@ func ValidateLogin(username, password string) (models.Account, bool) {
 	return acc, true
 }
 
-// 获取所有账号列表
+// GetAllAccounts 获取所有账号列表
 func GetAllAccounts() []models.Account {
 	dbConn := db.GetDB()
 
@@ -145,7 +146,7 @@ func GetAllAccounts() []models.Account {
 	return accounts
 }
 
-// 更新账号信息（角色 / 状态）
+// UpdateAccount 更新账号信息（角色 / 状态）
 func UpdateAccount(id string, a models.Account) error {
 	// 只允许 admin 或 staff
 	if a.Role != "admin" && a.Role != "staff" {
@@ -174,7 +175,7 @@ func UpdateAccount(id string, a models.Account) error {
 	return nil
 }
 
-// 根据用户名查询账号信息
+// GetAccountByUsername 根据用户名查询账号信息
 func GetAccountByUsername(username string) (models.Account, bool) {
 	dbConn := db.GetDB()
 
@@ -189,7 +190,7 @@ func GetAccountByUsername(username string) (models.Account, bool) {
 	return acc, true
 }
 
-// 删除账号
+// DeleteAccount 删除账号
 func DeleteAccount(id string) error {
 	dbConn := db.GetDB()
 

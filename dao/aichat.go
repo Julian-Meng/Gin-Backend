@@ -103,7 +103,11 @@ func GetAIResponse(req models.AIRequest) (models.AIResponse, error) {
 		}
 		return models.AIResponse{}, fmt.Errorf("failed to call AI service: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+		}
+	}(resp.Body)
 
 	// 非 200 时把 body 读出来，方便调试（比如 404 / 500）
 	if resp.StatusCode != http.StatusOK {

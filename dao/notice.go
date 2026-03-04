@@ -3,19 +3,20 @@ package dao
 import (
 	"backend/db"
 	"backend/models"
+	"errors"
 	"fmt"
 	"time"
 
 	"gorm.io/gorm"
 )
 
-// 创建公告
+// CreateNotice 创建公告
 func CreateNotice(n *models.Notice) error {
 	dbConn := db.GetDB()
 	return dbConn.Create(n).Error
 }
 
-// 更新公告
+// UpdateNotice 更新公告
 func UpdateNotice(id uint, n models.Notice) error {
 	dbConn := db.GetDB()
 
@@ -31,13 +32,13 @@ func UpdateNotice(id uint, n models.Notice) error {
 		Updates(updates).Error
 }
 
-// 删除公告
+// DeleteNotice 删除公告
 func DeleteNotice(id uint) error {
 	dbConn := db.GetDB()
 	return dbConn.Delete(&models.Notice{}, id).Error
 }
 
-// 分页获取公告
+// GetAllNotices 分页获取公告
 func GetAllNotices(page, pageSize int) ([]models.Notice, int64, error) {
 	dbConn := db.GetDB()
 
@@ -62,7 +63,7 @@ func GetAllNotices(page, pageSize int) ([]models.Notice, int64, error) {
 	return list, total, nil
 }
 
-// 查询单条公告
+// GetNoticeByID 查询单条公告
 func GetNoticeByID(id uint) (*models.Notice, error) {
 	dbConn := db.GetDB()
 
@@ -70,7 +71,7 @@ func GetNoticeByID(id uint) (*models.Notice, error) {
 	err := dbConn.First(&n, id).Error
 
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("未找到公告 ID=%d", id)
 		}
 		return nil, err

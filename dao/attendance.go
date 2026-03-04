@@ -3,6 +3,7 @@ package dao
 import (
 	"backend/db"
 	"backend/models"
+	"errors"
 	"fmt"
 	"time"
 
@@ -19,7 +20,7 @@ func todayDate() time.Time {
 	)
 }
 
-// 员工签到
+// CheckIn 员工签到
 // - 若当天已有签到，则返回错误
 // - 若已有记录但缺少签到时间，则补上签到时间
 func CheckIn(empID string) error {
@@ -34,7 +35,7 @@ func CheckIn(empID string) error {
 			Where("emp_id = ? AND date = ?", empID, today).
 			First(&att).Error
 
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(gorm.ErrRecordNotFound, err) {
 			// 当天没有记录 → 新建一条
 			newAtt := models.Attendance{
 				EmpID:   empID,
@@ -67,7 +68,7 @@ func CheckIn(empID string) error {
 	})
 }
 
-// 员工签退
+// CheckOut 员工签退
 // - 若当天记录不存在，可以选择报错
 // - 若存在但已签退，则返回错误
 func CheckOut(empID string) error {
@@ -82,7 +83,7 @@ func CheckOut(empID string) error {
 			Where("emp_id = ? AND date = ?", empID, today).
 			First(&att).Error
 
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// 没有签到记录也尝试签退 → 可以选择自动建一条，也可以直接报错
 			return fmt.Errorf("今日未找到考勤记录，请先签到或联系管理员处理")
 		}
@@ -105,7 +106,7 @@ func CheckOut(empID string) error {
 	})
 }
 
-// 员工个人考勤查询（分页）
+// GetAttendanceByEmpID 员工个人考勤查询（分页）
 // - 按 emp_id + 日期区间
 // - 按日期倒序
 func GetAttendanceByEmpID(empID string, startDate, endDate time.Time, page, pageSize int) ([]models.Attendance, int64, error) {
@@ -147,7 +148,7 @@ func GetAttendanceByEmpID(empID string, startDate, endDate time.Time, page, page
 	return list, total, nil
 }
 
-// 管理员：按条件搜索考勤记录（分页）
+// SearchAttendance 管理员：按条件搜索考勤记录（分页）
 // 支持：emp_id、dpt_id、日期区间
 // 返回联表后的 AttendanceDetail
 func SearchAttendance(empID string, dptID uint, startDate, endDate time.Time, page, pageSize int) ([]models.AttendanceDetail, int64, error) {
@@ -230,7 +231,7 @@ func SearchAttendance(empID string, dptID uint, startDate, endDate time.Time, pa
 	return list, total, nil
 }
 
-// 管理员：更新考勤记录（如状态 / 备注 / 时间）
+// UpdateAttendance 管理员：更新考勤记录（如状态 / 备注 / 时间）
 // 仅更新调用方提供的字段
 func UpdateAttendance(id uint, updates map[string]interface{}) error {
 	dbConn := db.GetDB()
@@ -245,7 +246,7 @@ func UpdateAttendance(id uint, updates map[string]interface{}) error {
 		Updates(updates).Error
 }
 
-// 管理员：删除考勤记录
+// DeleteAttendance 管理员：删除考勤记录
 func DeleteAttendance(id uint) error {
 	dbConn := db.GetDB()
 

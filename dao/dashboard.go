@@ -5,7 +5,7 @@ import (
 	"backend/models"
 )
 
-// 管理员仪表盘数据
+// GetAdminDashboardData 管理员仪表盘数据
 func GetAdminDashboardData() models.AdminDashboardData {
 	dbConn := db.GetDB()
 	var data models.AdminDashboardData
@@ -45,7 +45,7 @@ func GetAdminDashboardData() models.AdminDashboardData {
 	return data
 }
 
-// 普通用户仪表盘数据
+// GetUserDashboardData 普通用户仪表盘数据
 func GetUserDashboardData() models.UserDashboardData {
 	dbConn := db.GetDB()
 	var data models.UserDashboardData

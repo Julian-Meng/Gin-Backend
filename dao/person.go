@@ -3,6 +3,7 @@ package dao
 import (
 	"backend/db"
 	"backend/models"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -10,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// 分页 + 搜索 + JOIN 部门
+// FetchPersonsPaged 分页 + 搜索 + JOIN 部门
 func FetchPersonsPaged(page, pageSize int, keyword string) ([]models.EmployeeInfo, int64, error) {
 	dbConn := db.GetDB()
 
@@ -58,31 +59,31 @@ func FetchPersonsPaged(page, pageSize int, keyword string) ([]models.EmployeeInf
 	return list, total, nil
 }
 
-// 查询单个员工（ID）
+// FetchPersonByID 查询单个员工（ID）
 func FetchPersonByID(id uint) (*models.Person, error) {
 	dbConn := db.GetDB()
 
 	var p models.Person
 	err := dbConn.First(&p, id).Error
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, fmt.Errorf("未找到员工 ID: %d", id)
 	}
 	return &p, err
 }
 
-// 查询单个员工（emp_id）
+// FetchPersonByEmpID 查询单个员工（emp_id）
 func FetchPersonByEmpID(empID string) (*models.Person, error) {
 	dbConn := db.GetDB()
 
 	var p models.Person
 	err := dbConn.Where("emp_id = ?", empID).First(&p).Error
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, fmt.Errorf("未找到员工 emp_id: %s", empID)
 	}
 	return &p, err
 }
 
-// 创建员工（自动生成 EMP 编号）
+// CreatePerson 创建员工（自动生成 EMP 编号）
 func CreatePerson(p *models.Person) error {
 	dbConn := db.GetDB()
 
@@ -122,7 +123,7 @@ func CreatePerson(p *models.Person) error {
 	})
 }
 
-// 更新员工信息
+// UpdatePerson 更新员工信息
 func UpdatePerson(id uint, p models.Person) error {
 	dbConn := db.GetDB()
 
@@ -144,7 +145,7 @@ func UpdatePerson(id uint, p models.Person) error {
 		Updates(updates).Error
 }
 
-// 删除员工（按 emp_id）
+// DeletePersonByEmpID 删除员工（按 emp_id）
 func DeletePersonByEmpID(empID string) error {
 	dbConn := db.GetDB()
 
@@ -152,7 +153,7 @@ func DeletePersonByEmpID(empID string) error {
 
 		var p models.Person
 		err := tx.Where("emp_id = ?", empID).First(&p).Error
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("未找到员工 %s", empID)
 		}
 
@@ -167,7 +168,7 @@ func DeletePersonByEmpID(empID string) error {
 	})
 }
 
-// 删除员工（按 ID）
+// SafeDeletePerson 删除员工（按 ID）
 func SafeDeletePerson(id uint) error {
 	dbConn := db.GetDB()
 
@@ -188,7 +189,7 @@ func SafeDeletePerson(id uint) error {
 	})
 }
 
-// 修改员工部门（按名称）
+// UpdatePersonDepartment 修改员工部门（按名称）
 func UpdatePersonDepartment(empID string, deptName string) error {
 	dbConn := db.GetDB()
 
@@ -226,7 +227,7 @@ func UpdatePersonDepartment(empID string, deptName string) error {
 	})
 }
 
-// 修改员工状态（离职/在职）
+// UpdatePersonState 修改员工状态（离职/在职）
 func UpdatePersonState(empID string, state int) error {
 	dbConn := db.GetDB()
 
@@ -238,7 +239,7 @@ func UpdatePersonState(empID string, state int) error {
 		}).Error
 }
 
-// 修改员工职位
+// UpdatePersonJob 修改员工职位
 func UpdatePersonJob(empID string, newJob string) error {
 	dbConn := db.GetDB()
 

@@ -15,6 +15,7 @@
 - 考勤管理（Attendance）（签到 / 签退 / 个人查询 / 管理员查询）
 - 权限展示接口（Permission）
 - AI Chat（对接 Ollama，可选）
+- 客服聊天（Support Chat：用户-管理员会话、离线队列、管理员认领、AI 兜底）
 
 ## 技术栈
 
@@ -86,6 +87,38 @@ Authorization: Bearer <token>
 * `/api/user/**`：任何已登录用户可访问
 
 详细接口说明见：[`docs/API.md`](./API.md)
+
+## 聊天模块说明（新增）
+
+- 入口：`/api/chat/*`
+- 实时通道：`GET /api/chat/ws?token=<jwt>`（浏览器场景推荐 query token）
+- 用户发消息：`POST /api/chat/user/message`
+- 管理员会话：`GET /api/chat/admin/sessions`
+- 管理员认领：`POST /api/chat/admin/sessions/claim`
+- 会话历史：`GET /api/chat/messages/:id`
+
+模块行为：
+
+- 首次分配按低负载优先再随机，后续会话粘性绑定管理员。
+- 管理员离线时消息入库排队，管理员上线后认领并补发。
+- 可选 AI 离线兜底，回复会落库，管理员上线可追溯。
+
+## 聊天 AI 兜底环境变量
+
+在 `.env` 中新增：
+
+- `CHAT_AI_FALLBACK_ENABLED=true`
+- `CHAT_AI_FALLBACK_MIN_GAP_SECONDS=30`
+
+说明：
+
+- `CHAT_AI_FALLBACK_ENABLED`：是否启用管理员离线时的 AI 自动回复。
+- `CHAT_AI_FALLBACK_MIN_GAP_SECONDS`：同一会话最小 AI 触发间隔，避免高频重复回复。
+
+## 联调页面
+
+- 打开：`/bt`
+- 页面中的“客服聊天”页签已支持：WS 连接、会话列表、认领会话、拉取历史、用户/管理员发送消息。
 
 ## Superadmin（必填配置）
 

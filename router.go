@@ -34,6 +34,7 @@ func SetupRouter() *gin.Engine {
 	r.POST("/api/register", handlers.Register)
 	r.GET("/api/notice", handlers.GetAllNotices)
 	r.POST("/api/chat", handlers.ChatWithAI)
+	r.GET("/api/chat/ws", handlers.ChatWS)
 
 	// 管理员接口
 	admin := r.Group("/api/admin")
@@ -119,6 +120,21 @@ func SetupRouter() *gin.Engine {
 
 		//权限矩阵(handlers\permission.go手动添加)
 		user.GET("/permissions", handlers.GetPermissions)
+	}
+
+	// 聊天接口（登录后）
+	chat := r.Group("/api/chat")
+	chat.Use(middlewares.JWTAuthMiddleware())
+	{
+		chat.GET("/messages/:id", handlers.GetChatMessages)
+
+		chat.POST("/user/message", handlers.UserSendChatMessage)
+		chat.GET("/user/sessions", handlers.UserListChatSessions)
+
+		chat.POST("/admin/message", handlers.AdminSendChatMessage)
+		chat.GET("/admin/sessions", handlers.AdminListChatSessions)
+		chat.POST("/admin/sessions/claim", handlers.AdminClaimWaitingSessions)
+		chat.POST("/admin/sessions/:id/claim", handlers.AdminClaimSessionByID)
 	}
 
 	return r

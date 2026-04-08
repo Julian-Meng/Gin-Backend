@@ -344,7 +344,7 @@
             <li class="nav-item" onclick="switchTab('tab-profile')">📄 <span>个人档案</span></li>
             <li class="nav-item" onclick="switchTab('tab-attend')">📅 <span>考勤管理</span></li>
             <li class="nav-item" onclick="switchTab('tab-perm')">🛡️ <span>权限矩阵</span></li>
-            <li class="nav-item" onclick="switchTab('tab-ai-chat')">🤖 <span>AI 聊天</span></li>
+            <li class="nav-item" onclick="switchTab('tab-chat')">💬 <span>客服聊天</span></li>
 
         </ul>
         <div style="margin-top: auto; padding: 15px;">
@@ -737,22 +737,48 @@
                 </div>
             </div>
 
-            <!-- 模块 11: AI聊天 -->
-            <div id="tab-ai-chat" class="view-section">
+            <!-- 模块 11: 客服聊天 -->
+            <div id="tab-chat" class="view-section">
                 <div class="card">
-                    <h2 class="section-title">AI 聊天 (Chat with AI)</h2>
+                    <h2 class="section-title">客服聊天联调 (User/Admin)</h2>
 
                     <div class="form-row">
-                        <label for="ai_message"></label><textarea id="ai_message" placeholder="输入您的问题..." rows="4"></textarea>
+                        <label for="chat_mode"></label>
+                        <select id="chat_mode" style="flex:0.5">
+                            <option value="user">用户模式 (staff)</option>
+                            <option value="admin">管理员模式 (admin/superadmin)</option>
+                        </select>
+                        <button onclick="connectChatWS()">连接 WS</button>
+                        <button class="secondary" onclick="disconnectChatWS()">断开 WS</button>
+                        <button class="secondary" onclick="refreshChatSessions()">刷新会话</button>
                     </div>
+
                     <div class="form-row">
-                        <button onclick="sendAIMessage()">发送</button>
-                        <button class="secondary" onclick="aiAnalyzeAdminDashboard()">🤖 解读管理员 Dashboard</button>
-                        <button class="secondary" onclick="aiAnalyzeUserDashboard()">🤖 解读用户 Dashboard</button>
+                        <label for="chat_session_id"></label><input id="chat_session_id" placeholder="当前会话 ID" style="flex:0.5" />
+                        <button class="secondary" onclick="loadChatMessages()">拉取消息历史</button>
+                    </div>
+
+                    <h3>管理员操作</h3>
+                    <div class="form-row">
+                        <label for="chat_claim_limit"></label><input id="chat_claim_limit" placeholder="认领数量 (默认20)" style="flex:0.5" />
+                        <button class="secondary" onclick="claimWaitingSessions()">认领等待会话</button>
+                        <button class="secondary" onclick="claimSessionById()">按会话ID接管</button>
+                    </div>
+
+                    <h3>发送消息</h3>
+                    <label for="chat_input"></label><textarea id="chat_input" placeholder="输入聊天消息..." rows="4"></textarea>
+                    <div class="form-row">
+                        <button onclick="sendSupportMessage()">发送消息</button>
+                        <button class="secondary" onclick="clearChatLog()">清空聊天窗口</button>
+                    </div>
+
+                    <h3>会话列表</h3>
+                    <div id="chat_session_list"
+                        style="border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; height: 120px; overflow-y: auto; margin-bottom: 12px;">
                     </div>
 
                     <h3>聊天记录</h3>
-                    <div id="ai_chat_log"
+                    <div id="chat_log"
                         style="border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; height: 200px; overflow-y: auto;">
                     </div>
                 </div>
@@ -865,6 +891,12 @@
                 const tokenArea = document.querySelector('.token-area');
                 tokenArea.style.borderColor = "#10b981";
                 setTimeout(() => tokenArea.style.borderColor = "#e2e8f0", 1000);
+
+                if (r.role === "admin" || r.role === "superadmin") {
+                    chat_mode.value = "admin";
+                } else {
+                    chat_mode.value = "user";
+                }
             }
         }
 
@@ -1023,50 +1055,222 @@
             await call("PUT", `/api/admin/attendance/${att_upd_id.value}`, body);
         }
 
-        async function sendAIMessage() {
+        let chatSocket = null;
 
-            const message = ai_message.value.trim();
-            if (!message) {
-                alert('请输入消息');
+        function escapeHtml(text) {
+            return (text || "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#39;");
+        }
+
+        function appendChatLine(rawHtml) {
+            const log = document.getElementById("chat_log");
+            const line = document.createElement("div");
+            line.innerHTML = rawHtml;
+            log.appendChild(line);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearChatLog() {
+            document.getElementById("chat_log").innerHTML = "";
+        }
+
+        function resolveWsURL(tokenText) {
+            const protocol = location.protocol === "https:" ? "wss" : "ws";
+            return `${protocol}://${location.host}/api/chat/ws?token=${encodeURIComponent(tokenText)}`;
+        }
+
+        function renderSessionList(sessions) {
+            const box = document.getElementById("chat_session_list");
+            box.innerHTML = "";
+
+            if (!Array.isArray(sessions) || sessions.length === 0) {
+                box.innerHTML = "<div style='color:#64748b'>暂无会话</div>";
                 return;
             }
 
-            ai_message.value = '';
-
-            const chatLog = document.getElementById('ai_chat_log');
-            chatLog.innerHTML += `<div><strong>你：</strong>${message}</div>`;
-
-            const response = await call('POST', '/api/chat', {
-                message: message,
-                session_id: "web-test-session"
+            sessions.forEach((s) => {
+                const row = document.createElement("div");
+                row.style.padding = "6px 8px";
+                row.style.borderBottom = "1px dashed #e2e8f0";
+                row.style.cursor = "pointer";
+                const admin = s.assigned_admin_emp_id || "未分配";
+                row.innerHTML = `<strong>#${s.id}</strong> user=${escapeHtml(s.user_emp_id)} admin=${escapeHtml(admin)} status=${escapeHtml(s.status)}`;
+                row.onclick = () => {
+                    chat_session_id.value = s.id;
+                    loadChatMessages();
+                };
+                box.appendChild(row);
             });
 
-            chatLog.innerHTML += `<div><strong>AI：</strong>${response?.message || '无法获取回复'
-                }</div>`;
-
-            chatLog.scrollTop = chatLog.scrollHeight;
+            if (!chat_session_id.value && sessions[0]?.id) {
+                chat_session_id.value = sessions[0].id;
+            }
         }
 
-        async function aiAnalyzeAdminDashboard() {
-            const chatLog = document.getElementById('ai_chat_log');
-            chatLog.innerHTML += `<div><strong>你：</strong>请解读管理员 Dashboard 数据</div>`;
+        async function connectChatWS() {
+            const tk = token.value.trim();
+            if (!tk) {
+                alert("请先登录获取 token");
+                return;
+            }
 
-            const response = await call('GET', '/api/admin/ai/analyze/dashboard');
+            if (chatSocket) {
+                disconnectChatWS();
+            }
 
-            const analysis = response?.data?.analysis;
-            chatLog.innerHTML += `<div><strong>AI：</strong>${analysis || (response?.msg || '无法获取分析结果')}</div>`;
-            chatLog.scrollTop = chatLog.scrollHeight;
+            const wsURL = resolveWsURL(tk);
+            chatSocket = new WebSocket(wsURL);
+
+            chatSocket.onopen = () => {
+                appendChatLine("<span style='color:#2563eb'>[系统] WS 已连接</span>");
+                refreshChatSessions();
+            };
+
+            chatSocket.onclose = () => {
+                appendChatLine("<span style='color:#ef4444'>[系统] WS 已断开</span>");
+                chatSocket = null;
+            };
+
+            chatSocket.onerror = () => {
+                appendChatLine("<span style='color:#ef4444'>[系统] WS 连接异常</span>");
+            };
+
+            chatSocket.onmessage = (event) => {
+                let payload = {};
+                try {
+                    payload = JSON.parse(event.data || "{}");
+                } catch {
+                    appendChatLine(`<span style='color:#ef4444'>[系统] WS 消息解析失败: ${escapeHtml(event.data)}</span>`);
+                    return;
+                }
+
+                if (payload.session_id) {
+                    chat_session_id.value = payload.session_id;
+                }
+
+                if (payload.type === "session_claimed") {
+                    appendChatLine(`<span style='color:#f59e0b'>[系统] 已认领会话 #${payload.session_id}</span>`);
+                    refreshChatSessions();
+                    return;
+                }
+
+                const msg = payload.message;
+                if (msg && msg.content) {
+                    const sender = msg.sender_type || "unknown";
+                    appendChatLine(`<strong>${escapeHtml(sender)}:</strong> ${escapeHtml(msg.content)}`);
+                    return;
+                }
+
+                appendChatLine(`<span style='color:#64748b'>[系统] WS 事件: ${escapeHtml(payload.type || "unknown")}</span>`);
+            };
         }
 
-        async function aiAnalyzeUserDashboard() {
-            const chatLog = document.getElementById('ai_chat_log');
-            chatLog.innerHTML += `<div><strong>你：</strong>请解读用户的 Dashboard 数据</div>`;
+        function disconnectChatWS() {
+            if (chatSocket) {
+                chatSocket.close();
+                chatSocket = null;
+            }
+        }
 
-            const response = await call('GET', '/api/user/ai/analyze/dashboard');
+        async function refreshChatSessions() {
+            const mode = chat_mode.value;
+            const url = mode === "admin" ? "/api/chat/admin/sessions" : "/api/chat/user/sessions";
+            const response = await call("GET", url);
+            renderSessionList(response?.data || []);
+        }
 
-            const analysis = response?.data?.analysis;
-            chatLog.innerHTML += `<div><strong>AI：</strong>${analysis || (response?.msg || '无法获取分析结果')}</div>`;
-            chatLog.scrollTop = chatLog.scrollHeight;
+        async function loadChatMessages() {
+            const sid = parseInt(chat_session_id.value, 10);
+            if (!sid) {
+                alert("请先输入或选择会话ID");
+                return;
+            }
+
+            const response = await call("GET", `/api/chat/messages/${sid}`);
+            const list = response?.data || [];
+            clearChatLog();
+
+            if (!Array.isArray(list) || list.length === 0) {
+                appendChatLine("<span style='color:#64748b'>暂无消息</span>");
+                return;
+            }
+
+            list.forEach((msg) => {
+                appendChatLine(`<strong>${escapeHtml(msg.sender_type)}:</strong> ${escapeHtml(msg.content)}`);
+            });
+        }
+
+        async function claimWaitingSessions() {
+            if (chat_mode.value !== "admin") {
+                alert("请切换到管理员模式后再认领");
+                return;
+            }
+
+            const limit = parseInt(chat_claim_limit.value || "20", 10);
+            const response = await call("POST", "/api/chat/admin/sessions/claim", { limit: isNaN(limit) ? 20 : limit });
+            const claimed = response?.data || [];
+            appendChatLine(`<span style='color:#f59e0b'>[系统] 本次认领会话数量: ${Array.isArray(claimed) ? claimed.length : 0}</span>`);
+            refreshChatSessions();
+        }
+
+        async function claimSessionById() {
+            if (chat_mode.value !== "admin") {
+                alert("请切换到管理员模式后再接管");
+                return;
+            }
+
+            const sid = parseInt(chat_session_id.value, 10);
+            if (!sid) {
+                alert("请先输入会话ID");
+                return;
+            }
+
+            await call("POST", `/api/chat/admin/sessions/${sid}/claim`);
+            refreshChatSessions();
+        }
+
+        async function sendSupportMessage() {
+            const content = chat_input.value.trim();
+            if (!content) {
+                alert("请输入消息内容");
+                return;
+            }
+
+            const mode = chat_mode.value;
+            if (mode === "admin") {
+                const sid = parseInt(chat_session_id.value, 10);
+                if (!sid) {
+                    alert("管理员发送消息需要会话ID");
+                    return;
+                }
+                await call("POST", "/api/chat/admin/message", {
+                    session_id: sid,
+                    content: content,
+                });
+                appendChatLine(`<strong>admin(self):</strong> ${escapeHtml(content)}`);
+            } else {
+                const response = await call("POST", "/api/chat/user/message", {
+                    content: content,
+                });
+
+                const sid = response?.data?.session?.id;
+                if (sid) {
+                    chat_session_id.value = sid;
+                }
+                appendChatLine(`<strong>user(self):</strong> ${escapeHtml(content)}`);
+
+                const aiMsg = response?.data?.ai_message;
+                if (aiMsg?.content) {
+                    appendChatLine(`<strong>ai:</strong> ${escapeHtml(aiMsg.content)}`);
+                }
+            }
+
+            chat_input.value = "";
+            refreshChatSessions();
         }
 
     </script>

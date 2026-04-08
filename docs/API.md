@@ -39,7 +39,8 @@
 8. 个人档案（Profile）
 9. 考勤管理（Attendance）
 10. 权限矩阵（Permissions）
-11. AI聊天（AIChat）
+11. 客服聊天（Support Chat）
+12. 兼容 AI 聊天（Legacy AI Chat）
 
 ---
 
@@ -160,8 +161,45 @@ change_type 值：
 
 ---
 
-## 11. AI聊天 (AIChat)
+## 11. 客服聊天 (Support Chat)
 
-| 方法   | 路径          | 权限    | 请求体                                                     | 说明              |
-| ---- | ----------- | ----- | ------------------------------------------------------- | --------------- |
-| POST | `/api/chat` | staff | `{ "message": "Message", "session_id": "web-session" }` | 返回结果中包含 AI 回复内容 |
+说明：
+
+- 该模块用于用户与管理员会话聊天。
+- 用户页面只需要发送消息与查看历史；管理员可认领/接管会话。
+- 当管理员离线时，用户消息会先入库排队；若启用 AI 兜底，系统会追加一条 AI 回复并标注提示。
+
+### 11.1 WebSocket 实时通道
+
+| 方法  | 路径           | 权限 | 鉴权方式 | 说明 |
+| --- | ------------ | -- | ---- | -- |
+| GET | `/api/chat/ws` | 登录用户 | Query: `token=<jwt>` 或 Header: `Authorization: Bearer <token>` | 建立实时连接，接收消息推送与会话认领事件 |
+
+### 11.2 用户接口
+
+| 方法   | 路径                       | 权限    | 请求体 | 说明 |
+| ---- | ------------------------ | ----- | --- | -- |
+| POST | `/api/chat/user/message` | staff | `{ "content": "..." }` | 发送用户消息；若管理员离线可触发 AI 兜底 |
+| GET  | `/api/chat/user/sessions` | staff | 无 | 查询当前用户会话列表 |
+| GET  | `/api/chat/messages/:id` | staff/admin | 无 | 查询会话消息历史（需有访问权限） |
+
+### 11.3 管理员接口
+
+| 方法   | 路径                                    | 权限    | 请求体 | 说明 |
+| ---- | ------------------------------------- | ----- | --- | -- |
+| POST | `/api/chat/admin/message`             | admin/superadmin | `{ "session_id": 1, "content": "..." }` | 管理员向指定会话发送消息 |
+| GET  | `/api/chat/admin/sessions`            | admin/superadmin | 无 | 查询已分配给当前管理员的会话列表 |
+| POST | `/api/chat/admin/sessions/claim`      | admin/superadmin | `{ "limit": 20 }` | 批量认领等待中的会话 |
+| POST | `/api/chat/admin/sessions/:id/claim` | admin/superadmin | 无 | 手动接管指定会话 |
+
+### 11.4 关键行为约定
+
+- 会话分配：首次消息在在线管理员中按低负载优先再随机，后续会话粘性绑定。
+- 离线处理：管理员不在线时消息状态保持 `queued`，管理员上线认领后补发。
+- AI 兜底：受环境变量开关控制，并受最小触发间隔限制。
+
+## 12. 兼容 AI 聊天 (Legacy AI Chat)
+
+| 方法   | 路径          | 权限 | 请求体 | 说明 |
+| ---- | ----------- | -- | --- | -- |
+| POST | `/api/chat` | 公开 | `{ "message": "...", "session_id": "optional" }` | 兼容旧版纯 AI 对话接口 |

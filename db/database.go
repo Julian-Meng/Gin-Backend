@@ -120,6 +120,8 @@ func autoMigrateAll() error {
 		&models.Personnel{},
 		&models.Notice{},
 		&models.Attendance{},
+		&models.ChatSession{},
+		&models.ChatMessage{},
 	)
 }
 

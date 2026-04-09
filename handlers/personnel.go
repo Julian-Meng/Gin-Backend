@@ -46,6 +46,61 @@ func GetPersonnelList(c *gin.Context) {
 	})
 }
 
+// GetMyPersonnelList 获取当前登录用户的人事变更列表（分页）
+// GET /api/user/changes?page=&pageSize=
+func GetMyPersonnelList(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+
+	pageSizeRaw := strings.TrimSpace(c.Query("pageSize"))
+	if pageSizeRaw == "" {
+		pageSizeRaw = strings.TrimSpace(c.Query("page_size"))
+	}
+	if pageSizeRaw == "" {
+		pageSizeRaw = "10"
+	}
+	pageSize, _ := strconv.Atoi(pageSizeRaw)
+
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 200 {
+		pageSize = 10
+	}
+
+	empVal, exists := c.Get("emp_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"code": 1, "msg": "未获取到登录用户身份信息"})
+		return
+	}
+
+	empID, _ := empVal.(string)
+	empID = strings.TrimSpace(empID)
+	if empID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "当前登录账号未绑定员工工号"})
+		return
+	}
+
+	limit := pageSize
+	offset := (page - 1) * pageSize
+
+	list, total, err := dao.FetchPersonnelByEmpIDPaged(empID, limit, offset)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": 1,
+			"msg":  "获取我的人事变更记录失败",
+			"err":  err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":  0,
+		"msg":   "ok",
+		"data":  list,
+		"total": total,
+	})
+}
+
 // GetPersonnelByID 获取单条人事变更详情
 // GET /personnel/:id
 func GetPersonnelByID(c *gin.Context) {

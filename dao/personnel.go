@@ -70,6 +70,55 @@ func FetchPersonnelPaged(limit, offset int) ([]models.Personnel, int64, error) {
 	return list, total, nil
 }
 
+// FetchPersonnelByEmpIDPaged 分页查询当前员工的人事变更记录
+func FetchPersonnelByEmpIDPaged(empID string, limit, offset int) ([]models.Personnel, int64, error) {
+	dbConn := db.GetDB()
+
+	var list []models.Personnel
+	var total int64
+
+	// 统计当前员工记录数
+	dbConn.Model(&models.Personnel{}).
+		Where("emp_id = ?", empID).
+		Count(&total)
+
+	err := dbConn.Table("PERSONNEL p").
+		Select(`
+			p.id,
+			p.emp_id,
+			per.name AS emp_name,
+			d1.name AS current_dpt,
+			p.target_dpt,
+			d2.name AS target_dpt_name,
+			p.change_type,
+			p.description,
+			p.leave_start_at,
+			p.leave_end_at,
+			p.leave_reason,
+			p.leave_type,
+			p.handover_note,
+			p.reject_reason,
+			p.state,
+			p.approver,
+			p.created_at,
+			p.approve_at
+		`).
+		Joins("LEFT JOIN PERSON per ON p.emp_id = per.emp_id").
+		Joins("LEFT JOIN DEPARTMENT d1 ON per.dpt_id = d1.id").
+		Joins("LEFT JOIN DEPARTMENT d2 ON p.target_dpt = d2.id").
+		Where("p.emp_id = ?", empID).
+		Order("p.id DESC").
+		Limit(limit).
+		Offset(offset).
+		Scan(&list).Error
+
+	if err != nil {
+		return nil, 0, fmt.Errorf("查询我的变更记录失败: %v", err)
+	}
+
+	return list, total, nil
+}
+
 // GetPersonnelByID 获取单条人事变更详情
 func GetPersonnelByID(id uint) (*models.Personnel, error) {
 	dbConn := db.GetDB()

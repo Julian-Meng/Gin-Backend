@@ -304,6 +304,15 @@ func GetPermissions(c *gin.Context) {
 			Path:         "/api/user/change/request",
 			AllowedRoles: userRoles,
 		},
+		{
+			Key:          "user_personnel_list",
+			Group:        "人事变更",
+			Name:         "查看我的人事变更记录",
+			Description:  "普通用户查看自己的申请与审批状态",
+			Method:       "GET",
+			Path:         "/api/user/changes",
+			AllowedRoles: userRoles,
+		},
 
 		// 账号管理
 		{

@@ -99,6 +99,7 @@
 | POST | `/api/admin/change`         | admin | `{ "change_type": 1/2/3/4, "target_dpt": number (可选), "description": string, "leave_start_at": "YYYY-MM-DD" (可选), "leave_end_at": "YYYY-MM-DD" (可选), "leave_reason": string (可选), "leave_type": string (可选), "handover_note": string (可选) }` | 管理员发起本人变更（emp_id 由 JWT 自动获取）   |
 | PUT  | `/api/admin/change/approve` | admin | `{ "id": number, "approver": string, "approve": true/false, "reject_reason": string (驳回时必填) }`                                  | 审批变更（通过/驳回） |
 | POST | `/api/user/change/request`  | staff | `{ "change_type": 1/2/3/4, "target_dpt": number (可选), "description": string, "leave_start_at": "YYYY-MM-DD" (可选), "leave_end_at": "YYYY-MM-DD" (可选), "leave_reason": string (可选), "leave_type": string (可选), "handover_note": string (可选) }` | 员工提交本人变更申请（emp_id 由 JWT 自动获取）    |
+| GET  | `/api/user/changes`         | staff | Query: `page`, `pageSize`（兼容 `page_size`）                                                     | 查看当前登录用户自己的变更记录列表 |
 
 change_type 值：
 

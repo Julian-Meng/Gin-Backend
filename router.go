@@ -109,6 +109,7 @@ func SetupRouter() *gin.Engine {
 
 		// 用户提交变更申请
 		user.POST("/change/request", handlers.CreatePersonnel)
+		user.GET("/changes", handlers.GetMyPersonnelList)
 
 		// 用户可查看自己的档案
 		user.GET("/profile", handlers.GetMyProfile)

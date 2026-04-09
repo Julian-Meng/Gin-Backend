@@ -112,6 +112,7 @@ func SetupRouter() *gin.Engine {
 
 		// 用户可查看自己的档案
 		user.GET("/profile", handlers.GetMyProfile)
+		user.PUT("/profile", handlers.UpdateMyProfile)
 
 		// 用户可查看自己的考勤记录
 		user.POST("/attendance/checkin", handlers.UserCheckIn)

@@ -678,7 +678,7 @@
                     <h2 class="section-title">个人档案 (Profile)</h2>
 
                     <div class="form-row">
-                        <button onclick="call('GET', '/api/user/profile')"
+                        <button onclick="getMyProfileForEdit()"
                             style="width:100%; height:50px; font-size:16px;">🔍 查看我的完整档案 (My Profile)</button>
                     </div>
 
@@ -695,7 +695,7 @@
                         <button class="secondary"
                             onclick="call('GET', `/api/user/profile/${u_prof_id.value}`)">查询</button>
                     </div>
-                    <label for="u_prof_body"></label><textarea id="u_prof_body" placeholder='PUT JSON Body: {"name": "...", "job": "..."}'></textarea>
+                    <label for="u_prof_body"></label><textarea id="u_prof_body" placeholder='PUT JSON Body: {"name": "...", "job": "..."}；也可粘贴 /api/user/profile 完整响应'></textarea>
                     <button style="width:100%" onclick="updateUserProfileRaw()">更新 (PUT)</button>
                 </div>
             </div>
@@ -1058,6 +1058,28 @@
             });
         }
 
+        async function getMyProfileForEdit() {
+            const r = await call("GET", "/api/user/profile");
+            if (!r || r.code !== 0 || !r.data) return;
+
+            if (r.data.id) {
+                u_prof_id.value = String(r.data.id);
+            }
+
+            const editable = { ...r.data };
+            delete editable.id;
+            delete editable.emp_id;
+            delete editable.username;
+            delete editable.role;
+            delete editable.auth;
+            delete editable.state;
+            delete editable.department;
+            delete editable.create_at;
+            delete editable.update_at;
+
+            u_prof_body.value = JSON.stringify(editable, null, 2);
+        }
+
         async function updateUserProfileRaw() {
             let body = {};
             try {
@@ -1066,7 +1088,19 @@
                 alert("JSON 解析失败，请检查格式");
                 return;
             }
-            await call("PUT", `/api/user/profile/${u_prof_id.value}`, body);
+
+            if (body && typeof body === "object" && !Array.isArray(body) && body.data && typeof body.data === "object") {
+                body = body.data;
+            }
+
+            if (!body || typeof body !== "object" || Array.isArray(body)) {
+                alert("PUT Body 必须是 JSON 对象");
+                return;
+            }
+
+            const id = u_prof_id.value.trim();
+            const url = id ? `/api/user/profile/${id}` : "/api/user/profile";
+            await call("PUT", url, body);
         }
 
         async function getMyAttendance() {

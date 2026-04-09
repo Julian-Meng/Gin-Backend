@@ -145,6 +145,20 @@ func UpdatePerson(id uint, p models.Person) error {
 		Updates(updates).Error
 }
 
+// UpdatePersonFields 按字段更新员工信息（仅更新传入字段）
+func UpdatePersonFields(id uint, updates map[string]interface{}) error {
+	if len(updates) == 0 {
+		return nil
+	}
+
+	dbConn := db.GetDB()
+
+	return dbConn.
+		Model(&models.Person{}).
+		Where("id = ?", id).
+		Updates(updates).Error
+}
+
 // DeletePersonByEmpID 删除员工（按 emp_id）
 func DeletePersonByEmpID(empID string) error {
 	dbConn := db.GetDB()

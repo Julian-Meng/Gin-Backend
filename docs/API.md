@@ -96,15 +96,16 @@
 | ---- | --------------------------- | ----- | ---------------------------------------------------------------------------------------------- | ----------- |
 | GET  | `/api/admin/changes`        | admin | 无                                                                                              | 获取所有变更记录列表  |
 | GET  | `/api/admin/change/:id`     | admin | `:id` (变更 ID)                                                                                  | 查询单条变更详情    |
-| POST | `/api/admin/change`         | admin | `{ "emp_id": string, "change_type": 1/2/3, "target_dpt": number (可选), "description": string }` | 管理员直接发起变更   |
-| PUT  | `/api/admin/change/approve` | admin | `{ "id": number, "approver": string, "approve": true/false }`                                  | 审批变更（通过/驳回） |
-| POST | `/api/user/change/request`  | staff | `{ "emp_id": string, "change_type": 1/2/3, "target_dpt": number (可选), "description": string }` | 员工提交变更申请    |
+| POST | `/api/admin/change`         | admin | `{ "change_type": 1/2/3/4, "target_dpt": number (可选), "description": string, "leave_start_at": "YYYY-MM-DD" (可选), "leave_end_at": "YYYY-MM-DD" (可选), "leave_reason": string (可选), "leave_type": string (可选), "handover_note": string (可选) }` | 管理员发起本人变更（emp_id 由 JWT 自动获取）   |
+| PUT  | `/api/admin/change/approve` | admin | `{ "id": number, "approver": string, "approve": true/false, "reject_reason": string (驳回时必填) }`                                  | 审批变更（通过/驳回） |
+| POST | `/api/user/change/request`  | staff | `{ "change_type": 1/2/3/4, "target_dpt": number (可选), "description": string, "leave_start_at": "YYYY-MM-DD" (可选), "leave_end_at": "YYYY-MM-DD" (可选), "leave_reason": string (可选), "leave_type": string (可选), "handover_note": string (可选) }` | 员工提交本人变更申请（emp_id 由 JWT 自动获取）    |
 
 change_type 值：
 
 * 1：调部门
 * 2：调岗
 * 3：离职
+* 4：请假（需提供请假开始/结束日期与请假原因，日期精度为天）
 
 ---
 

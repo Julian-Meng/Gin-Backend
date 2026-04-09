@@ -224,6 +224,10 @@
             flex-shrink: 0;
         }
 
+        #right.hidden {
+            display: none;
+        }
+
         /* === 复用之前的表单样式 === */
         h3 {
             font-size: 14px;
@@ -531,15 +535,26 @@
 
                     <h3>发起变更 (管理员)</h3>
                     <div class="form-row">
-                        <label for="ch_emp"></label><input id="ch_emp" placeholder="工号" />
                         <label for="ch_type"></label><select id="ch_type">
                             <option value="1">1 调部门</option>
                             <option value="2">2 调岗</option>
                             <option value="3">3 离职</option>
+                            <option value="4">4 请假</option>
                         </select>
                         <label for="ch_target"></label><input id="ch_target" placeholder="目标部门ID" />
                         <label for="ch_desc"></label><input id="ch_desc" placeholder="描述" />
                         <button onclick="createChangeAdmin()">提交</button>
+                    </div>
+                    <div class="form-row">
+                        <label for="ch_leave_start"></label><input id="ch_leave_start" type="date"
+                            placeholder="请假开始日期" />
+                        <label for="ch_leave_end"></label><input id="ch_leave_end" type="date"
+                            placeholder="请假结束日期" />
+                        <label for="ch_leave_type"></label><input id="ch_leave_type" placeholder="请假类型(可选)" />
+                    </div>
+                    <div class="form-row">
+                        <label for="ch_leave_reason"></label><input id="ch_leave_reason" placeholder="请假原因(change_type=4 必填)" />
+                        <label for="ch_handover_note"></label><input id="ch_handover_note" placeholder="交接说明(可选)" />
                     </div>
 
                     <h3>审批变更</h3>
@@ -552,20 +567,36 @@
                         </select>
                         <button onclick="approveChange()">提交审批</button>
                     </div>
+                    <div class="form-row">
+                        <label for="ch_app_reject_reason"></label><input id="ch_app_reject_reason"
+                            placeholder="驳回原因(当结果为驳回时必填)" />
+                    </div>
 
                     <div style="border-top: 1px dashed #eee; margin: 20px 0;"></div>
 
                     <h3>用户申请变更</h3>
                     <div class="form-row">
-                        <label for="u_ch_emp"></label><input id="u_ch_emp" placeholder="本人工号" />
                         <label for="u_ch_type"></label><select id="u_ch_type">
                             <option value="1">调部门</option>
                             <option value="2">调岗</option>
                             <option value="3">离职</option>
+                            <option value="4">请假</option>
                         </select>
                         <label for="u_ch_target"></label><input id="u_ch_target" placeholder="目标部门ID" />
                         <label for="u_ch_desc"></label><input id="u_ch_desc" placeholder="描述" />
                         <button class="secondary" onclick="createChangeUser()">申请</button>
+                    </div>
+                    <div class="form-row">
+                        <label for="u_ch_leave_start"></label><input id="u_ch_leave_start" type="date"
+                            placeholder="请假开始日期" />
+                        <label for="u_ch_leave_end"></label><input id="u_ch_leave_end" type="date"
+                            placeholder="请假结束日期" />
+                        <label for="u_ch_leave_type"></label><input id="u_ch_leave_type" placeholder="请假类型(可选)" />
+                    </div>
+                    <div class="form-row">
+                        <label for="u_ch_leave_reason"></label><input id="u_ch_leave_reason"
+                            placeholder="请假原因(change_type=4 必填)" />
+                        <label for="u_ch_handover_note"></label><input id="u_ch_handover_note" placeholder="交接说明(可选)" />
                     </div>
                 </div>
             </div>
@@ -954,11 +985,23 @@
         }
 
         async function createChangeAdmin() {
-            await call("POST", "/api/admin/change", {
-                emp_id: ch_emp.value,
+            const changeType = parseInt(ch_type.value);
+            const body = {
                 target_dpt: ch_target.value ? parseInt(ch_target.value) : 0,
-                change_type: parseInt(ch_type.value),
+                change_type: changeType,
                 description: ch_desc.value,
+            };
+
+            if (changeType === 4) {
+                body.leave_start_at = ch_leave_start.value;
+                body.leave_end_at = ch_leave_end.value;
+                body.leave_reason = ch_leave_reason.value;
+                body.leave_type = ch_leave_type.value;
+                body.handover_note = ch_handover_note.value;
+            }
+
+            await call("POST", "/api/admin/change", {
+                ...body,
             });
         }
 
@@ -967,15 +1010,28 @@
                 id: ch_app_id.value ? parseInt(ch_app_id.value) : 0,
                 approver: ch_app_approver.value,
                 approve: ch_app_result.value === "true",
+                reject_reason: ch_app_reject_reason.value,
             });
         }
 
         async function createChangeUser() {
-            await call("POST", "/api/user/change/request", {
-                emp_id: u_ch_emp.value,
+            const changeType = parseInt(u_ch_type.value);
+            const body = {
                 target_dpt: u_ch_target.value ? parseInt(u_ch_target.value) : 0,
-                change_type: parseInt(u_ch_type.value),
+                change_type: changeType,
                 description: u_ch_desc.value,
+            };
+
+            if (changeType === 4) {
+                body.leave_start_at = u_ch_leave_start.value;
+                body.leave_end_at = u_ch_leave_end.value;
+                body.leave_reason = u_ch_leave_reason.value;
+                body.leave_type = u_ch_leave_type.value;
+                body.handover_note = u_ch_handover_note.value;
+            }
+
+            await call("POST", "/api/user/change/request", {
+                ...body,
             });
         }
 

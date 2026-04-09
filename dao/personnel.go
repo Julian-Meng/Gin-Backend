@@ -44,6 +44,12 @@ func FetchPersonnelPaged(limit, offset int) ([]models.Personnel, int64, error) {
 			d2.name AS target_dpt_name,
 			p.change_type,
 			p.description,
+			p.leave_start_at,
+			p.leave_end_at,
+			p.leave_reason,
+			p.leave_type,
+			p.handover_note,
+			p.reject_reason,
 			p.state,
 			p.approver,
 			p.created_at,
@@ -80,6 +86,12 @@ func GetPersonnelByID(id uint) (*models.Personnel, error) {
 			d2.name AS target_dpt_name,
 			p.change_type,
 			p.description,
+			p.leave_start_at,
+			p.leave_end_at,
+			p.leave_reason,
+			p.leave_type,
+			p.handover_note,
+			p.reject_reason,
 			p.state,
 			p.approver,
 			p.created_at,
@@ -104,7 +116,8 @@ func GetPersonnelByID(id uint) (*models.Personnel, error) {
 // 1 → 调部门（更新 PERSON.dpt_id + 部门人数 +/-）
 // 2 → 调岗位（更新 PERSON.job）
 // 3 → 离职（更新 PERSON.state=0 + 部门人数 -1）
-func ApprovePersonnelChange(id uint, approver string, approve bool) error {
+// 4 → 请假（仅记录审批结果，不改人员主数据）
+func ApprovePersonnelChange(id uint, approver string, approve bool, rejectReason string) error {
 	dbConn := db.GetDB()
 
 	return dbConn.Transaction(func(tx *gorm.DB) error {
@@ -179,17 +192,24 @@ func ApprovePersonnelChange(id uint, approver string, approve bool) error {
 				tx.Model(&models.Department{}).
 					Where("id = ?", person.DptID).
 					Update("dpt_num", gorm.Expr("dpt_num - 1"))
+
+			case 4: // 请假
+				// 请假审批通过时仅更新审批结果，不改人员主数据
 			}
 		}
 
 		// 4. 更新人事变更记录
 		now := time.Now()
+		if approve {
+			rejectReason = ""
+		}
 		return tx.Model(&models.Personnel{}).
 			Where("id = ?", id).
 			Updates(map[string]interface{}{
-				"state":      newState,
-				"approver":   approver,
-				"approve_at": &now,
+				"state":         newState,
+				"approver":      approver,
+				"reject_reason": rejectReason,
+				"approve_at":    &now,
 			}).Error
 	})
 }

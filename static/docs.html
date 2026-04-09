@@ -288,16 +288,54 @@
     <section id="mod4">
         <h2>4. 人事变动 (Personnel)</h2>
         <div class="api-block">
-            <div class="api-title"><span class="method post">POST</span> <code>/api/admin/personnel-changes</code> <span
-                    class="auth-tag admin">admin</span></div>
-            <div class="section-desc">提交人事变动申请。类型 1:调岗, 2:离职, 3:部门调整。</div>
+            <div class="api-title"><span class="method get">GET</span> <code>/api/admin/changes</code> <span
+                class="auth-tag admin">admin</span></div>
+            <div class="section-desc">管理员分页查询全部人事变更/请假申请。</div>
+        </div>
+        <div class="api-block">
+            <div class="api-title"><span class="method get">GET</span> <code>/api/admin/change/:id</code> <span
+                class="auth-tag admin">admin</span></div>
+            <div class="section-desc">查询单条变更详情。</div>
+        </div>
+        <div class="api-block">
+            <div class="api-title"><span class="method post">POST</span> <code>/api/admin/change</code> <span
+                class="auth-tag admin">admin</span></div>
+            <div class="section-desc">管理员发起本人变更。change_type: 1 调部门, 2 调岗, 3 离职, 4 请假（emp_id 从 JWT 自动获取）。</div>
             <strong>Request Body:</strong>
             <pre>{
-  "emp_id": "EMP231001",
-  "change_type": 3,
-  "new_value": "12", // 新部门ID或职位名称
-  "reason": "业务调整",
-  "execute_date": "2023-12-01"
+      "target_dpt": 12,
+      "change_type": 4,
+      "description": "临时请假申请",
+      "leave_start_at": "2026-04-10",
+      "leave_end_at": "2026-04-11",
+      "leave_reason": "家中事务处理",
+      "leave_type": "事假",
+      "handover_note": "任务已交接给同组同事"
+    }</pre>
+        </div>
+        <div class="api-block">
+            <div class="api-title"><span class="method put">PUT</span> <code>/api/admin/change/approve</code> <span
+                class="auth-tag admin">admin</span></div>
+            <div class="section-desc">管理员审批变更。approve=false 时 reject_reason 必填。</div>
+            <strong>Request Body:</strong>
+            <pre>{
+      "id": 123,
+      "approver": "admin01",
+      "approve": false,
+      "reject_reason": "请假时间与排班冲突，请调整后重提"
+    }</pre>
+        </div>
+        <div class="api-block">
+            <div class="api-title"><span class="method post">POST</span> <code>/api/user/change/request</code> <span
+                class="auth-tag staff">staff</span></div>
+            <div class="section-desc">员工提交本人申请（emp_id 从 JWT 自动获取）。请假时需提供 leave_start_at / leave_end_at / leave_reason，日期精度为天。</div>
+            <strong>Request Body:</strong>
+            <pre>{
+      "change_type": 4,
+      "leave_start_at": "2026-04-10",
+      "leave_end_at": "2026-04-11",
+      "leave_reason": "病假",
+      "leave_type": "病假"
 }</pre>
         </div>
     </section>

@@ -30,6 +30,7 @@ func SetupRouter() *gin.Engine {
 	r.StaticFile("/favicon.ico", "./static/favicon.ico")
 
 	// 无需登录
+	r.GET("/api/captcha", handlers.GetCaptcha)
 	r.POST("/api/login", handlers.Login)
 	r.POST("/api/register", handlers.Register)
 	r.GET("/api/notice", handlers.GetAllNotices)

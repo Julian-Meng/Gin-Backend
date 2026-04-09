@@ -389,6 +389,12 @@
                         <button onclick="login()">登录</button>
                     </div>
 
+                    <div class="form-row" id="login_captcha_block" style="display:none; align-items:center;">
+                        <label for="login_captcha_code"></label><input id="login_captcha_code" placeholder="登录验证码" />
+                        <img id="login_captcha_img" alt="登录验证码" style="height:40px; border:1px solid #e2e8f0; border-radius:6px;" />
+                        <button class="secondary" onclick="refreshLoginCaptcha()">刷新验证码</button>
+                    </div>
+
                     <div style="margin: 30px 0; border-top: 1px dashed #eee;"></div>
 
                     <h3>注册 (POST /api/register)</h3>
@@ -400,6 +406,28 @@
                             <option value="admin">admin</option>
                         </select>
                         <button onclick="registerUser()">注册新用户</button>
+                    </div>
+
+                    <div class="form-row" style="align-items:center;">
+                        <label for="reg_captcha_code"></label><input id="reg_captcha_code" placeholder="注册验证码" />
+                        <img id="reg_captcha_img" alt="注册验证码" style="height:40px; border:1px solid #e2e8f0; border-radius:6px;" />
+                        <button class="secondary" onclick="refreshRegisterCaptcha()">刷新验证码</button>
+                    </div>
+
+                    <div style="margin: 30px 0; border-top: 1px dashed #eee;"></div>
+
+                    <h3>验证码接口独立测试 (GET /api/captcha)</h3>
+                    <div class="form-row" style="align-items:center;">
+                        <label for="captcha_test_scene"></label><select id="captcha_test_scene" style="flex:0.5">
+                            <option value="register">register</option>
+                            <option value="login">login</option>
+                        </select>
+                        <button class="secondary" onclick="refreshCaptchaTest()">获取测试验证码</button>
+                    </div>
+                    <div class="form-row" style="align-items:center;">
+                        <label for="captcha_test_code"></label><input id="captcha_test_code" placeholder="这里输入验证码（供人工测试）" />
+                        <img id="captcha_test_img" alt="测试验证码" style="height:40px; border:1px solid #e2e8f0; border-radius:6px;" />
+                        <label for="captcha_test_id"></label><input id="captcha_test_id" placeholder="captcha_id" readonly />
                     </div>
                 </div>
             </div>
@@ -911,32 +939,100 @@
             }
         }
 
-        /* 5. 业务逻辑函数 (保持原样) */
+        let loginCaptchaRequired = false;
+        let loginCaptchaID = "";
+        let registerCaptchaID = "";
+
+        function setLoginCaptchaVisible(visible) {
+            const block = document.getElementById("login_captcha_block");
+            block.style.display = visible ? "flex" : "none";
+        }
+
+        async function fetchCaptcha(scene = "register") {
+            const response = await call("GET", `/api/captcha?scene=${encodeURIComponent(scene)}`);
+            if (!response || response.code !== 0 || !response.data) {
+                return null;
+            }
+            return response.data;
+        }
+
+        async function refreshRegisterCaptcha() {
+            const data = await fetchCaptcha("register");
+            if (!data) return;
+            registerCaptchaID = data.captcha_id || "";
+            reg_captcha_img.src = data.image_base64 || "";
+        }
+
+        async function refreshLoginCaptcha() {
+            const data = await fetchCaptcha("login");
+            if (!data) return;
+            loginCaptchaID = data.captcha_id || "";
+            login_captcha_img.src = data.image_base64 || "";
+        }
+
+        async function refreshCaptchaTest() {
+            const scene = captcha_test_scene.value || "register";
+            const data = await fetchCaptcha(scene);
+            if (!data) return;
+            captcha_test_img.src = data.image_base64 || "";
+            captcha_test_id.value = data.captcha_id || "";
+        }
+
+        /* 5. 业务逻辑函数 */
         async function login() {
-            const r = await call("POST", "/api/login", {
+            const payload = {
                 username: login_user.value.trim(),
                 password: login_pass.value.trim(),
-            });
+            };
+
+            if (loginCaptchaRequired) {
+                payload.captcha_id = loginCaptchaID;
+                payload.captcha_code = login_captcha_code.value.trim();
+            }
+
+            const r = await call("POST", "/api/login", payload);
             if (r.token) {
                 token.value = r.token;
                 const tokenArea = document.querySelector('.token-area');
                 tokenArea.style.borderColor = "#10b981";
                 setTimeout(() => tokenArea.style.borderColor = "#e2e8f0", 1000);
 
+                loginCaptchaRequired = false;
+                loginCaptchaID = "";
+                login_captcha_code.value = "";
+                setLoginCaptchaVisible(false);
+
                 if (r.role === "admin" || r.role === "superadmin") {
                     chat_mode.value = "admin";
                 } else {
                     chat_mode.value = "user";
                 }
+                return;
+            }
+
+            if (r && r.need_captcha) {
+                loginCaptchaRequired = true;
+                setLoginCaptchaVisible(true);
+                await refreshLoginCaptcha();
             }
         }
 
         async function registerUser() {
-            await call("POST", "/api/register", {
+            const payload = {
                 username: reg_user.value.trim(),
                 password: reg_pass.value.trim(),
                 role: reg_role.value,
-            });
+                captcha_id: registerCaptchaID,
+                captcha_code: reg_captcha_code.value.trim(),
+            };
+
+            const r = await call("POST", "/api/register", payload);
+            reg_captcha_code.value = "";
+            await refreshRegisterCaptcha();
+
+            if (r && r.code === 0) {
+                reg_pass.value = "";
+            }
         }
 
         async function createPerson() {
@@ -1362,6 +1458,10 @@
             chat_input.value = "";
             refreshChatSessions();
         }
+
+        setLoginCaptchaVisible(false);
+        refreshRegisterCaptcha();
+        refreshCaptchaTest();
 
     </script>
 </body>

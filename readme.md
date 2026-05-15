@@ -10,24 +10,8 @@
 - English Documentation: [`docs/README_ENG.md`](./docs/README_ENG.md)
 - API 文档（接口列表/统一响应/权限要求）：[`docs/API.md`](./docs/API.md)
 
-## Quick Start
+## TODO
 
-### 1) 准备环境
-- Go (建议 1.20+)
-- Docker Desktop（Windows 建议使用 WSL2 后端）
-
-### 2) 启动依赖服务（MySQL / Ollama）
-```bash
-docker compose up -d
-````
-
-### 3) 启动后端
-
-```bash
-go run .
-```
-
-## Notes
-
-* 如果后端运行在宿主机（Windows），默认通过 `127.0.0.1` 访问 MySQL / Ollama。
-* 配置项示例见：`.env.example`
+- 补充 Swagger
+- 完善 error handling
+- 扩充/重写 README

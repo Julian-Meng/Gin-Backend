@@ -161,14 +161,14 @@ type ChatSessionResponse struct {
 }
 
 type DashboardAdminResponse struct {
-	Code int                      `json:"code" example:"0"`
-	Msg  string                   `json:"msg" example:"success"`
+	Code int                       `json:"code" example:"0"`
+	Msg  string                    `json:"msg" example:"success"`
 	Data models.AdminDashboardData `json:"data"`
 }
 
 type DashboardUserResponse struct {
-	Code int                     `json:"code" example:"0"`
-	Msg  string                  `json:"msg" example:"success"`
+	Code int                      `json:"code" example:"0"`
+	Msg  string                   `json:"msg" example:"success"`
 	Data models.UserDashboardData `json:"data"`
 }
 
@@ -196,8 +196,8 @@ type NoticeDetailResponse struct {
 }
 
 type AccountListResponse struct {
-	Code int            `json:"code" example:"0"`
-	Msg  string         `json:"msg" example:"ok"`
+	Code int              `json:"code" example:"0"`
+	Msg  string           `json:"msg" example:"ok"`
 	Data []models.Account `json:"data"`
 }
 

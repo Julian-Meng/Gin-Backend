@@ -51,4 +51,3 @@ func nextRequestID() string {
 	seq := atomic.AddUint64(&requestSeq, 1)
 	return fmt.Sprintf("req-%d-%06d", time.Now().UnixMilli(), seq%1000000)
 }
-

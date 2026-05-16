@@ -22,11 +22,17 @@ definitions:
       code:
         example: 1
         type: integer
+      detail:
+        example: 'json: cannot unmarshal number into Go struct field ...'
+        type: string
       err:
         example: error detail
         type: string
       error:
         example: error detail
+        type: string
+      error_code:
+        example: INVALID_PARAM
         type: string
       fail_count:
         example: 3
@@ -37,6 +43,9 @@ definitions:
       need_captcha:
         example: true
         type: boolean
+      request_id:
+        example: req-1715842301123-000001
+        type: string
     type: object
   handlers.APISuccessResponse:
     properties:

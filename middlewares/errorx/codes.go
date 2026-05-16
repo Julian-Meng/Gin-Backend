@@ -8,4 +8,3 @@ const (
 	CodeConflict      = "CONFLICT"
 	CodeInternalError = "INTERNAL_ERROR"
 )
-

@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+tasks:
+  fmt:
+    desc: Format Go code
+    cmds:
+      - go fmt ./...
+
+  swag:
+    desc: Generate swagger docs
+    cmds:
+      - swag init -g main.go -o docs
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test -v ./...
+
+  run:
+    desc: Run with air (auto swagger)
+    deps: [fmt, swag]
+    cmds:
+      - air
+
+  docker:
+    desc: Start docker services
+    cmds:
+      - docker-compose up --build
+
+  clean:
+    desc: Clean temp files
+    cmds:
+      - '{{if eq OS "windows"}}powershell -Command "Remove-Item -Recurse -Force ./tmp -ErrorAction SilentlyContinue"{{else}}rm -rf ./tmp{{end}}'
+
+  dev:
+    desc: Full dev workflow
+    deps: [run]

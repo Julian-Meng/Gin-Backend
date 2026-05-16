@@ -2879,6 +2879,10 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
+                "detail": {
+                    "type": "string",
+                    "example": "json: cannot unmarshal number into Go struct field ..."
+                },
                 "err": {
                     "type": "string",
                     "example": "error detail"
@@ -2886,6 +2890,10 @@ const docTemplate = `{
                 "error": {
                     "type": "string",
                     "example": "error detail"
+                },
+                "error_code": {
+                    "type": "string",
+                    "example": "INVALID_PARAM"
                 },
                 "fail_count": {
                     "type": "integer",
@@ -2898,6 +2906,10 @@ const docTemplate = `{
                 "need_captcha": {
                     "type": "boolean",
                     "example": true
+                },
+                "request_id": {
+                    "type": "string",
+                    "example": "req-1715842301123-000001"
                 }
             }
         },

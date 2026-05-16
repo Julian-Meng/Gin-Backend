@@ -116,7 +116,16 @@ func loginFailResponse(c *gin.Context, failCount int, msg string) {
 	})
 }
 
-// GetCaptcha GET /api/captcha
+// GetCaptcha godoc
+// @Summary 获取验证码
+// @Description 获取注册/登录验证码
+// @Tags auth
+// @Produce json
+// @Param scene query string false "验证码场景" Enums(register,login) default(register)
+// @Success 200 {object} CaptchaSuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/captcha [get]
 func GetCaptcha(c *gin.Context) {
 	service := mustLoadCaptchaConfig()
 	scene := strings.ToLower(strings.TrimSpace(c.DefaultQuery("scene", "register")))
@@ -204,7 +213,18 @@ func loadSuperAdminConfig() (SuperAdminConfig, error) {
 	}, nil
 }
 
-// Login POST /api/login
+// Login godoc
+// @Summary 登录
+// @Description 账号登录，必要时需要验证码
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body SwaggerLoginRequest true "登录参数"
+// @Success 200 {object} LoginSuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/login [post]
 func Login(c *gin.Context) {
 	cfg := mustLoadSuperAdminConfig()
 	mustLoadCaptchaConfig()
@@ -317,7 +337,18 @@ func Login(c *gin.Context) {
 	})
 }
 
-// Register POST /api/register
+// Register godoc
+// @Summary 注册
+// @Description 注册新账号（需验证码）
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body SwaggerRegisterRequest true "注册参数"
+// @Success 200 {object} RegisterSuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 403 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/register [post]
 func Register(c *gin.Context) {
 	cfg := mustLoadSuperAdminConfig()
 	mustLoadCaptchaConfig()

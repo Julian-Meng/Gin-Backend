@@ -4,8 +4,9 @@
 
 - 认证方式：大多数接口需要在 Header 中携带 `Authorization: Bearer <token>`（登录后获取）
 - `/api/admin/*`：仅管理员（role=admin）可访问（superadmin 也可访问）
-- `/api/user/*`：普通员工（role=staff）可访问（superadmin 也可访问）
+- `/api/user/*`：已登录用户可访问（staff/admin/superadmin）
 - 请求/响应内容类型：`application/json`
+- 在线 Swagger 文档入口：`/`（重定向到 `/swagger/index.html`）
 
 ## 统一响应格式
 
@@ -49,7 +50,7 @@
 | 方法   | 路径              | 权限  | 请求体 (JSON)                                                            | 说明                        |
 | ---- | --------------- | --- | --------------------------------------------------------------------- | ------------------------- |
 | POST | `/api/login`    | 公开  | `{ "username": string, "password": string }`                          | 登录，返回 `{ token: string }` |
-| POST | `/api/register` | 公开？ | `{ "username": string, "password": string, "role": "staff"/"admin" }` | 注册新账号（需确认是否需要管理员权限）       |
+| POST | `/api/register` | 公开  | `{ "username": string, "password": string, "role": "staff"/"admin" }` | 注册新账号（需验证码）       |
 
 ---
 
@@ -84,7 +85,7 @@
 | ------ | --------------------------- | ----- | ---------------------------------- | -------------------------------------------------- | --------------- |
 | GET    | `/api/admin/departments`    | admin | `page`, `pageSize`, `keyword` (可选) | 无                                                  | 部门列表（支持分页+搜索）   |
 | GET    | `/api/admin/department/:id` | admin | `:id` (部门 ID)                      | 无                                                  | 查询单个部门详情        |
-| GET    | `/api/user/department/:id`  | staff | `:id` (部门 ID)                      | 无                                                  | 普通用户查询部门（权限受限？） |
+| GET    | `/api/user/department/:id`  | login | `:id` (部门 ID)                      | 无                                                  | 登录用户查询部门详情 |
 | DELETE | `/api/admin/department/:id` | admin | `:id` (部门 ID)                      | 无                                                  | 删除部门            |
 | POST   | `/api/admin/department`     | admin | 无                                  | `{ "name": string, "full_num": number (可选，默认20) }` | 创建新部门           |
 
@@ -98,8 +99,8 @@
 | GET  | `/api/admin/change/:id`     | admin | `:id` (变更 ID)                                                                                  | 查询单条变更详情    |
 | POST | `/api/admin/change`         | admin | `{ "change_type": 1/2/3/4, "target_dpt": number (可选), "description": string, "leave_start_at": "YYYY-MM-DD" (可选), "leave_end_at": "YYYY-MM-DD" (可选), "leave_reason": string (可选), "leave_type": string (可选), "handover_note": string (可选) }` | 管理员发起本人变更（emp_id 由 JWT 自动获取）   |
 | PUT  | `/api/admin/change/approve` | admin | `{ "id": number, "approver": string, "approve": true/false, "reject_reason": string (驳回时必填) }`                                  | 审批变更（通过/驳回） |
-| POST | `/api/user/change/request`  | staff | `{ "change_type": 1/2/3/4, "target_dpt": number (可选), "description": string, "leave_start_at": "YYYY-MM-DD" (可选), "leave_end_at": "YYYY-MM-DD" (可选), "leave_reason": string (可选), "leave_type": string (可选), "handover_note": string (可选) }` | 员工提交本人变更申请（emp_id 由 JWT 自动获取）    |
-| GET  | `/api/user/changes`         | staff | Query: `page`, `pageSize`（兼容 `page_size`）                                                     | 查看当前登录用户自己的变更记录列表 |
+| POST | `/api/user/change/request`  | login | `{ "change_type": 1/2/3/4, "target_dpt": number (可选), "description": string, "leave_start_at": "YYYY-MM-DD" (可选), "leave_end_at": "YYYY-MM-DD" (可选), "leave_reason": string (可选), "leave_type": string (可选), "handover_note": string (可选) }` | 登录用户提交本人变更申请（emp_id 由 JWT 自动获取）    |
+| GET  | `/api/user/changes`         | login | Query: `page`, `pageSize`（兼容 `page_size`）                                                     | 查看当前登录用户自己的变更记录列表 |
 
 change_type 值：
 
@@ -136,9 +137,9 @@ change_type 值：
 
 | 方法  | 路径                             | 权限    | 请求体 (JSON)                                   | 说明            |                    |
 | --- | ------------------------------ | ----- | -------------------------------------------- | ------------- | ------------------ |
-| GET | `/api/user/profile`            | staff | 无                                            | 查看当前登录用户的完整档案 |                    |
-| GET | `/api/user/profile/:person_id` | staff | `:person_id` (Person 数据库 ID)                 | 无             | 查询指定 Person ID 的档案 |
-| PUT | `/api/user/profile/:person_id` | staff | 任意可更新字段（如 `{ "name": "...", "job": "..." }`） | 更新档案（部分字段）    |                    |
+| GET | `/api/user/profile`            | login | 无                                            | 查看当前登录用户的完整档案 |                    |
+| GET | `/api/user/profile/:id` | login | `:id` (Person 数据库 ID)                 | 无             | 查询指定 Person ID 的档案 |
+| PUT | `/api/user/profile/:id` | login | 任意可更新字段（如 `{ "name": "...", "job": "..." }`） | 更新档案（部分字段）    |                    |
 
 ---
 
@@ -146,9 +147,9 @@ change_type 值：
 
 | 方法     | 路径                              | 权限    | 请求参数 / 请求体                                                                                             | 说明        |
 | ------ | ------------------------------- | ----- | ------------------------------------------------------------------------------------------------------ | --------- |
-| POST   | `/api/user/attendance/checkin`  | staff | 无（空体）                                                                                                  | 上班签到      |
-| POST   | `/api/user/attendance/checkout` | staff | 无（空体）                                                                                                  | 下班签退      |
-| GET    | `/api/user/attendance/my`       | staff | Query: `start` (YYYY-MM-DD), `end`, `page`, `pageSize` (可选)                                            | 查询我的考勤记录  |
+| POST   | `/api/user/attendance/checkin`  | login | 无（空体）                                                                                                  | 上班签到      |
+| POST   | `/api/user/attendance/checkout` | login | 无（空体）                                                                                                  | 下班签退      |
+| GET    | `/api/user/attendance/my`       | login | Query: `start` (YYYY-MM-DD), `end`, `page`, `pageSize` (可选)                                            | 查询我的考勤记录  |
 | GET    | `/api/admin/attendance`         | admin | Query: `emp_id`, `dpt_id`, `start`, `end` 等                                                            | 管理员查询考勤列表 |
 | PUT    | `/api/admin/attendance/:id`     | admin | `:id` + 可选字段 `{ "status": number, "remark": string, "check_in": ISO string, "check_out": ISO string }` | 修改单条考勤记录  |
 | DELETE | `/api/admin/attendance/:id`     | admin | `:id`                                                                                                  | 删除考勤记录    |
@@ -159,7 +160,7 @@ change_type 值：
 
 | 方法  | 路径                      | 权限    | 请求体 | 说明               |
 | --- | ----------------------- | ----- | --- | ---------------- |
-| GET | `/api/user/permissions` | staff | 无   | 获取当前用户对所有接口的权限状态 |
+| GET | `/api/user/permissions` | login | 无   | 获取当前用户对所有接口的权限状态 |
 
 ---
 

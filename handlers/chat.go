@@ -188,7 +188,16 @@ func (c *wsClient) writePing() error {
 	return c.conn.WriteControl(websocket.PingMessage, []byte("ping"), time.Now().Add(10*time.Second))
 }
 
-// ChatWithAI 兼容旧版 AI 聊天接口。
+// ChatWithAI godoc
+// @Summary 兼容旧版 AI 聊天
+// @Tags chat
+// @Accept json
+// @Produce json
+// @Param request body models.AIRequest true "AI 对话参数"
+// @Success 200 {object} models.AIResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/chat [post]
 func ChatWithAI(c *gin.Context) {
 	var req models.AIRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -214,7 +223,15 @@ func ChatWithAI(c *gin.Context) {
 	c.JSON(http.StatusOK, aiResponse)
 }
 
-// ChatWS 建立聊天 WebSocket 连接（用户和管理员均可）。
+// ChatWS godoc
+// @Summary 建立聊天 WebSocket 连接
+// @Description 支持 Query token 或 Authorization 头鉴权，用于实时消息推送。
+// @Tags chat
+// @Security BearerAuth
+// @Param token query string false "JWT Token（可选，等价于 Authorization: Bearer <token>）"
+// @Success 101 {string} string "Switching Protocols"
+// @Failure 401 {object} APIErrorResponse
+// @Router /api/chat/ws [get]
 func ChatWS(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipalForWS(c)
 	if !ok {
@@ -281,7 +298,19 @@ func ChatWS(c *gin.Context) {
 	}
 }
 
-// UserSendChatMessage 用户发送消息。
+// UserSendChatMessage godoc
+// @Summary 用户发送客服消息
+// @Tags chat
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body models.UserSendChatRequest true "消息内容"
+// @Success 200 {object} ChatUserSendResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 403 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/chat/user/message [post]
 func UserSendChatMessage(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipal(c)
 	if !ok {
@@ -334,7 +363,19 @@ func UserSendChatMessage(c *gin.Context) {
 	})
 }
 
-// AdminSendChatMessage 管理员发送消息。
+// AdminSendChatMessage godoc
+// @Summary 管理员发送客服消息
+// @Tags chat
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body models.AdminSendChatRequest true "消息内容"
+// @Success 200 {object} ChatAdminSendResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 403 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/chat/admin/message [post]
 func AdminSendChatMessage(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipal(c)
 	if !ok {
@@ -385,7 +426,18 @@ func AdminSendChatMessage(c *gin.Context) {
 	})
 }
 
-// AdminClaimWaitingSessions 管理员主动认领等待会话。
+// AdminClaimWaitingSessions godoc
+// @Summary 管理员批量认领等待会话
+// @Tags chat
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body models.AdminClaimRequest false "认领参数（可空，默认 limit=20）"
+// @Success 200 {object} ChatSessionsResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 403 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/chat/admin/sessions/claim [post]
 func AdminClaimWaitingSessions(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipal(c)
 	if !ok {
@@ -416,7 +468,19 @@ func AdminClaimWaitingSessions(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "ok", "data": claimed})
 }
 
-// AdminClaimSessionByID 管理员手动接管指定会话。
+// AdminClaimSessionByID godoc
+// @Summary 管理员接管指定会话
+// @Tags chat
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "会话ID"
+// @Success 200 {object} ChatSessionResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 403 {object} APIErrorResponse
+// @Failure 409 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/chat/admin/sessions/{id}/claim [post]
 func AdminClaimSessionByID(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipal(c)
 	if !ok {
@@ -449,7 +513,16 @@ func AdminClaimSessionByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "ok", "data": session})
 }
 
-// UserListChatSessions 用户查询自己的会话。
+// UserListChatSessions godoc
+// @Summary 用户查询自己的会话列表
+// @Tags chat
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} ChatSessionsResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 403 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/chat/user/sessions [get]
 func UserListChatSessions(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipal(c)
 	if !ok {
@@ -470,7 +543,16 @@ func UserListChatSessions(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "ok", "data": sessions})
 }
 
-// AdminListChatSessions 管理员查询已分配会话。
+// AdminListChatSessions godoc
+// @Summary 管理员查询已分配会话列表
+// @Tags chat
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} ChatSessionsResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 403 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/chat/admin/sessions [get]
 func AdminListChatSessions(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipal(c)
 	if !ok {
@@ -491,7 +573,18 @@ func AdminListChatSessions(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "ok", "data": sessions})
 }
 
-// GetChatMessages 查询会话消息历史。
+// GetChatMessages godoc
+// @Summary 查询会话消息历史
+// @Tags chat
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "会话ID"
+// @Success 200 {object} ChatMessagesResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 403 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/chat/messages/{id} [get]
 func GetChatMessages(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipal(c)
 	if !ok {

@@ -5,6 +5,8 @@ import (
 	"backend/middlewares"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 )
 
 func SetupRouter() *gin.Engine {
@@ -24,10 +26,13 @@ func SetupRouter() *gin.Engine {
 
 	// 静态文件
 	r.Static("/static", "./static")
-	r.StaticFile("/", "./static/docs.html")
+	r.GET("/", func(c *gin.Context) {
+		c.Redirect(302, "/swagger/index.html")
+	})
 	r.StaticFile("/bt", "./static/backend_test.html")
 	r.StaticFile("/jv", "./static/json_viewer.html")
 	r.StaticFile("/favicon.ico", "./static/favicon.ico")
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// 无需登录
 	r.GET("/api/captcha", handlers.GetCaptcha)

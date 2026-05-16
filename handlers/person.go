@@ -11,8 +11,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetPersons 分页获取员工列表
-// GET /persons?page=&pageSize=&keyword=
+// GetPersons godoc
+// @Summary 管理员分页获取员工列表
+// @Tags person
+// @Produce json
+// @Security BearerAuth
+// @Param page query int false "页码" default(1)
+// @Param pageSize query int false "每页数量" default(10)
+// @Param keyword query string false "关键字"
+// @Success 200 {object} PersonListResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/persons [get]
 func GetPersons(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
@@ -43,8 +52,17 @@ func GetPersons(c *gin.Context) {
 	})
 }
 
-// GetPersonByID 获取员工详情（ID）
-// GET /persons/:id
+// GetPersonByID godoc
+// @Summary 获取员工详情
+// @Tags person
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "员工ID"
+// @Success 200 {object} PersonDetailResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 404 {object} APIErrorResponse
+// @Router /api/admin/person/{id} [get]
+// @Router /api/user/profile/{id} [get]
 func GetPersonByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
@@ -70,8 +88,17 @@ func GetPersonByID(c *gin.Context) {
 	})
 }
 
-// CreatePerson 创建员工
-// POST /persons
+// CreatePerson godoc
+// @Summary 创建员工
+// @Tags person
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body models.Person true "员工信息"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/person [post]
 func CreatePerson(c *gin.Context) {
 	var req models.Person
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -101,8 +128,20 @@ func CreatePerson(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "员工创建成功"})
 }
 
-// UpdatePerson 更新员工信息（不含部门、职位、离职）
-// PUT /persons/:id
+// UpdatePerson godoc
+// @Summary 更新员工信息
+// @Description 更新基础资料（不含专门的岗位/状态/部门调整接口）
+// @Tags person
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "员工ID"
+// @Param request body models.Person true "员工信息"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/person/{id} [put]
+// @Router /api/user/profile/{id} [put]
 func UpdatePerson(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
@@ -136,8 +175,16 @@ func UpdatePerson(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "员工信息更新成功"})
 }
 
-// DeletePersonByEmpID 删除员工（依 emp_id）
-// DELETE /persons/emp/:emp_id
+// DeletePersonByEmpID godoc
+// @Summary 按员工编号删除员工
+// @Tags person
+// @Produce json
+// @Security BearerAuth
+// @Param emp_id path string true "员工编号"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/person/emp/{emp_id} [delete]
 func DeletePersonByEmpID(c *gin.Context) {
 	empID := strings.TrimSpace(c.Param("emp_id"))
 	if empID == "" {
@@ -157,8 +204,16 @@ func DeletePersonByEmpID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "员工已删除"})
 }
 
-// DeletePersonByID 删除员工（按 ID）
-// DELETE /persons/:id
+// DeletePersonByID godoc
+// @Summary 按ID删除员工
+// @Tags person
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "员工ID"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/person/{id} [delete]
 func DeletePersonByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
@@ -179,14 +234,19 @@ func DeletePersonByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "员工已删除"})
 }
 
-// ChangePersonDepartment 更改员工部门
-// PUT /persons/change-dept
-// Body: { "emp_id": "...", "dept": "部门名称" }
+// ChangePersonDepartment godoc
+// @Summary 调整员工部门
+// @Tags person
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body PersonDepartmentChangeRequest true "部门调整参数"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/person/change-dept [put]
 func ChangePersonDepartment(c *gin.Context) {
-	var req struct {
-		EmpID string `json:"emp_id"`
-		Dept  string `json:"dept"`
-	}
+	var req PersonDepartmentChangeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "参数解析失败"})
 		return
@@ -208,14 +268,19 @@ func ChangePersonDepartment(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "部门调整成功"})
 }
 
-// ChangePersonState 修改员工状态（离职或在职）
-// PUT /persons/state
-// Body: { "emp_id": "...", "state": 0/1 }
+// ChangePersonState godoc
+// @Summary 修改员工状态
+// @Tags person
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body PersonStateChangeRequest true "状态调整参数"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/person/state [put]
 func ChangePersonState(c *gin.Context) {
-	var req struct {
-		EmpID string `json:"emp_id"`
-		State int    `json:"state"`
-	}
+	var req PersonStateChangeRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "参数解析失败"})
@@ -235,14 +300,19 @@ func ChangePersonState(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "状态更新成功"})
 }
 
-// ChangePersonJob 修改员工职位
-// PUT /persons/job
-// Body: { "emp_id": "...", "job": "..." }
+// ChangePersonJob godoc
+// @Summary 修改员工岗位
+// @Tags person
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body PersonJobChangeRequest true "岗位调整参数"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/person/job [put]
 func ChangePersonJob(c *gin.Context) {
-	var req struct {
-		EmpID string `json:"emp_id"`
-		Job   string `json:"job"`
-	}
+	var req PersonJobChangeRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "参数解析失败"})

@@ -10,8 +10,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetAllAccounts 获取全部账号（建议管理员权限）
-// GET /accounts
+// GetAllAccounts godoc
+// @Summary 获取账号列表
+// @Tags account
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} AccountListResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 403 {object} APIErrorResponse
+// @Router /api/admin/accounts [get]
 func GetAllAccounts(c *gin.Context) {
 	accounts := dao.GetAllAccounts()
 
@@ -27,9 +34,17 @@ func GetAllAccounts(c *gin.Context) {
 	})
 }
 
-// CreateAccount 创建账号（注册 / 后台新增）
-// POST /accounts
-// Body: { "username": "...", "password": "...", "role": "admin|staff" }
+// CreateAccount godoc
+// @Summary 创建账号
+// @Tags account
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body AccountCreateRequest true "账号信息"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/account [post]
 func CreateAccount(c *gin.Context) {
 	var req models.Account
 
@@ -95,9 +110,19 @@ func CreateAccount(c *gin.Context) {
 	})
 }
 
-// UpdateAccount 更新账号信息（角色 / 状态）
-// PUT /accounts/:id
-// Body: { "role": "admin|staff", "status": 0|1 }
+// UpdateAccount godoc
+// @Summary 更新账号信息
+// @Description 更新角色与状态字段
+// @Tags account
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "账号ID"
+// @Param request body AccountUpdateRequest true "更新参数"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/account/{id} [put]
 func UpdateAccount(c *gin.Context) {
 	id := c.Param("id")
 	if _, err := strconv.ParseUint(id, 10, 64); err != nil {
@@ -151,8 +176,16 @@ func UpdateAccount(c *gin.Context) {
 	})
 }
 
-// DeleteAccount 删除账号
-// DELETE /accounts/:id
+// DeleteAccount godoc
+// @Summary 删除账号
+// @Tags account
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "账号ID"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/account/{id} [delete]
 func DeleteAccount(c *gin.Context) {
 	id := c.Param("id")
 	if _, err := strconv.ParseUint(id, 10, 64); err != nil {

@@ -28,12 +28,15 @@ func roleInList(role string, list []string) bool {
 	return false
 }
 
-// GetPermissions 返回一个“权限矩阵”，用于前端展示当前用户能干什么
-// 挂在：
-//
-//	user.GET("/permissions", handlers.GetPermissions)
-//
-// 要求：已通过 JWTAuthMiddleware，所以 ctx 里有 "role"
+// GetPermissions godoc
+// @Summary 获取权限矩阵
+// @Description 返回当前用户角色在系统中的接口访问权限列表
+// @Tags permission
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} PermissionsResponse
+// @Failure 401 {object} APIErrorResponse
+// @Router /api/user/permissions [get]
 func GetPermissions(c *gin.Context) {
 	roleVal, ok := c.Get("role")
 	if !ok {

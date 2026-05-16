@@ -88,6 +88,16 @@ Authorization: Bearer <token>
 
 详细接口说明见：[`docs/API.md`](./API.md)
 
+## Swagger 文档
+
+- 访问地址：`/`（会重定向到 `/swagger/index.html`）
+- 文档文件：`docs/swagger.json`、`docs/swagger.yaml`
+- 当接口注解有改动时，执行以下命令重新生成：
+
+```bash
+swag init -g main.go -o docs
+```
+
 ## 聊天模块说明（新增）
 
 - 入口：`/api/chat/*`

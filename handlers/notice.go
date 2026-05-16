@@ -10,8 +10,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetAllNotices 获取公告列表（分页）
-// GET /notices?page=&pageSize=
+// GetAllNotices godoc
+// @Summary 获取公告列表
+// @Tags notice
+// @Produce json
+// @Param page query int false "页码" default(1)
+// @Param pageSize query int false "每页数量" default(10)
+// @Success 200 {object} NoticeListResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/notice [get]
 func GetAllNotices(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
@@ -41,8 +48,16 @@ func GetAllNotices(c *gin.Context) {
 	})
 }
 
-// GetNoticeByID 获取单条公告
-// GET /notices/:id
+// GetNoticeByID godoc
+// @Summary 获取公告详情
+// @Tags notice
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "公告ID"
+// @Success 200 {object} NoticeDetailResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 404 {object} APIErrorResponse
+// @Router /api/admin/notice/{id} [get]
 func GetNoticeByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
@@ -71,9 +86,17 @@ func GetNoticeByID(c *gin.Context) {
 	})
 }
 
-// CreateNotice 创建公告
-// POST /notices
-// Body: { "title": "...", "content": "...", "publisher": "..." }
+// CreateNotice godoc
+// @Summary 创建公告
+// @Tags notice
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body models.Notice true "公告信息"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/notice [post]
 func CreateNotice(c *gin.Context) {
 	var req models.Notice
 
@@ -113,8 +136,18 @@ func CreateNotice(c *gin.Context) {
 	})
 }
 
-// UpdateNotice 更新公告
-// PUT /notices/:id
+// UpdateNotice godoc
+// @Summary 更新公告
+// @Tags notice
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "公告ID"
+// @Param request body models.Notice true "公告信息"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/notice/{id} [put]
 func UpdateNotice(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
@@ -160,8 +193,16 @@ func UpdateNotice(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "公告更新成功"})
 }
 
-// DeleteNotice 删除公告
-// DELETE /notices/:id
+// DeleteNotice godoc
+// @Summary 删除公告
+// @Tags notice
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "公告ID"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/notice/{id} [delete]
 func DeleteNotice(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)

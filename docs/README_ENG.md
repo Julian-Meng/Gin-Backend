@@ -60,6 +60,16 @@ Roles:
 
 For detailed API list: [`docs/API.md`](./API.md)
 
+## Swagger docs
+
+- Entry URL: `/` (redirects to `/swagger/index.html`)
+- Generated files: `docs/swagger.json`, `docs/swagger.yaml`
+- Regenerate docs after annotation changes:
+
+```bash
+swag init -g main.go -o docs
+```
+
 ## Support Chat Module (New)
 
 - Base path: `/api/chat/*`

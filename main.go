@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/db"
+	_ "backend/docs"
 	"backend/handlers"
 	"context"
 	"errors"
@@ -18,6 +19,15 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// @title Gin Backend API
+// @version 1.0
+// @description 人事管理后端 API 文档（含 admin/user/chat 等接口）
+// @BasePath /
+// @schemes http https
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description 输入格式: Bearer <token>
 func main() {
 	// 加载 .env
 	if err := godotenv.Load(); err != nil {

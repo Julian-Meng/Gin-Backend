@@ -84,10 +84,16 @@ func buildProfile(person *models.Person, account *models.Account) (*ProfileRespo
 	return resp, nil
 }
 
-// 1. 当前登录用户查看自己的档案
-// GET /api/user/profile
-// 依赖：JWT 中间件已在 context 中设置 "username"
-
+// GetMyProfile godoc
+// @Summary 获取当前用户档案
+// @Tags profile
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} ProfileDetailResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 404 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/user/profile [get]
 func GetMyProfile(c *gin.Context) {
 	// 从 JWT 中拿 username
 	val, exists := c.Get("username")
@@ -147,9 +153,17 @@ func GetMyProfile(c *gin.Context) {
 	})
 }
 
-// 2. 管理员查看指定员工档案（含部门信息）
-// GET /api/admin/person/profile/:emp_id
-
+// GetPersonProfile godoc
+// @Summary 管理员查看员工档案
+// @Tags profile
+// @Produce json
+// @Security BearerAuth
+// @Param emp_id path string true "员工工号"
+// @Success 200 {object} ProfileDetailResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 404 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/person/profile/{emp_id} [get]
 func GetPersonProfile(c *gin.Context) {
 	empID := strings.TrimSpace(c.Param("emp_id"))
 	if empID == "" {
@@ -212,8 +226,20 @@ type UpdateMyProfileReq struct {
 	Remark *string    `json:"remark"`
 }
 
-// 3. 当前登录用户更新自己的档案（支持部分字段）
-// PUT /api/user/profile
+// UpdateMyProfile godoc
+// @Summary 更新当前用户档案
+// @Description 支持部分字段更新
+// @Tags profile
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body UpdateMyProfileReq true "可更新字段"
+// @Success 200 {object} ProfileDetailResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 404 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/user/profile [put]
 func UpdateMyProfile(c *gin.Context) {
 	val, exists := c.Get("username")
 	if !exists {

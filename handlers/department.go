@@ -10,8 +10,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetDepartments 获取部门列表（分页 + 搜索）
-// GET /departments?page=&pageSize=&keyword=
+// GetDepartments godoc
+// @Summary 管理员分页获取部门列表
+// @Tags department
+// @Produce json
+// @Security BearerAuth
+// @Param page query int false "页码" default(1)
+// @Param pageSize query int false "每页数量" default(10)
+// @Param keyword query string false "关键字"
+// @Success 200 {object} DepartmentListResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/departments [get]
 func GetDepartments(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
@@ -42,8 +51,17 @@ func GetDepartments(c *gin.Context) {
 	})
 }
 
-// GetDepartmentByID 获取单个部门（ID）
-// GET /departments/:id
+// GetDepartmentByID godoc
+// @Summary 获取部门详情
+// @Tags department
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "部门ID"
+// @Success 200 {object} DepartmentDetailResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 404 {object} APIErrorResponse
+// @Router /api/admin/department/{id} [get]
+// @Router /api/user/department/{id} [get]
 func GetDepartmentByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
@@ -72,9 +90,17 @@ func GetDepartmentByID(c *gin.Context) {
 	})
 }
 
-// CreateDepartment 创建部门
-// POST /departments
-// Body: { "name": "...", "manager": "...", "intro": "...", ... }
+// CreateDepartment godoc
+// @Summary 创建部门
+// @Tags department
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body models.Department true "部门信息"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/department [post]
 func CreateDepartment(c *gin.Context) {
 	var req models.Department
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -116,8 +142,18 @@ func CreateDepartment(c *gin.Context) {
 	})
 }
 
-// UpdateDepartment 更新部门
-// PUT /departments/:id
+// UpdateDepartment godoc
+// @Summary 更新部门
+// @Tags department
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "部门ID"
+// @Param request body models.Department true "部门信息"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/department/{id} [put]
 func UpdateDepartment(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
@@ -157,8 +193,15 @@ func UpdateDepartment(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "部门更新成功"})
 }
 
-// DeleteDepartment 删除部门
-// DELETE /departments/:id
+// DeleteDepartment godoc
+// @Summary 删除部门
+// @Tags department
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "部门ID"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Router /api/admin/department/{id} [delete]
 func DeleteDepartment(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)

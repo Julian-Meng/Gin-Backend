@@ -1,0 +1,2707 @@
+basePath: /
+definitions:
+  handlers.AIAnalyzeData:
+    properties:
+      analysis:
+        example: 【概览】...
+        type: string
+    type: object
+  handlers.AIAnalyzeResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        $ref: '#/definitions/handlers.AIAnalyzeData'
+      msg:
+        example: success
+        type: string
+    type: object
+  handlers.APIErrorResponse:
+    properties:
+      code:
+        example: 1
+        type: integer
+      err:
+        example: error detail
+        type: string
+      error:
+        example: error detail
+        type: string
+      fail_count:
+        example: 3
+        type: integer
+      msg:
+        example: 请求失败
+        type: string
+      need_captcha:
+        example: true
+        type: boolean
+    type: object
+  handlers.APISuccessResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      msg:
+        example: ok
+        type: string
+    type: object
+  handlers.AccountCreateRequest:
+    properties:
+      password:
+        example: "123456"
+        type: string
+      role:
+        example: staff
+        type: string
+      username:
+        example: staff01
+        type: string
+    type: object
+  handlers.AccountListResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/models.Account'
+        type: array
+      msg:
+        example: ok
+        type: string
+    type: object
+  handlers.AccountUpdateRequest:
+    properties:
+      role:
+        example: staff
+        type: string
+      status:
+        example: 1
+        type: integer
+    type: object
+  handlers.AttendanceListResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/models.AttendanceDetail'
+        type: array
+      msg:
+        example: ok
+        type: string
+      total:
+        example: 31
+        type: integer
+    type: object
+  handlers.AttendanceUpdateRequest:
+    properties:
+      check_in:
+        example: "2025-01-01T09:10:00+08:00"
+        type: string
+      check_out:
+        example: "2025-01-01T18:02:00+08:00"
+        type: string
+      remark:
+        example: 迟到 10 分钟
+        type: string
+      status:
+        example: 2
+        type: integer
+    type: object
+  handlers.CaptchaData:
+    properties:
+      captcha_id:
+        example: rY8M8P4KQd
+        type: string
+      expire_seconds:
+        example: 180
+        type: integer
+      image_base64:
+        example: data:image/png;base64,...
+        type: string
+      scene:
+        example: register
+        type: string
+    type: object
+  handlers.CaptchaSuccessResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        $ref: '#/definitions/handlers.CaptchaData'
+      msg:
+        example: ok
+        type: string
+    type: object
+  handlers.ChatAdminSendResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        $ref: '#/definitions/handlers.ChatAdminSendResponseData'
+      msg:
+        example: ok
+        type: string
+    type: object
+  handlers.ChatAdminSendResponseData:
+    properties:
+      message:
+        $ref: '#/definitions/models.ChatMessage'
+      session:
+        $ref: '#/definitions/models.ChatSession'
+    type: object
+  handlers.ChatMessagesResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/models.ChatMessage'
+        type: array
+      msg:
+        example: ok
+        type: string
+    type: object
+  handlers.ChatSessionResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        $ref: '#/definitions/models.ChatSession'
+      msg:
+        example: ok
+        type: string
+    type: object
+  handlers.ChatSessionsResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/models.ChatSession'
+        type: array
+      msg:
+        example: ok
+        type: string
+    type: object
+  handlers.ChatUserSendResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        $ref: '#/definitions/handlers.ChatUserSendResponseData'
+      msg:
+        example: ok
+        type: string
+    type: object
+  handlers.ChatUserSendResponseData:
+    properties:
+      ai_message:
+        $ref: '#/definitions/models.ChatMessage'
+      session:
+        $ref: '#/definitions/models.ChatSession'
+      user_message:
+        $ref: '#/definitions/models.ChatMessage'
+    type: object
+  handlers.DashboardAdminResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        $ref: '#/definitions/models.AdminDashboardData'
+      msg:
+        example: success
+        type: string
+    type: object
+  handlers.DashboardUserResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        $ref: '#/definitions/models.UserDashboardData'
+      msg:
+        example: success
+        type: string
+    type: object
+  handlers.DepartmentDetailResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        $ref: '#/definitions/models.Department'
+      msg:
+        example: ok
+        type: string
+    type: object
+  handlers.DepartmentInfo:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  handlers.DepartmentListResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/models.DepartmentWithCount'
+        type: array
+      msg:
+        example: ok
+        type: string
+      total:
+        example: 20
+        type: integer
+    type: object
+  handlers.LoginSuccessResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      msg:
+        example: 登录成功
+        type: string
+      role:
+        example: admin
+        type: string
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      username:
+        example: admin
+        type: string
+    type: object
+  handlers.NoticeDetailResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        $ref: '#/definitions/models.Notice'
+      msg:
+        example: ok
+        type: string
+    type: object
+  handlers.NoticeListResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/models.Notice'
+        type: array
+      msg:
+        example: ok
+        type: string
+      total:
+        example: 20
+        type: integer
+    type: object
+  handlers.PermissionItem:
+    properties:
+      allowed_roles:
+        description: 允许访问的角色列表
+        items:
+          type: string
+        type: array
+      description:
+        description: 可选，更详细说明
+        type: string
+      group:
+        description: 所属功能模块，如 "员工管理"
+        type: string
+      has_access:
+        description: 当前登录用户是否具备该权限
+        type: boolean
+      key:
+        description: 内部标识，如 "admin_person_list"
+        type: string
+      method:
+        description: HTTP 方法，如 GET/POST/PUT/DELETE
+        type: string
+      name:
+        description: 展示名称，如 "查看员工列表"
+        type: string
+      path:
+        description: 接口路径，如 "/api/admin/persons"
+        type: string
+    type: object
+  handlers.PermissionsResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      current_role:
+        example: staff
+        type: string
+      current_user:
+        example: tom
+        type: string
+      msg:
+        example: ok
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/handlers.PermissionItem'
+        type: array
+    type: object
+  handlers.PersonDepartmentChangeRequest:
+    properties:
+      dept:
+        example: 技术部
+        type: string
+      emp_id:
+        example: EMP0001
+        type: string
+    type: object
+  handlers.PersonDetailResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        $ref: '#/definitions/models.Person'
+      msg:
+        example: ok
+        type: string
+    type: object
+  handlers.PersonJobChangeRequest:
+    properties:
+      emp_id:
+        example: EMP0001
+        type: string
+      job:
+        example: 后端工程师
+        type: string
+    type: object
+  handlers.PersonListResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/models.EmployeeInfo'
+        type: array
+      msg:
+        example: ok
+        type: string
+      total:
+        example: 100
+        type: integer
+    type: object
+  handlers.PersonStateChangeRequest:
+    properties:
+      emp_id:
+        example: EMP0001
+        type: string
+      state:
+        example: 1
+        type: integer
+    type: object
+  handlers.PersonnelApproveRequest:
+    properties:
+      approve:
+        example: true
+        type: boolean
+      approver:
+        example: admin
+        type: string
+      id:
+        example: 12
+        type: integer
+      reject_reason:
+        example: 信息不完整
+        type: string
+    type: object
+  handlers.PersonnelCreateRequest:
+    properties:
+      change_type:
+        example: 1
+        type: integer
+      description:
+        example: 调整至技术部
+        type: string
+      handover_note:
+        example: 交接给张三
+        type: string
+      leave_end_at:
+        example: "2026-04-11"
+        type: string
+      leave_reason:
+        example: 个人事务
+        type: string
+      leave_start_at:
+        example: "2026-04-10"
+        type: string
+      leave_type:
+        example: 事假
+        type: string
+      target_dpt:
+        example: 2
+        type: integer
+    type: object
+  handlers.PersonnelDetailResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        $ref: '#/definitions/models.Personnel'
+      msg:
+        example: ok
+        type: string
+    type: object
+  handlers.PersonnelListResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/models.Personnel'
+        type: array
+      msg:
+        example: ok
+        type: string
+      total:
+        example: 20
+        type: integer
+    type: object
+  handlers.ProfileDetailResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        $ref: '#/definitions/handlers.ProfileResponse'
+      msg:
+        example: ok
+        type: string
+    type: object
+  handlers.ProfileResponse:
+    properties:
+      addr:
+        type: string
+      auth:
+        type: integer
+      birth:
+        type: string
+      create_at:
+        type: string
+      department:
+        $ref: '#/definitions/handlers.DepartmentInfo'
+      dpt_id:
+        type: integer
+      email:
+        type: string
+      emp_id:
+        type: string
+      id:
+        type: integer
+      job:
+        type: string
+      name:
+        type: string
+      remark:
+        type: string
+      role:
+        type: string
+      sex:
+        type: string
+      state:
+        type: integer
+      tel:
+        type: string
+      update_at:
+        type: string
+      username:
+        type: string
+    type: object
+  handlers.RegisterSuccessResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      msg:
+        example: 注册成功
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+  handlers.SwaggerLoginRequest:
+    properties:
+      captcha_code:
+        example: A3D7
+        type: string
+      captcha_id:
+        example: rY8M8P4KQd
+        type: string
+      password:
+        example: "123456"
+        type: string
+      username:
+        example: admin
+        type: string
+    type: object
+  handlers.SwaggerRegisterRequest:
+    properties:
+      captcha_code:
+        example: A3D7
+        type: string
+      captcha_id:
+        example: rY8M8P4KQd
+        type: string
+      password:
+        example: "123456"
+        type: string
+      role:
+        example: staff
+        type: string
+      username:
+        example: staff01
+        type: string
+    type: object
+  handlers.UpdateMyProfileReq:
+    properties:
+      addr:
+        type: string
+      birth:
+        type: string
+      email:
+        type: string
+      job:
+        type: string
+      name:
+        type: string
+      remark:
+        type: string
+      sex:
+        type: string
+      tel:
+        type: string
+    type: object
+  models.AIRequest:
+    properties:
+      message:
+        type: string
+      session_id:
+        type: string
+    type: object
+  models.AIResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.Account:
+    properties:
+      create_at:
+        type: string
+      emp_id:
+        type: string
+      id:
+        type: integer
+      last_login:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      status:
+        type: integer
+      username:
+        type: string
+    type: object
+  models.AdminClaimRequest:
+    properties:
+      limit:
+        type: integer
+    type: object
+  models.AdminDashboardData:
+    properties:
+      department_count:
+        type: integer
+      employee_count:
+        type: integer
+      pending_changes:
+        type: integer
+      recent_notices:
+        items:
+          $ref: '#/definitions/models.Notice'
+        type: array
+    type: object
+  models.AdminSendChatRequest:
+    properties:
+      content:
+        type: string
+      session_id:
+        type: integer
+    type: object
+  models.AttendanceDetail:
+    properties:
+      check_in:
+        type: string
+      check_out:
+        type: string
+      date:
+        type: string
+      department:
+        description: 部门名称（来自 DEPARTMENT）
+        type: string
+      emp_id:
+        type: string
+      id:
+        type: integer
+      job:
+        description: 职位（来自 PERSON）
+        type: string
+      name:
+        description: 员工姓名（来自 PERSON）
+        type: string
+      remark:
+        type: string
+      status:
+        description: 同上：0缺勤 1正常 2迟到 3早退 4迟到且早退
+        type: integer
+      status_label:
+        description: 人类可读的中文状态，在 SQL 或 DAO 中组装
+        type: string
+    type: object
+  models.ChatMessage:
+    properties:
+      ai_flag:
+        type: boolean
+      ai_notice:
+        type: string
+      content:
+        type: string
+      create_at:
+        type: string
+      delivered_at:
+        type: string
+      delivery_state:
+        type: string
+      id:
+        type: integer
+      msg_type:
+        type: string
+      read_at:
+        type: string
+      sender_emp_id:
+        type: string
+      sender_type:
+        type: string
+      session_id:
+        type: integer
+      update_at:
+        type: string
+    type: object
+  models.ChatSession:
+    properties:
+      assigned_admin_emp_id:
+        type: string
+      create_at:
+        type: string
+      id:
+        type: integer
+      last_message_at:
+        type: string
+      source:
+        type: string
+      status:
+        type: string
+      update_at:
+        type: string
+      user_emp_id:
+        type: string
+    type: object
+  models.Department:
+    properties:
+      create_at:
+        description: 原字段名兼容旧前端
+        type: string
+      dpt_num:
+        type: integer
+      full_num:
+        type: integer
+      id:
+        type: integer
+      intro:
+        type: string
+      is_full:
+        type: integer
+      location:
+        type: string
+      manager:
+        type: string
+      name:
+        type: string
+    type: object
+  models.DepartmentWithCount:
+    properties:
+      create_at:
+        description: 原字段名兼容旧前端
+        type: string
+      description:
+        type: string
+      dpt_num:
+        type: integer
+      full_num:
+        type: integer
+      id:
+        type: integer
+      intro:
+        type: string
+      is_full:
+        type: integer
+      location:
+        type: string
+      manager:
+        type: string
+      member_count:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.EmployeeInfo:
+    properties:
+      department:
+        type: string
+      email:
+        type: string
+      emp_id:
+        type: string
+      id:
+        type: integer
+      job:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+    type: object
+  models.Notice:
+    properties:
+      content:
+        type: string
+      create_at:
+        type: string
+      id:
+        type: integer
+      publisher:
+        type: string
+      title:
+        type: string
+      update_at:
+        type: string
+    type: object
+  models.Person:
+    properties:
+      addr:
+        type: string
+      auth:
+        type: integer
+      birth:
+        type: string
+      create_at:
+        type: string
+      dpt_id:
+        type: integer
+      email:
+        type: string
+      emp_id:
+        type: string
+      id:
+        type: integer
+      job:
+        type: string
+      name:
+        type: string
+      remark:
+        type: string
+      sex:
+        type: string
+      state:
+        type: integer
+      tel:
+        type: string
+      update_at:
+        type: string
+    type: object
+  models.Personnel:
+    properties:
+      approve_at:
+        type: string
+      approver:
+        type: string
+      change_type:
+        description: 1:调部门 2:调岗 3:离职 4:请假
+        type: integer
+      create_at:
+        type: string
+      current_dpt:
+        description: 关联当前部门名
+        type: string
+      description:
+        type: string
+      emp_id:
+        type: string
+      emp_name:
+        description: 关联 PERSON.name
+        type: string
+      handover_note:
+        type: string
+      id:
+        type: integer
+      leave_end_at:
+        type: string
+      leave_reason:
+        type: string
+      leave_start_at:
+        type: string
+      leave_type:
+        type: string
+      reject_reason:
+        type: string
+      state:
+        description: 0 待审批 1 通过 2 驳回
+        type: integer
+      target_dpt:
+        description: 目标部门 ID
+        type: integer
+      target_dpt_name:
+        description: 目标部门名
+        type: string
+    type: object
+  models.UserDashboardData:
+    properties:
+      employee_count:
+        type: integer
+      pending_changes:
+        type: integer
+      recent_notices:
+        items:
+          $ref: '#/definitions/models.Notice'
+        type: array
+    type: object
+  models.UserSendChatRequest:
+    properties:
+      content:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: 人事管理后端 API 文档（含 admin/user/chat 等接口）
+  title: Gin Backend API
+  version: "1.0"
+paths:
+  /api/admin/account:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 账号信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AccountCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建账号
+      tags:
+      - account
+  /api/admin/account/{id}:
+    delete:
+      parameters:
+      - description: 账号ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除账号
+      tags:
+      - account
+    put:
+      consumes:
+      - application/json
+      description: 更新角色与状态字段
+      parameters:
+      - description: 账号ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AccountUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新账号信息
+      tags:
+      - account
+  /api/admin/accounts:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.AccountListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取账号列表
+      tags:
+      - account
+  /api/admin/ai/analyze/dashboard:
+    get:
+      description: 对管理员仪表盘生成概览/问题/建议分析
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.AIAnalyzeResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 管理员 AI 解读仪表盘
+      tags:
+      - ai
+  /api/admin/attendance:
+    get:
+      parameters:
+      - description: 员工编号
+        in: query
+        name: emp_id
+        type: string
+      - description: 部门ID
+        in: query
+        name: dpt_id
+        type: integer
+      - description: 开始日期(YYYY-MM-DD)
+        in: query
+        name: start
+        type: string
+      - description: 结束日期(YYYY-MM-DD)
+        in: query
+        name: end
+        type: string
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.AttendanceListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 管理员查询考勤记录
+      tags:
+      - attendance
+  /api/admin/attendance/{id}:
+    delete:
+      parameters:
+      - description: 考勤记录ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 管理员删除考勤记录
+      tags:
+      - attendance
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 考勤记录ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新字段（可部分更新）
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AttendanceUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 管理员更新考勤记录
+      tags:
+      - attendance
+  /api/admin/change:
+    post:
+      consumes:
+      - application/json
+      description: 管理员与普通用户都可调用，申请人 emp_id 从 JWT 获取
+      parameters:
+      - description: 变更申请参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PersonnelCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 发起人事变更申请
+      tags:
+      - personnel
+  /api/admin/change/{id}:
+    get:
+      parameters:
+      - description: 变更记录ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.PersonnelDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取人事变更详情
+      tags:
+      - personnel
+  /api/admin/change/approve:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 审批参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PersonnelApproveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 审批人事变更
+      tags:
+      - personnel
+  /api/admin/changes:
+    get:
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.PersonnelListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 管理员分页获取人事变更列表
+      tags:
+      - personnel
+  /api/admin/dashboard:
+    get:
+      description: 返回全局统计、待处理变更与近期公告
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.DashboardAdminResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 管理员仪表盘
+      tags:
+      - dashboard
+  /api/admin/department:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 部门信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Department'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建部门
+      tags:
+      - department
+  /api/admin/department/{id}:
+    delete:
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除部门
+      tags:
+      - department
+    get:
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.DepartmentDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取部门详情
+      tags:
+      - department
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 部门信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Department'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新部门
+      tags:
+      - department
+  /api/admin/departments:
+    get:
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      - description: 关键字
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.DepartmentListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 管理员分页获取部门列表
+      tags:
+      - department
+  /api/admin/notice:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 公告信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Notice'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建公告
+      tags:
+      - notice
+  /api/admin/notice/{id}:
+    delete:
+      parameters:
+      - description: 公告ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除公告
+      tags:
+      - notice
+    get:
+      parameters:
+      - description: 公告ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.NoticeDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取公告详情
+      tags:
+      - notice
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 公告ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 公告信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Notice'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新公告
+      tags:
+      - notice
+  /api/admin/person:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 员工信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Person'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建员工
+      tags:
+      - person
+  /api/admin/person/{id}:
+    delete:
+      parameters:
+      - description: 员工ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 按ID删除员工
+      tags:
+      - person
+    get:
+      parameters:
+      - description: 员工ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.PersonDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取员工详情
+      tags:
+      - person
+    put:
+      consumes:
+      - application/json
+      description: 更新基础资料（不含专门的岗位/状态/部门调整接口）
+      parameters:
+      - description: 员工ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 员工信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Person'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新员工信息
+      tags:
+      - person
+  /api/admin/person/change-dept:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 部门调整参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PersonDepartmentChangeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 调整员工部门
+      tags:
+      - person
+  /api/admin/person/emp/{emp_id}:
+    delete:
+      parameters:
+      - description: 员工编号
+        in: path
+        name: emp_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 按员工编号删除员工
+      tags:
+      - person
+  /api/admin/person/job:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 岗位调整参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PersonJobChangeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 修改员工岗位
+      tags:
+      - person
+  /api/admin/person/profile/{emp_id}:
+    get:
+      parameters:
+      - description: 员工工号
+        in: path
+        name: emp_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ProfileDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 管理员查看员工档案
+      tags:
+      - profile
+  /api/admin/person/state:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 状态调整参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PersonStateChangeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 修改员工状态
+      tags:
+      - person
+  /api/admin/persons:
+    get:
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      - description: 关键字
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.PersonListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 管理员分页获取员工列表
+      tags:
+      - person
+  /api/captcha:
+    get:
+      description: 获取注册/登录验证码
+      parameters:
+      - default: register
+        description: 验证码场景
+        enum:
+        - register
+        - login
+        in: query
+        name: scene
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.CaptchaSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      summary: 获取验证码
+      tags:
+      - auth
+  /api/chat:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: AI 对话参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.AIRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      summary: 兼容旧版 AI 聊天
+      tags:
+      - chat
+  /api/chat/admin/message:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 消息内容
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.AdminSendChatRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ChatAdminSendResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 管理员发送客服消息
+      tags:
+      - chat
+  /api/chat/admin/sessions:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ChatSessionsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 管理员查询已分配会话列表
+      tags:
+      - chat
+  /api/chat/admin/sessions/{id}/claim:
+    post:
+      parameters:
+      - description: 会话ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ChatSessionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 管理员接管指定会话
+      tags:
+      - chat
+  /api/chat/admin/sessions/claim:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 认领参数（可空，默认 limit=20）
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/models.AdminClaimRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ChatSessionsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 管理员批量认领等待会话
+      tags:
+      - chat
+  /api/chat/messages/{id}:
+    get:
+      parameters:
+      - description: 会话ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ChatMessagesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 查询会话消息历史
+      tags:
+      - chat
+  /api/chat/user/message:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 消息内容
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserSendChatRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ChatUserSendResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 用户发送客服消息
+      tags:
+      - chat
+  /api/chat/user/sessions:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ChatSessionsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 用户查询自己的会话列表
+      tags:
+      - chat
+  /api/chat/ws:
+    get:
+      description: 支持 Query token 或 Authorization 头鉴权，用于实时消息推送。
+      parameters:
+      - description: 'JWT Token（可选，等价于 Authorization: Bearer <token>）'
+        in: query
+        name: token
+        type: string
+      responses:
+        "101":
+          description: Switching Protocols
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 建立聊天 WebSocket 连接
+      tags:
+      - chat
+  /api/login:
+    post:
+      consumes:
+      - application/json
+      description: 账号登录，必要时需要验证码
+      parameters:
+      - description: 登录参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SwaggerLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.LoginSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      summary: 登录
+      tags:
+      - auth
+  /api/notice:
+    get:
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.NoticeListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      summary: 获取公告列表
+      tags:
+      - notice
+  /api/register:
+    post:
+      consumes:
+      - application/json
+      description: 注册新账号（需验证码）
+      parameters:
+      - description: 注册参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SwaggerRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.RegisterSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      summary: 注册
+      tags:
+      - auth
+  /api/user/ai/analyze/dashboard:
+    get:
+      description: 对个人仪表盘生成概览/问题/建议分析
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.AIAnalyzeResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 用户 AI 解读仪表盘
+      tags:
+      - ai
+  /api/user/attendance/checkin:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 用户签到
+      tags:
+      - attendance
+  /api/user/attendance/checkout:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 用户签退
+      tags:
+      - attendance
+  /api/user/attendance/my:
+    get:
+      parameters:
+      - description: 开始日期(YYYY-MM-DD)
+        in: query
+        name: start
+        type: string
+      - description: 结束日期(YYYY-MM-DD)
+        in: query
+        name: end
+        type: string
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.AttendanceListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 查询我的考勤记录
+      tags:
+      - attendance
+  /api/user/change/request:
+    post:
+      consumes:
+      - application/json
+      description: 管理员与普通用户都可调用，申请人 emp_id 从 JWT 获取
+      parameters:
+      - description: 变更申请参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PersonnelCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 发起人事变更申请
+      tags:
+      - personnel
+  /api/user/changes:
+    get:
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      - description: 每页数量(兼容字段)
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.PersonnelListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取当前用户的人事变更列表
+      tags:
+      - personnel
+  /api/user/dashboard:
+    get:
+      description: 返回个人相关统计与近期公告
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.DashboardUserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 用户仪表盘
+      tags:
+      - dashboard
+  /api/user/department/{id}:
+    get:
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.DepartmentDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取部门详情
+      tags:
+      - department
+  /api/user/permissions:
+    get:
+      description: 返回当前用户角色在系统中的接口访问权限列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.PermissionsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取权限矩阵
+      tags:
+      - permission
+  /api/user/profile:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ProfileDetailResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取当前用户档案
+      tags:
+      - profile
+    put:
+      consumes:
+      - application/json
+      description: 支持部分字段更新
+      parameters:
+      - description: 可更新字段
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateMyProfileReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ProfileDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新当前用户档案
+      tags:
+      - profile
+  /api/user/profile/{id}:
+    get:
+      parameters:
+      - description: 员工ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.PersonDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取员工详情
+      tags:
+      - person
+    put:
+      consumes:
+      - application/json
+      description: 更新基础资料（不含专门的岗位/状态/部门调整接口）
+      parameters:
+      - description: 员工ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 员工信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Person'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APISuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.APIErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新员工信息
+      tags:
+      - person
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    description: '输入格式: Bearer <token>'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -9,8 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// AdminAnalyzeDashboardAI 管理员：AI 解读仪表盘（全局数据）
-// GET /api/admin/ai/analyze/dashboard
+// AdminAnalyzeDashboardAI godoc
+// @Summary 管理员 AI 解读仪表盘
+// @Description 对管理员仪表盘生成概览/问题/建议分析
+// @Tags ai
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} AIAnalyzeResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 403 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/ai/analyze/dashboard [get]
 func AdminAnalyzeDashboardAI(c *gin.Context) {
 	data := dao.GetAdminDashboardData()
 
@@ -31,8 +40,17 @@ func AdminAnalyzeDashboardAI(c *gin.Context) {
 	})
 }
 
-// UserAnalyzeDashboardAI 普通用户：AI 解读仪表盘（个人数据）
-// GET /api/user/ai/analyze/dashboard
+// UserAnalyzeDashboardAI godoc
+// @Summary 用户 AI 解读仪表盘
+// @Description 对个人仪表盘生成概览/问题/建议分析
+// @Tags ai
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} AIAnalyzeResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 403 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/user/ai/analyze/dashboard [get]
 func UserAnalyzeDashboardAI(c *gin.Context) {
 	data := dao.GetUserDashboardData()
 

@@ -12,8 +12,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetPersonnelList 获取人事变更列表（分页）
-// GET /personnel?page=&pageSize=
+// GetPersonnelList godoc
+// @Summary 管理员分页获取人事变更列表
+// @Tags personnel
+// @Produce json
+// @Security BearerAuth
+// @Param page query int false "页码" default(1)
+// @Param pageSize query int false "每页数量" default(10)
+// @Success 200 {object} PersonnelListResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/changes [get]
 func GetPersonnelList(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
@@ -46,8 +54,19 @@ func GetPersonnelList(c *gin.Context) {
 	})
 }
 
-// GetMyPersonnelList 获取当前登录用户的人事变更列表（分页）
-// GET /api/user/changes?page=&pageSize=
+// GetMyPersonnelList godoc
+// @Summary 获取当前用户的人事变更列表
+// @Tags personnel
+// @Produce json
+// @Security BearerAuth
+// @Param page query int false "页码" default(1)
+// @Param pageSize query int false "每页数量" default(10)
+// @Param page_size query int false "每页数量(兼容字段)"
+// @Success 200 {object} PersonnelListResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/user/changes [get]
 func GetMyPersonnelList(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 
@@ -101,8 +120,16 @@ func GetMyPersonnelList(c *gin.Context) {
 	})
 }
 
-// GetPersonnelByID 获取单条人事变更详情
-// GET /personnel/:id
+// GetPersonnelByID godoc
+// @Summary 获取人事变更详情
+// @Tags personnel
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "变更记录ID"
+// @Success 200 {object} PersonnelDetailResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 404 {object} APIErrorResponse
+// @Router /api/admin/change/{id} [get]
 func GetPersonnelByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
@@ -131,28 +158,22 @@ func GetPersonnelByID(c *gin.Context) {
 	})
 }
 
-// CreatePersonnel 发起人事变更申请
-// POST /personnel
-//
-//	Body {
-//	   "target_dpt": 3,
-//	   "change_type": 1/2/3/4,
-//	   "description": "...",
-//	   "leave_start_at": "2026-04-10", // change_type=4 必填（支持 YYYY-MM-DD / RFC3339）
-//	   "leave_end_at": "2026-04-11",   // change_type=4 必填（支持 YYYY-MM-DD / RFC3339）
-//	   "leave_reason": "..."
-//	}
+// CreatePersonnel godoc
+// @Summary 发起人事变更申请
+// @Description 管理员与普通用户都可调用，申请人 emp_id 从 JWT 获取
+// @Tags personnel
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body PersonnelCreateRequest true "变更申请参数"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/admin/change [post]
+// @Router /api/user/change/request [post]
 func CreatePersonnel(c *gin.Context) {
-	var req struct {
-		TargetDpt    uint   `json:"target_dpt"`
-		ChangeType   int    `json:"change_type"`
-		Description  string `json:"description"`
-		LeaveStartAt string `json:"leave_start_at"`
-		LeaveEndAt   string `json:"leave_end_at"`
-		LeaveReason  string `json:"leave_reason"`
-		LeaveType    string `json:"leave_type"`
-		HandoverNote string `json:"handover_note"`
-	}
+	var req PersonnelCreateRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -272,22 +293,20 @@ func parseLeaveDate(raw string, endOfDay bool) (time.Time, error) {
 	return time.Time{}, fmt.Errorf("invalid date format")
 }
 
-// ApprovePersonnel 审批人事变更
-// PUT /personnel/approve
-//
-//	Body {
-//	   "id": 123,
-//	   "approver": "admin_name",
-//	   "approve": true/false,
-//	   "reject_reason": "..." // 驳回时可填
-//	}
+// ApprovePersonnel godoc
+// @Summary 审批人事变更
+// @Tags personnel
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body PersonnelApproveRequest true "审批参数"
+// @Success 200 {object} APISuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 403 {object} APIErrorResponse
+// @Router /api/admin/change/approve [put]
 func ApprovePersonnel(c *gin.Context) {
-	var req struct {
-		ID           uint   `json:"id"`
-		Approver     string `json:"approver"`
-		Approve      bool   `json:"approve"`
-		RejectReason string `json:"reject_reason"`
-	}
+	var req PersonnelApproveRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

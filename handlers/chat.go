@@ -3,6 +3,7 @@ package handlers
 import (
 	"backend/dao"
 	"backend/middlewares"
+	"backend/middlewares/errorx"
 	"backend/models"
 	"errors"
 	"log"
@@ -201,7 +202,7 @@ func (c *wsClient) writePing() error {
 func ChatWithAI(c *gin.Context) {
 	var req models.AIRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		errorx.BadRequest(c, "请求格式错误", err)
 		return
 	}
 
@@ -216,7 +217,7 @@ func ChatWithAI(c *gin.Context) {
 	})
 	if err != nil {
 		log.Printf("AI ERROR: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		errorx.Internal(c, "AI 服务调用失败", err)
 		return
 	}
 
@@ -235,7 +236,7 @@ func ChatWithAI(c *gin.Context) {
 func ChatWS(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipalForWS(c)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": 1, "msg": "未登录或身份无效"})
+		errorx.Unauthorized(c, "未登录或身份无效", nil)
 		return
 	}
 
@@ -314,30 +315,30 @@ func ChatWS(c *gin.Context) {
 func UserSendChatMessage(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipal(c)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": 1, "msg": "未登录或身份无效"})
+		errorx.Unauthorized(c, "未登录或身份无效", nil)
 		return
 	}
 	if principalRole != "user" {
-		c.JSON(http.StatusForbidden, gin.H{"code": 1, "msg": "仅普通用户可调用该接口"})
+		errorx.Forbidden(c, "仅普通用户可调用该接口", nil)
 		return
 	}
 
 	var req models.UserSendChatRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "请求格式错误", "err": err.Error()})
+		errorx.BadRequest(c, "请求格式错误", err)
 		return
 	}
 
 	req.Content = strings.TrimSpace(req.Content)
 	if req.Content == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "消息内容不能为空"})
+		errorx.BadRequest(c, "消息内容不能为空", nil)
 		return
 	}
 
 	onlineAdmins := runtimeChatHub.getOnlineAdminEmpIDs()
 	session, userMsg, _, err := dao.CreateUserChatMessage(empID, req.Content, onlineAdmins)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "发送失败", "err": err.Error()})
+		errorx.Internal(c, "发送失败", err)
 		return
 	}
 
@@ -379,38 +380,38 @@ func UserSendChatMessage(c *gin.Context) {
 func AdminSendChatMessage(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipal(c)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": 1, "msg": "未登录或身份无效"})
+		errorx.Unauthorized(c, "未登录或身份无效", nil)
 		return
 	}
 	if principalRole != "admin" {
-		c.JSON(http.StatusForbidden, gin.H{"code": 1, "msg": "仅管理员可调用该接口"})
+		errorx.Forbidden(c, "仅管理员可调用该接口", nil)
 		return
 	}
 
 	var req models.AdminSendChatRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "请求格式错误", "err": err.Error()})
+		errorx.BadRequest(c, "请求格式错误", err)
 		return
 	}
 	req.Content = strings.TrimSpace(req.Content)
 	if req.SessionID == 0 || req.Content == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "session_id 和 content 不能为空"})
+		errorx.BadRequest(c, "session_id 和 content 不能为空", nil)
 		return
 	}
 
 	allowed, err := dao.CanAdminAccessSession(req.SessionID, empID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "鉴权失败", "err": err.Error()})
+		errorx.Internal(c, "鉴权失败", err)
 		return
 	}
 	if !allowed {
-		c.JSON(http.StatusForbidden, gin.H{"code": 1, "msg": "该会话已分配给其他管理员"})
+		errorx.Forbidden(c, "该会话已分配给其他管理员", nil)
 		return
 	}
 
 	session, msg, err := dao.CreateAdminChatMessage(req.SessionID, empID, req.Content)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "发送失败", "err": err.Error()})
+		errorx.Internal(c, "发送失败", err)
 		return
 	}
 
@@ -441,11 +442,11 @@ func AdminSendChatMessage(c *gin.Context) {
 func AdminClaimWaitingSessions(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipal(c)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": 1, "msg": "未登录或身份无效"})
+		errorx.Unauthorized(c, "未登录或身份无效", nil)
 		return
 	}
 	if principalRole != "admin" {
-		c.JSON(http.StatusForbidden, gin.H{"code": 1, "msg": "仅管理员可调用该接口"})
+		errorx.Forbidden(c, "仅管理员可调用该接口", nil)
 		return
 	}
 
@@ -457,7 +458,7 @@ func AdminClaimWaitingSessions(c *gin.Context) {
 
 	claimed, err := dao.ClaimWaitingSessionsForAdmin(empID, req.Limit)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "认领失败", "err": err.Error()})
+		errorx.Internal(c, "认领失败", err)
 		return
 	}
 
@@ -484,27 +485,27 @@ func AdminClaimWaitingSessions(c *gin.Context) {
 func AdminClaimSessionByID(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipal(c)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": 1, "msg": "未登录或身份无效"})
+		errorx.Unauthorized(c, "未登录或身份无效", nil)
 		return
 	}
 	if principalRole != "admin" {
-		c.JSON(http.StatusForbidden, gin.H{"code": 1, "msg": "仅管理员可调用该接口"})
+		errorx.Forbidden(c, "仅管理员可调用该接口", nil)
 		return
 	}
 
 	sessionID, err := parseSessionIDParam(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "无效会话ID"})
+		errorx.BadRequest(c, "无效会话ID", err)
 		return
 	}
 
 	session, okClaimed, err := dao.ClaimSessionByID(sessionID, empID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "接管失败", "err": err.Error()})
+		errorx.Internal(c, "接管失败", err)
 		return
 	}
 	if !okClaimed {
-		c.JSON(http.StatusConflict, gin.H{"code": 1, "msg": "会话已被其他管理员接管"})
+		errorx.Conflict(c, "会话已被其他管理员接管", nil)
 		return
 	}
 
@@ -526,17 +527,17 @@ func AdminClaimSessionByID(c *gin.Context) {
 func UserListChatSessions(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipal(c)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": 1, "msg": "未登录或身份无效"})
+		errorx.Unauthorized(c, "未登录或身份无效", nil)
 		return
 	}
 	if principalRole != "user" {
-		c.JSON(http.StatusForbidden, gin.H{"code": 1, "msg": "仅普通用户可调用该接口"})
+		errorx.Forbidden(c, "仅普通用户可调用该接口", nil)
 		return
 	}
 
 	sessions, err := dao.ListSessionsForUser(empID, 20)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "查询失败", "err": err.Error()})
+		errorx.Internal(c, "查询失败", err)
 		return
 	}
 
@@ -556,17 +557,17 @@ func UserListChatSessions(c *gin.Context) {
 func AdminListChatSessions(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipal(c)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": 1, "msg": "未登录或身份无效"})
+		errorx.Unauthorized(c, "未登录或身份无效", nil)
 		return
 	}
 	if principalRole != "admin" {
-		c.JSON(http.StatusForbidden, gin.H{"code": 1, "msg": "仅管理员可调用该接口"})
+		errorx.Forbidden(c, "仅管理员可调用该接口", nil)
 		return
 	}
 
 	sessions, err := dao.ListSessionsForAdmin(empID, 100)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "查询失败", "err": err.Error()})
+		errorx.Internal(c, "查询失败", err)
 		return
 	}
 
@@ -588,41 +589,41 @@ func AdminListChatSessions(c *gin.Context) {
 func GetChatMessages(c *gin.Context) {
 	empID, principalRole, ok := currentChatPrincipal(c)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": 1, "msg": "未登录或身份无效"})
+		errorx.Unauthorized(c, "未登录或身份无效", nil)
 		return
 	}
 
 	sessionID, err := parseSessionIDParam(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "无效会话ID"})
+		errorx.BadRequest(c, "无效会话ID", err)
 		return
 	}
 
 	if principalRole == "admin" {
 		allowed, aErr := dao.CanAdminAccessSession(sessionID, empID)
 		if aErr != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "鉴权失败", "err": aErr.Error()})
+			errorx.Internal(c, "鉴权失败", aErr)
 			return
 		}
 		if !allowed {
-			c.JSON(http.StatusForbidden, gin.H{"code": 1, "msg": "无权访问该会话"})
+			errorx.Forbidden(c, "无权访问该会话", nil)
 			return
 		}
 	} else {
 		allowed, aErr := dao.CanUserAccessSession(sessionID, empID)
 		if aErr != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "鉴权失败", "err": aErr.Error()})
+			errorx.Internal(c, "鉴权失败", aErr)
 			return
 		}
 		if !allowed {
-			c.JSON(http.StatusForbidden, gin.H{"code": 1, "msg": "无权访问该会话"})
+			errorx.Forbidden(c, "无权访问该会话", nil)
 			return
 		}
 	}
 
 	messages, err := dao.ListMessagesBySession(sessionID, 500)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "查询失败", "err": err.Error()})
+		errorx.Internal(c, "查询失败", err)
 		return
 	}
 

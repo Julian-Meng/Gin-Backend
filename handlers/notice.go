@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"backend/dao"
+	"backend/middlewares/errorx"
 	"backend/models"
 	"net/http"
 	"strconv"
@@ -32,11 +33,7 @@ func GetAllNotices(c *gin.Context) {
 
 	list, total, err := dao.GetAllNotices(page, pageSize)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "获取公告列表失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "获取公告列表失败", err)
 		return
 	}
 
@@ -62,20 +59,13 @@ func GetNoticeByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil || id64 == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "无效的公告 ID",
-		})
+		errorx.BadRequest(c, "无效的公告 ID", err)
 		return
 	}
 
 	n, err := dao.GetNoticeByID(uint(id64))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code": 1,
-			"msg":  "公告不存在",
-			"err":  err.Error(),
-		})
+		errorx.NotFound(c, "公告不存在", err)
 		return
 	}
 
@@ -101,11 +91,7 @@ func CreateNotice(c *gin.Context) {
 	var req models.Notice
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "参数解析失败",
-			"err":  err.Error(),
-		})
+		errorx.BadRequest(c, "参数解析失败", err)
 		return
 	}
 
@@ -114,19 +100,12 @@ func CreateNotice(c *gin.Context) {
 	req.Publisher = strings.TrimSpace(req.Publisher)
 
 	if req.Title == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "公告标题不能为空",
-		})
+		errorx.BadRequest(c, "公告标题不能为空", nil)
 		return
 	}
 
 	if err := dao.CreateNotice(&req); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "创建公告失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "创建公告失败", err)
 		return
 	}
 
@@ -152,20 +131,13 @@ func UpdateNotice(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil || id64 == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "无效的公告 ID",
-		})
+		errorx.BadRequest(c, "无效的公告 ID", err)
 		return
 	}
 
 	var req models.Notice
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "参数解析失败",
-			"err":  err.Error(),
-		})
+		errorx.BadRequest(c, "参数解析失败", err)
 		return
 	}
 
@@ -174,19 +146,12 @@ func UpdateNotice(c *gin.Context) {
 	req.Publisher = strings.TrimSpace(req.Publisher)
 
 	if req.Title == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "公告标题不能为空",
-		})
+		errorx.BadRequest(c, "公告标题不能为空", nil)
 		return
 	}
 
 	if err := dao.UpdateNotice(uint(id64), req); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "公告更新失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "公告更新失败", err)
 		return
 	}
 
@@ -207,19 +172,12 @@ func DeleteNotice(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil || id64 == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "无效的公告 ID",
-		})
+		errorx.BadRequest(c, "无效的公告 ID", err)
 		return
 	}
 
 	if err := dao.DeleteNotice(uint(id64)); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "删除公告失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "删除公告失败", err)
 		return
 	}
 

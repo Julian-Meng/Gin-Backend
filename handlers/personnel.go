@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"backend/dao"
+	"backend/middlewares/errorx"
 	"backend/models"
 	"fmt"
 	"net/http"
@@ -88,14 +89,14 @@ func GetMyPersonnelList(c *gin.Context) {
 
 	empVal, exists := c.Get("emp_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": 1, "msg": "未获取到登录用户身份信息"})
+		errorx.Unauthorized(c, "未获取到登录用户身份信息", nil)
 		return
 	}
 
 	empID, _ := empVal.(string)
 	empID = strings.TrimSpace(empID)
 	if empID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "当前登录账号未绑定员工工号"})
+		errorx.BadRequest(c, "当前登录账号未绑定员工工号，无法获取人事变更记录", nil)
 		return
 	}
 
@@ -104,11 +105,7 @@ func GetMyPersonnelList(c *gin.Context) {
 
 	list, total, err := dao.FetchPersonnelByEmpIDPaged(empID, limit, offset)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "获取我的人事变更记录失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "获取我的人事变更记录失败", err)
 		return
 	}
 
@@ -134,20 +131,13 @@ func GetPersonnelByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil || id64 == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "无效的 ID",
-		})
+		errorx.BadRequest(c, "无效的 ID", fmt.Errorf("invalid id: %s", idStr))
 		return
 	}
 
 	data, err := dao.GetPersonnelByID(uint(id64))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code": 1,
-			"msg":  "记录不存在",
-			"err":  err.Error(),
-		})
+		errorx.NotFound(c, "记录不存在", err)
 		return
 	}
 
@@ -176,10 +166,7 @@ func CreatePersonnel(c *gin.Context) {
 	var req PersonnelCreateRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "参数解析失败",
-		})
+		errorx.BadRequest(c, "参数解析失败", err)
 		return
 	}
 
@@ -192,51 +179,51 @@ func CreatePersonnel(c *gin.Context) {
 
 	empVal, exists := c.Get("emp_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": 1, "msg": "未获取到登录用户身份信息"})
+		errorx.Unauthorized(c, "未获取到登录用户身份信息", nil)
 		return
 	}
 	empID, _ := empVal.(string)
 	empID = strings.TrimSpace(empID)
 	if empID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "当前登录账号未绑定员工工号，无法提交申请"})
+		errorx.BadRequest(c, "当前登录账号未绑定员工工号，无法提交申请", nil)
 		return
 	}
 	if req.ChangeType < 1 || req.ChangeType > 4 {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "无效的变更类型"})
+		errorx.BadRequest(c, "无效的变更类型", fmt.Errorf("invalid change_type: %d", req.ChangeType))
 		return
 	}
 	if req.ChangeType == 1 && req.TargetDpt == 0 { // 调部门必须指定目标部门
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "调部门必须提供 target_dpt"})
+		errorx.BadRequest(c, "调部门必须提供 target_dpt", nil)
 		return
 	}
 	if req.ChangeType == 2 && req.Description == "" { // 调岗必须提供岗位名
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "调岗必须提供 description（新岗位名）"})
+		errorx.BadRequest(c, "调岗必须提供 description（新岗位名）", nil)
 		return
 	}
 	var leaveStartAt *time.Time
 	var leaveEndAt *time.Time
 	if req.ChangeType == 4 {
 		if req.LeaveStartAt == "" || req.LeaveEndAt == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "请假必须提供 leave_start_at 和 leave_end_at"})
+			errorx.BadRequest(c, "请假必须提供 leave_start_at 和 leave_end_at", nil)
 			return
 		}
 
 		start, err := parseLeaveDate(req.LeaveStartAt, false)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "leave_start_at 格式错误，应为 YYYY-MM-DD 或 RFC3339"})
+			errorx.BadRequest(c, "leave_start_at 格式错误，应为 YYYY-MM-DD 或 RFC3339", nil)
 			return
 		}
 		end, err := parseLeaveDate(req.LeaveEndAt, true)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "leave_end_at 格式错误，应为 YYYY-MM-DD 或 RFC3339"})
+			errorx.BadRequest(c, "leave_end_at 格式错误，应为 YYYY-MM-DD 或 RFC3339", nil)
 			return
 		}
 		if end.Before(start) {
-			c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "请假结束日期不能早于开始日期"})
+			errorx.BadRequest(c, "请假结束日期不能早于开始日期", nil)
 			return
 		}
 		if req.LeaveReason == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "请假必须提供 leave_reason"})
+			errorx.BadRequest(c, "请假必须提供 leave_reason", nil)
 			return
 		}
 
@@ -258,11 +245,7 @@ func CreatePersonnel(c *gin.Context) {
 	}
 
 	if err := dao.CreatePersonnelChange(&record); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "提交人事变更失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "提交人事变更失败", err)
 		return
 	}
 
@@ -309,35 +292,28 @@ func ApprovePersonnel(c *gin.Context) {
 	var req PersonnelApproveRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "参数解析失败",
-		})
+		errorx.BadRequest(c, "参数解析失败", nil)
 		return
 	}
 
 	req.Approver = strings.TrimSpace(req.Approver)
 	req.RejectReason = strings.TrimSpace(req.RejectReason)
 	if req.ID == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "ID 不能为空"})
+		errorx.BadRequest(c, "ID 不能为空", nil)
 		return
 	}
 	if req.Approver == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "审批人不能为空"})
+		errorx.BadRequest(c, "审批人不能为空", nil)
 		return
 	}
 	if !req.Approve && req.RejectReason == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "驳回时必须提供 reject_reason"})
+		errorx.BadRequest(c, "驳回时必须提供 reject_reason", nil)
 		return
 	}
 
 	// 审批逻辑（部门人数增减 / 调岗 / 离职 全部由 DAO 处理）
 	if err := dao.ApprovePersonnelChange(req.ID, req.Approver, req.Approve, req.RejectReason); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "审批失败",
-			"err":  err.Error(),
-		})
+		errorx.BadRequest(c, "审批失败", err)
 		return
 	}
 

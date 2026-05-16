@@ -35,7 +35,7 @@ func CheckIn(empID string) error {
 			Where("emp_id = ? AND date = ?", empID, today).
 			First(&att).Error
 
-		if errors.Is(gorm.ErrRecordNotFound, err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// 当天没有记录 → 新建一条
 			newAtt := models.Attendance{
 				EmpID:   empID,

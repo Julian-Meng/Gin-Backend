@@ -3,6 +3,7 @@ package handlers
 import (
 	"backend/dao"
 	"backend/db"
+	"backend/middlewares/errorx"
 	"backend/models"
 	"net/http"
 	"strings"
@@ -98,19 +99,13 @@ func GetMyProfile(c *gin.Context) {
 	// 从 JWT 中拿 username
 	val, exists := c.Get("username")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"code": 1,
-			"msg":  "未获取到登录用户信息",
-		})
+		errorx.Unauthorized(c, "未获取到登录用户信息", nil)
 		return
 	}
 	username, _ := val.(string)
 	username = strings.TrimSpace(username)
 	if username == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"code": 1,
-			"msg":  "登录用户名无效",
-		})
+		errorx.Unauthorized(c, "登录用户名无效", nil)
 		return
 	}
 
@@ -121,28 +116,21 @@ func GetMyProfile(c *gin.Context) {
 			"code": 1,
 			"msg":  "未找到当前用户对应的账号记录",
 		})
+		errorx.NotFound(c, "未找到当前用户对应的账号记录", nil)
 		return
 	}
 
 	// 2) 查员工 Person（根据 EmpID）
 	person, err := dao.FetchPersonByEmpID(account.EmpID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code": 1,
-			"msg":  "未找到当前用户对应的员工档案",
-			"err":  err.Error(),
-		})
+		errorx.NotFound(c, "未找到当前用户对应的员工档案", err)
 		return
 	}
 
 	// 3) 组合档案信息
 	profile, err := buildProfile(person, &account)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "构建档案信息失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "构建档案信息失败", err)
 		return
 	}
 
@@ -167,21 +155,14 @@ func GetMyProfile(c *gin.Context) {
 func GetPersonProfile(c *gin.Context) {
 	empID := strings.TrimSpace(c.Param("emp_id"))
 	if empID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "emp_id 不能为空",
-		})
+		errorx.BadRequest(c, "emp_id 不能为空", nil)
 		return
 	}
 
 	// 1) 查员工 Person
 	person, err := dao.FetchPersonByEmpID(empID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code": 1,
-			"msg":  "未找到对应的员工档案",
-			"err":  err.Error(),
-		})
+		errorx.NotFound(c, "未找到对应的员工档案", err)
 		return
 	}
 
@@ -200,11 +181,7 @@ func GetPersonProfile(c *gin.Context) {
 	// 3) 组合档案信息
 	profile, err := buildProfile(person, account)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "构建档案信息失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "构建档案信息失败", err)
 		return
 	}
 
@@ -243,49 +220,32 @@ type UpdateMyProfileReq struct {
 func UpdateMyProfile(c *gin.Context) {
 	val, exists := c.Get("username")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"code": 1,
-			"msg":  "未获取到登录用户信息",
-		})
+		errorx.Unauthorized(c, "未获取到登录用户信息", nil)
 		return
 	}
 
 	username, _ := val.(string)
 	username = strings.TrimSpace(username)
 	if username == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"code": 1,
-			"msg":  "登录用户名无效",
-		})
+		errorx.Unauthorized(c, "登录用户名无效", nil)
 		return
 	}
 
 	var req UpdateMyProfileReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "请求解析失败",
-			"err":  err.Error(),
-		})
+		errorx.BadRequest(c, "请求解析失败", err)
 		return
 	}
 
 	account, ok := dao.GetAccountByUsername(username)
 	if !ok {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code": 1,
-			"msg":  "未找到当前用户对应的账号记录",
-		})
+		errorx.NotFound(c, "未找到当前用户对应的账号记录", nil)
 		return
 	}
 
 	person, err := dao.FetchPersonByEmpID(account.EmpID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code": 1,
-			"msg":  "未找到当前用户对应的员工档案",
-			"err":  err.Error(),
-		})
+		errorx.NotFound(c, "未找到当前用户对应的员工档案", err)
 		return
 	}
 
@@ -294,7 +254,7 @@ func UpdateMyProfile(c *gin.Context) {
 	if req.Name != nil {
 		name := strings.TrimSpace(*req.Name)
 		if name == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "name 不能为空"})
+			errorx.BadRequest(c, "name 不能为空", nil)
 			return
 		}
 		updates["name"] = name
@@ -306,7 +266,7 @@ func UpdateMyProfile(c *gin.Context) {
 
 	if req.Birth != nil {
 		if req.Birth.After(time.Now()) {
-			c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "出生日期不能晚于当前时间"})
+			errorx.BadRequest(c, "出生日期不能晚于当前时间", nil)
 			return
 		}
 		updates["birth"] = req.Birth
@@ -333,38 +293,26 @@ func UpdateMyProfile(c *gin.Context) {
 	}
 
 	if len(updates) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "至少提供一个可更新字段"})
+		errorx.BadRequest(c, "至少提供一个可更新字段", nil)
 		return
 	}
 
 	updates["updated_at"] = time.Now()
 
 	if err := dao.UpdatePersonFields(person.ID, updates); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "更新档案失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "更新档案信息失败", err)
 		return
 	}
 
 	updatedPerson, err := dao.FetchPersonByID(person.ID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "档案更新后读取失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "档案更新后读取失败", err)
 		return
 	}
 
 	profile, err := buildProfile(updatedPerson, &account)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "构建档案信息失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "构建档案信息失败", err)
 		return
 	}
 

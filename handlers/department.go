@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"backend/dao"
+	"backend/middlewares/errorx"
 	"backend/models"
 	"net/http"
 	"strconv"
@@ -35,11 +36,7 @@ func GetDepartments(c *gin.Context) {
 
 	list, total, err := dao.FetchDepartmentsPaged(page, pageSize, keyword)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "获取部门列表失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "获取部门列表失败", err)
 		return
 	}
 
@@ -66,20 +63,13 @@ func GetDepartmentByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil || id64 == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "无效的部门 ID",
-		})
+		errorx.BadRequest(c, "无效的部门 ID", err)
 		return
 	}
 
 	d, err := dao.FetchDepartmentByID(uint(id64))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code": 1,
-			"msg":  "部门不存在",
-			"err":  err.Error(),
-		})
+		errorx.NotFound(c, "部门不存在", err)
 		return
 	}
 
@@ -104,11 +94,7 @@ func GetDepartmentByID(c *gin.Context) {
 func CreateDepartment(c *gin.Context) {
 	var req models.Department
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "参数解析失败",
-			"err":  err.Error(),
-		})
+		errorx.BadRequest(c, "参数解析失败", err)
 		return
 	}
 
@@ -116,10 +102,7 @@ func CreateDepartment(c *gin.Context) {
 
 	// 基础校验
 	if req.Name == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "部门名称不能为空",
-		})
+		errorx.BadRequest(c, "部门名称不能为空", nil)
 		return
 	}
 	if req.FullNum < 1 {
@@ -128,11 +111,7 @@ func CreateDepartment(c *gin.Context) {
 
 	// 创建
 	if err := dao.InsertDepartment(req); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "创建部门失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "创建部门失败", err)
 		return
 	}
 
@@ -158,19 +137,19 @@ func UpdateDepartment(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil || id64 == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "无效的部门 ID"})
+		errorx.BadRequest(c, "无效的部门 ID", err)
 		return
 	}
 
 	var req models.Department
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "参数解析失败", "err": err.Error()})
+		errorx.BadRequest(c, "参数解析失败", err)
 		return
 	}
 
 	req.Name = strings.TrimSpace(req.Name)
 	if req.Name == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "部门名称不能为空"})
+		errorx.BadRequest(c, "部门名称不能为空", nil)
 		return
 	}
 
@@ -182,11 +161,7 @@ func UpdateDepartment(c *gin.Context) {
 	}
 
 	if err := dao.UpdateDepartment(uint(id64), req); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "更新失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "更新失败", err)
 		return
 	}
 
@@ -206,17 +181,14 @@ func DeleteDepartment(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil || id64 == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "无效的部门 ID"})
+		errorx.BadRequest(c, "无效的部门 ID", err)
 		return
 	}
 
 	err = dao.DeleteDepartment(uint(id64))
 	if err != nil {
 		// 部门内有人时给出明确提示
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  err.Error(),
-		})
+		errorx.BadRequest(c, err.Error(), nil)
 		return
 	}
 

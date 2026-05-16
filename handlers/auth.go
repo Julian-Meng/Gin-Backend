@@ -3,6 +3,7 @@ package handlers
 import (
 	"backend/dao"
 	"backend/middlewares"
+	"backend/middlewares/errorx"
 	"backend/models"
 	"fmt"
 	"log"
@@ -108,9 +109,7 @@ func getEnvInt(key string, defaultVal int) int {
 
 func loginFailResponse(c *gin.Context, failCount int, msg string) {
 	needCaptcha := failCount >= loginCapThld
-	c.JSON(http.StatusUnauthorized, gin.H{
-		"code":         1,
-		"msg":          msg,
+	errorx.Abort(c, http.StatusUnauthorized, errorx.CodeUnauthorized, msg, nil, gin.H{
 		"need_captcha": needCaptcha,
 		"fail_count":   failCount,
 	})
@@ -130,20 +129,14 @@ func GetCaptcha(c *gin.Context) {
 	service := mustLoadCaptchaConfig()
 	scene := strings.ToLower(strings.TrimSpace(c.DefaultQuery("scene", "register")))
 	if scene != "register" && scene != "login" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "无效的 scene，仅支持 register/login",
-		})
+		errorx.BadRequest(c, "无效的 scene，仅支持 register/login", nil)
 		return
 	}
 
 	id, b64, _, err := service.Generate()
 	if err != nil {
 		log.Println("\033[31m生成验证码失败:\033[0m", err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "生成验证码失败",
-		})
+		errorx.Internal(c, "生成验证码失败", err)
 		return
 	}
 
@@ -233,11 +226,7 @@ func Login(c *gin.Context) {
 
 	var req loginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":  1,
-			"msg":   "请求格式错误",
-			"error": err.Error(),
-		})
+		errorx.BadRequest(c, "请求格式错误", err)
 		return
 	}
 
@@ -245,10 +234,7 @@ func Login(c *gin.Context) {
 	req.Password = strings.TrimSpace(req.Password)
 
 	if req.Username == "" || req.Password == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "用户名和密码不能为空",
-		})
+		errorx.BadRequest(c, "用户名和密码不能为空", nil)
 		return
 	}
 
@@ -257,9 +243,7 @@ func Login(c *gin.Context) {
 		req.CaptchaID = strings.TrimSpace(req.CaptchaID)
 		req.CaptchaCode = strings.TrimSpace(req.CaptchaCode)
 		if req.CaptchaID == "" || req.CaptchaCode == "" {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"code":         1,
-				"msg":          "需要输入验证码",
+			errorx.Abort(c, http.StatusBadRequest, errorx.CodeInvalidParam, "需要输入验证码", nil, gin.H{
 				"need_captcha": true,
 				"fail_count":   dao.GetLoginFailCount(req.Username, ip),
 			})
@@ -267,9 +251,7 @@ func Login(c *gin.Context) {
 		}
 
 		if !captchaSvc.Verify(req.CaptchaID, req.CaptchaCode, true) {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"code":         1,
-				"msg":          "验证码错误或已过期",
+			errorx.Abort(c, http.StatusBadRequest, errorx.CodeInvalidParam, "验证码错误或已过期", nil, gin.H{
 				"need_captcha": true,
 				"fail_count":   dao.GetLoginFailCount(req.Username, ip),
 			})
@@ -290,10 +272,7 @@ func Login(c *gin.Context) {
 		token, err := middlewares.GenerateToken(cfg.Username, "", cfg.Role)
 		if err != nil {
 			log.Println("\033[31m生成 superadmin Token 失败:\033[0m", err)
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"code": 1,
-				"msg":  "生成 Token 失败",
-			})
+			errorx.Internal(c, "生成 Token 失败", err)
 			return
 		}
 
@@ -320,11 +299,7 @@ func Login(c *gin.Context) {
 	token, err := middlewares.GenerateToken(account.Username, account.EmpID, account.Role)
 	if err != nil {
 		log.Println("\033[31m生成 Token 失败:\033[0m", err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":  1,
-			"msg":   "Token 生成失败",
-			"error": err.Error(),
-		})
+		errorx.Internal(c, "Token 生成失败", err)
 		return
 	}
 
@@ -355,11 +330,7 @@ func Register(c *gin.Context) {
 
 	var req registerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":  1,
-			"msg":   "请求格式错误",
-			"error": err.Error(),
-		})
+		errorx.BadRequest(c, "请求格式错误", err)
 		return
 	}
 
@@ -368,44 +339,29 @@ func Register(c *gin.Context) {
 	req.CaptchaCode = strings.TrimSpace(req.CaptchaCode)
 
 	if req.Username == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "用户名不能为空",
-		})
+		errorx.BadRequest(c, "用户名不能为空", nil)
 		return
 	}
 
 	if req.CaptchaID == "" || req.CaptchaCode == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "注册需要验证码",
-		})
+		errorx.BadRequest(c, "注册需要验证码", nil)
 		return
 	}
 
 	if !captchaSvc.Verify(req.CaptchaID, req.CaptchaCode, true) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "验证码错误或已过期",
-		})
+		errorx.BadRequest(c, "验证码错误或已过期", nil)
 		return
 	}
 
 	// 启用 superadmin 时：保留用户名不可注册
 	if cfg.Enabled && req.Username == cfg.Username {
-		c.JSON(http.StatusForbidden, gin.H{
-			"code": 1,
-			"msg":  "不允许注册保留用户名",
-		})
+		errorx.Forbidden(c, "不允许注册保留用户名", nil)
 		return
 	}
 
 	// 检查重名
 	if _, exists := dao.GetAccountByUsername(req.Username); exists {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "用户名已存在",
-		})
+		errorx.BadRequest(c, "用户名已存在", nil)
 		return
 	}
 
@@ -417,11 +373,7 @@ func Register(c *gin.Context) {
 
 	if err := dao.InsertAccount(acc); err != nil {
 		log.Println("\033[31m注册失败:\033[0m", err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":  1,
-			"msg":   "注册失败",
-			"error": fmt.Sprintf("%v", err),
-		})
+		errorx.Internal(c, "注册失败", err)
 		return
 	}
 

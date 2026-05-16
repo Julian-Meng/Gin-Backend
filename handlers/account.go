@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"backend/dao"
+	"backend/middlewares/errorx"
 	"backend/models"
 	"net/http"
 	"strconv"
@@ -49,39 +50,26 @@ func CreateAccount(c *gin.Context) {
 	var req models.Account
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "请求体解析失败",
-			"err":  err.Error(),
-		})
+		errorx.BadRequest(c, "请求体解析失败", err)
 		return
 	}
 
 	req.Username = strings.TrimSpace(req.Username)
 
 	if req.Username == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "用户名不能为空",
-		})
+		errorx.BadRequest(c, "用户名不能为空", nil)
 		return
 	}
 
 	// 简单长度检查，可按需调整
 	if len(req.Username) < 3 || len(req.Username) > 32 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "用户名长度需在 3-32 之间",
-		})
+		errorx.BadRequest(c, "用户名长度需在 3-32 之间", nil)
 		return
 	}
 
 	// 检查重名
 	if _, exists := dao.GetAccountByUsername(req.Username); exists {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "用户名已存在",
-		})
+		errorx.BadRequest(c, "用户名已存在", nil)
 		return
 	}
 
@@ -96,11 +84,7 @@ func CreateAccount(c *gin.Context) {
 	// - 生成 EmpID
 	// - 创建 PERSON 记录
 	if err := dao.InsertAccount(req); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "创建账号失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "创建账号失败", err)
 		return
 	}
 
@@ -126,47 +110,30 @@ func CreateAccount(c *gin.Context) {
 func UpdateAccount(c *gin.Context) {
 	id := c.Param("id")
 	if _, err := strconv.ParseUint(id, 10, 64); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "无效的账号 ID",
-		})
+		errorx.BadRequest(c, "无效的账号 ID", err)
 		return
 	}
 
 	var req models.Account
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "请求体解析失败",
-			"err":  err.Error(),
-		})
+		errorx.BadRequest(c, "请求体解析失败", err)
 		return
 	}
 
 	req.Role = strings.TrimSpace(req.Role)
 	if req.Role != "admin" && req.Role != "staff" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "角色只能为 admin 或 staff",
-		})
+		errorx.BadRequest(c, "角色只能为 admin 或 staff", nil)
 		return
 	}
 
 	// 状态：允许 0 / 1，其他当非法
 	if req.Status != 0 && req.Status != 1 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "状态只能为 0 或 1",
-		})
+		errorx.BadRequest(c, "状态只能为 0 或 1", nil)
 		return
 	}
 
 	if err := dao.UpdateAccount(id, req); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "账号更新失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "账号更新失败", err)
 		return
 	}
 
@@ -189,19 +156,12 @@ func UpdateAccount(c *gin.Context) {
 func DeleteAccount(c *gin.Context) {
 	id := c.Param("id")
 	if _, err := strconv.ParseUint(id, 10, 64); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "无效的账号 ID",
-		})
+		errorx.BadRequest(c, "无效的账号 ID", err)
 		return
 	}
 
 	if err := dao.DeleteAccount(id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "删除账号失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "删除账号失败", err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{

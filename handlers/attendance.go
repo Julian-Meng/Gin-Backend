@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"backend/dao"
+	"backend/middlewares/errorx"
 	"net/http"
 	"strconv"
 	"strings"
@@ -36,27 +37,18 @@ func parseDateOrDefault(str string, def time.Time) time.Time {
 func UserCheckIn(c *gin.Context) {
 	val, exists := c.Get("emp_id")
 	if !exists {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "当前账号未绑定员工档案，无法签到",
-		})
+		errorx.BadRequest(c, "当前账号未绑定员工档案，无法签到", nil)
 		return
 	}
 	empID, _ := val.(string)
 	empID = strings.TrimSpace(empID)
 	if empID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "当前账号 emp_id 无效，无法签到",
-		})
+		errorx.BadRequest(c, "当前账号 emp_id 无效，无法签到", nil)
 		return
 	}
 
 	if err := dao.CheckIn(empID); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  err.Error(),
-		})
+		errorx.BadRequest(c, err.Error(), nil)
 		return
 	}
 
@@ -77,27 +69,18 @@ func UserCheckIn(c *gin.Context) {
 func UserCheckOut(c *gin.Context) {
 	val, exists := c.Get("emp_id")
 	if !exists {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "当前账号未绑定员工档案，无法签退",
-		})
+		errorx.BadRequest(c, "当前账号未绑定员工档案，无法签退", nil)
 		return
 	}
 	empID, _ := val.(string)
 	empID = strings.TrimSpace(empID)
 	if empID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "当前账号 emp_id 无效，无法签退",
-		})
+		errorx.BadRequest(c, "当前账号 emp_id 无效，无法签退", nil)
 		return
 	}
 
 	if err := dao.CheckOut(empID); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  err.Error(),
-		})
+		errorx.BadRequest(c, err.Error(), nil)
 		return
 	}
 
@@ -123,19 +106,13 @@ func UserCheckOut(c *gin.Context) {
 func GetMyAttendance(c *gin.Context) {
 	val, exists := c.Get("emp_id")
 	if !exists {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "当前账号未绑定员工档案，无法查询考勤",
-		})
+		errorx.BadRequest(c, "当前账号未绑定员工档案，无法查询考勤", nil)
 		return
 	}
 	empID, _ := val.(string)
 	empID = strings.TrimSpace(empID)
 	if empID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "当前账号 emp_id 无效，无法查询考勤",
-		})
+		errorx.BadRequest(c, "当前账号 emp_id 无效，无法查询考勤", nil)
 		return
 	}
 
@@ -160,11 +137,7 @@ func GetMyAttendance(c *gin.Context) {
 
 	list, total, err := dao.GetAttendanceByEmpID(empID, startDate, endDate, page, pageSize)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "查询考勤记录失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "查询考勤记录失败", err)
 		return
 	}
 
@@ -200,10 +173,7 @@ func AdminSearchAttendance(c *gin.Context) {
 	if dptIDStr != "" {
 		dptID, err = strconv.ParseUint(dptIDStr, 10, 64)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"code": 1,
-				"msg":  "无效的 dpt_id",
-			})
+			errorx.BadRequest(c, "无效的 dpt_id", err)
 			return
 		}
 	}
@@ -229,11 +199,7 @@ func AdminSearchAttendance(c *gin.Context) {
 
 	list, total, err := dao.SearchAttendance(empID, uint(dptID), startDate, endDate, page, pageSize)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "查询考勤记录失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "查询考勤记录失败", err)
 		return
 	}
 
@@ -261,21 +227,14 @@ func AdminUpdateAttendance(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil || id64 == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "无效的考勤记录 ID",
-		})
+		errorx.BadRequest(c, "无效的考勤记录 ID", err)
 		return
 	}
 
 	var req AttendanceUpdateRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "请求体解析失败",
-			"err":  err.Error(),
-		})
+		errorx.BadRequest(c, "请求体解析失败", err)
 		return
 	}
 
@@ -294,19 +253,12 @@ func AdminUpdateAttendance(c *gin.Context) {
 	}
 
 	if len(updates) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "没有任何可更新的字段",
-		})
+		errorx.BadRequest(c, "没有任何可更新的字段", nil)
 		return
 	}
 
 	if err := dao.UpdateAttendance(uint(id64), updates); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "更新考勤记录失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "更新考勤记录失败", err)
 		return
 	}
 
@@ -330,19 +282,12 @@ func AdminDeleteAttendance(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil || id64 == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 1,
-			"msg":  "无效的考勤记录 ID",
-		})
+		errorx.BadRequest(c, "无效的考勤记录 ID", err)
 		return
 	}
 
 	if err := dao.DeleteAttendance(uint(id64)); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "删除考勤记录失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "删除考勤记录失败", err)
 		return
 	}
 

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"backend/middlewares/errorx"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -40,10 +41,7 @@ func roleInList(role string, list []string) bool {
 func GetPermissions(c *gin.Context) {
 	roleVal, ok := c.Get("role")
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"code": 1,
-			"msg":  "未获取到用户角色信息",
-		})
+		errorx.Unauthorized(c, "未获取到用户角色信息", nil)
 		return
 	}
 	role, _ := roleVal.(string)

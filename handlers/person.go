@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"backend/dao"
+	"backend/middlewares/errorx"
 	"backend/models"
 	"net/http"
 	"strconv"
@@ -36,11 +37,7 @@ func GetPersons(c *gin.Context) {
 
 	list, total, err := dao.FetchPersonsPaged(page, pageSize, keyword)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "获取员工列表失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "获取员工列表失败", err)
 		return
 	}
 
@@ -67,17 +64,13 @@ func GetPersonByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil || id64 == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "无效的员工 ID"})
+		errorx.BadRequest(c, "无效的员工 ID", err)
 		return
 	}
 
 	p, err := dao.FetchPersonByID(uint(id64))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code": 1,
-			"msg":  "员工不存在",
-			"err":  err.Error(),
-		})
+		errorx.NotFound(c, "员工不存在", err)
 		return
 	}
 
@@ -102,26 +95,26 @@ func GetPersonByID(c *gin.Context) {
 func CreatePerson(c *gin.Context) {
 	var req models.Person
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "请求解析失败", "err": err.Error()})
+		errorx.BadRequest(c, "请求解析失败", err)
 		return
 	}
 
 	req.Name = strings.TrimSpace(req.Name)
 	if req.Name == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "姓名不能为空"})
+		errorx.BadRequest(c, "姓名不能为空", nil)
 		return
 	}
 
 	// Birth 转换
 	if req.Birth != nil {
 		if req.Birth.After(time.Now()) {
-			c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "出生日期不能晚于当前时间"})
+			errorx.BadRequest(c, "出生日期不能晚于当前时间", nil)
 			return
 		}
 	}
 
 	if err := dao.CreatePerson(&req); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "创建员工失败", "err": err.Error()})
+		errorx.Internal(c, "创建员工失败", err)
 		return
 	}
 
@@ -146,29 +139,29 @@ func UpdatePerson(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil || id64 == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "无效的员工 ID"})
+		errorx.BadRequest(c, "无效的员工 ID", err)
 		return
 	}
 
 	var req models.Person
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "请求解析失败", "err": err.Error()})
+		errorx.BadRequest(c, "请求解析失败", err)
 		return
 	}
 
 	req.Name = strings.TrimSpace(req.Name)
 	if req.Name == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "姓名不能为空"})
+		errorx.BadRequest(c, "姓名不能为空", nil)
 		return
 	}
 
 	if req.Birth != nil && req.Birth.After(time.Now()) {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "出生日期不能晚于当前时间"})
+		errorx.BadRequest(c, "出生日期不能晚于当前时间", nil)
 		return
 	}
 
 	if err := dao.UpdatePerson(uint(id64), req); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "更新失败", "err": err.Error()})
+		errorx.Internal(c, "更新失败", err)
 		return
 	}
 
@@ -188,16 +181,12 @@ func UpdatePerson(c *gin.Context) {
 func DeletePersonByEmpID(c *gin.Context) {
 	empID := strings.TrimSpace(c.Param("emp_id"))
 	if empID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "无效的员工编号"})
+		errorx.BadRequest(c, "无效的员工编号", nil)
 		return
 	}
 
 	if err := dao.DeletePersonByEmpID(empID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "删除失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "删除失败", err)
 		return
 	}
 
@@ -218,16 +207,12 @@ func DeletePersonByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id64, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil || id64 == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "无效的员工 ID"})
+		errorx.BadRequest(c, "无效的员工 ID", err)
 		return
 	}
 
 	if err := dao.SafeDeletePerson(uint(id64)); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "删除失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "删除失败", err)
 		return
 	}
 
@@ -248,7 +233,7 @@ func DeletePersonByID(c *gin.Context) {
 func ChangePersonDepartment(c *gin.Context) {
 	var req PersonDepartmentChangeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "参数解析失败"})
+		errorx.BadRequest(c, "参数解析失败", err)
 		return
 	}
 
@@ -256,12 +241,12 @@ func ChangePersonDepartment(c *gin.Context) {
 	req.Dept = strings.TrimSpace(req.Dept)
 
 	if req.EmpID == "" || req.Dept == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "emp_id 和 dept 均不能为空"})
+		errorx.BadRequest(c, "emp_id 和 dept 均不能为空", nil)
 		return
 	}
 
 	if err := dao.UpdatePersonDepartment(req.EmpID, req.Dept); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "部门调整失败", "err": err.Error()})
+		errorx.Internal(c, "部门调整失败", err)
 		return
 	}
 
@@ -283,17 +268,17 @@ func ChangePersonState(c *gin.Context) {
 	var req PersonStateChangeRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "参数解析失败"})
+		errorx.BadRequest(c, "参数解析失败", err)
 		return
 	}
 
 	if req.EmpID == "" || (req.State != 0 && req.State != 1) {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "参数不合法"})
+		errorx.BadRequest(c, "参数不合法", nil)
 		return
 	}
 
 	if err := dao.UpdatePersonState(req.EmpID, req.State); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "状态更新失败", "err": err.Error()})
+		errorx.Internal(c, "状态更新失败", err)
 		return
 	}
 
@@ -315,17 +300,17 @@ func ChangePersonJob(c *gin.Context) {
 	var req PersonJobChangeRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "参数解析失败"})
+		errorx.BadRequest(c, "参数解析失败", err)
 		return
 	}
 
 	if req.EmpID == "" || strings.TrimSpace(req.Job) == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "msg": "emp_id 与 job 均不能为空"})
+		errorx.BadRequest(c, "emp_id 与 job 均不能为空", nil)
 		return
 	}
 
 	if err := dao.UpdatePersonJob(req.EmpID, req.Job); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "msg": "职位更新失败", "err": err.Error()})
+		errorx.Internal(c, "职位更新失败", err)
 		return
 	}
 

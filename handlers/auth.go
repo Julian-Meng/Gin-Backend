@@ -287,10 +287,16 @@ func Login(c *gin.Context) {
 	}
 
 	// 2) 普通用户登录
-	account, ok := dao.ValidateLogin(req.Username, req.Password)
-	if !ok {
-		failCount := dao.IncrementLoginFailCount(req.Username, ip)
-		loginFailResponse(c, failCount, "用户名或密码错误")
+	account, err := dao.ValidateLogin(req.Username, req.Password)
+	if err != nil {
+		if dao.IsInvalidCredentials(err) {
+			failCount := dao.IncrementLoginFailCount(req.Username, ip)
+			loginFailResponse(c, failCount, "用户名或密码错误")
+			return
+		}
+
+		log.Println("\033[31m登录查询失败:\033[0m", err)
+		errorx.Internal(c, "登录失败，请稍后重试", err)
 		return
 	}
 
@@ -360,8 +366,11 @@ func Register(c *gin.Context) {
 	}
 
 	// 检查重名
-	if _, exists := dao.GetAccountByUsername(req.Username); exists {
-		errorx.BadRequest(c, "用户名已存在", nil)
+	if _, err := dao.GetAccountByUsername(req.Username); err == nil {
+		errorx.Conflict(c, "用户名已存在", nil)
+		return
+	} else if !dao.IsNotFound(err) {
+		errorx.Internal(c, "校验用户名是否存在失败", err)
 		return
 	}
 

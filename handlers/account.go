@@ -21,7 +21,11 @@ import (
 // @Failure 403 {object} APIErrorResponse
 // @Router /api/admin/accounts [get]
 func GetAllAccounts(c *gin.Context) {
-	accounts := dao.GetAllAccounts()
+	accounts, err := dao.GetAllAccounts()
+	if err != nil {
+		errorx.Internal(c, "获取账号列表失败", err)
+		return
+	}
 
 	// 安全起见，不把密码返回给前端（即便是 hash）
 	for i := range accounts {
@@ -68,8 +72,11 @@ func CreateAccount(c *gin.Context) {
 	}
 
 	// 检查重名
-	if _, exists := dao.GetAccountByUsername(req.Username); exists {
-		errorx.BadRequest(c, "用户名已存在", nil)
+	if _, err := dao.GetAccountByUsername(req.Username); err == nil {
+		errorx.Conflict(c, "用户名已存在", nil)
+		return
+	} else if !dao.IsNotFound(err) {
+		errorx.Internal(c, "校验用户名是否存在失败", err)
 		return
 	}
 
@@ -133,6 +140,10 @@ func UpdateAccount(c *gin.Context) {
 	}
 
 	if err := dao.UpdateAccount(id, req); err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "账号不存在", err)
+			return
+		}
 		errorx.Internal(c, "账号更新失败", err)
 		return
 	}
@@ -161,6 +172,10 @@ func DeleteAccount(c *gin.Context) {
 	}
 
 	if err := dao.DeleteAccount(id); err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "账号不存在", err)
+			return
+		}
 		errorx.Internal(c, "删除账号失败", err)
 		return
 	}

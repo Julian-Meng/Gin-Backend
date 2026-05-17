@@ -44,27 +44,30 @@ func CheckIn(empID string) error {
 				Status:  1, // 先默认正常，迟到逻辑后续可以再加
 			}
 			if err := tx.Create(&newAtt).Error; err != nil {
-				return fmt.Errorf("创建签到记录失败: %v", err)
+				return fmt.Errorf("创建签到记录失败: %w", err)
 			}
 			return nil
 		}
 
 		if err != nil {
-			return fmt.Errorf("查询签到记录失败: %v", err)
+			return fmt.Errorf("查询签到记录失败: %w", err)
 		}
 
 		// 已存在当天记录
 		if att.CheckIn != nil {
-			return fmt.Errorf("今日已签到，无需重复签到")
+			return Business("今日已签到，无需重复签到")
 		}
 
 		// 只补签到时间
-		return tx.Model(&models.Attendance{}).
+		if err := tx.Model(&models.Attendance{}).
 			Where("id = ?", att.ID).
 			Updates(map[string]interface{}{
 				"check_in":   now,
 				"updated_at": time.Now(),
-			}).Error
+			}).Error; err != nil {
+			return fmt.Errorf("更新签到时间失败: %w", err)
+		}
+		return nil
 	})
 }
 
@@ -85,24 +88,27 @@ func CheckOut(empID string) error {
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// 没有签到记录也尝试签退 → 可以选择自动建一条，也可以直接报错
-			return fmt.Errorf("今日未找到考勤记录，请先签到或联系管理员处理")
+			return Business("今日未找到考勤记录，请先签到或联系管理员处理")
 		}
 
 		if err != nil {
-			return fmt.Errorf("查询签退记录失败: %v", err)
+			return fmt.Errorf("查询签退记录失败: %w", err)
 		}
 
 		if att.CheckOut != nil {
-			return fmt.Errorf("今日已签退，无需重复操作")
+			return Business("今日已签退，无需重复操作")
 		}
 
 		// 更新签退时间
-		return tx.Model(&models.Attendance{}).
+		if err := tx.Model(&models.Attendance{}).
 			Where("id = ?", att.ID).
 			Updates(map[string]interface{}{
 				"check_out":  now,
 				"updated_at": time.Now(),
-			}).Error
+			}).Error; err != nil {
+			return fmt.Errorf("更新签退时间失败: %w", err)
+		}
+		return nil
 	})
 }
 
@@ -133,7 +139,7 @@ func GetAttendanceByEmpID(empID string, startDate, endDate time.Time, page, page
 
 	// 总数
 	if err := query.Count(&total).Error; err != nil {
-		return nil, 0, fmt.Errorf("统计考勤记录失败: %v", err)
+		return nil, 0, fmt.Errorf("统计考勤记录失败: %w", err)
 	}
 
 	// 分页数据
@@ -142,7 +148,7 @@ func GetAttendanceByEmpID(empID string, startDate, endDate time.Time, page, page
 		Limit(pageSize).
 		Offset(offset).
 		Find(&list).Error; err != nil {
-		return nil, 0, fmt.Errorf("查询考勤记录失败: %v", err)
+		return nil, 0, fmt.Errorf("查询考勤记录失败: %w", err)
 	}
 
 	return list, total, nil
@@ -215,7 +221,7 @@ func SearchAttendance(empID string, dptID uint, startDate, endDate time.Time, pa
 		countQuery = countQuery.Where("p.dpt_id = ?", dptID)
 	}
 	if err := countQuery.Count(&count).Error; err != nil {
-		return nil, 0, fmt.Errorf("统计考勤总数失败: %v", err)
+		return nil, 0, fmt.Errorf("统计考勤总数失败: %w", err)
 	}
 	total = count
 
@@ -225,7 +231,7 @@ func SearchAttendance(empID string, dptID uint, startDate, endDate time.Time, pa
 		Limit(pageSize).
 		Offset(offset).
 		Scan(&list).Error; err != nil {
-		return nil, 0, fmt.Errorf("查询考勤列表失败: %v", err)
+		return nil, 0, fmt.Errorf("查询考勤列表失败: %w", err)
 	}
 
 	return list, total, nil
@@ -241,14 +247,30 @@ func UpdateAttendance(id uint, updates map[string]interface{}) error {
 	}
 	updates["updated_at"] = time.Now()
 
-	return dbConn.Model(&models.Attendance{}).
+	res := dbConn.Model(&models.Attendance{}).
 		Where("id = ?", id).
-		Updates(updates).Error
+		Updates(updates)
+	if res.Error != nil {
+		return fmt.Errorf("更新考勤记录失败: %w", res.Error)
+	}
+	if res.RowsAffected == 0 {
+		return NotFound(fmt.Sprintf("未找到考勤记录 ID=%d", id))
+	}
+
+	return nil
 }
 
 // DeleteAttendance 管理员：删除考勤记录
 func DeleteAttendance(id uint) error {
 	dbConn := db.GetDB()
 
-	return dbConn.Delete(&models.Attendance{}, id).Error
+	res := dbConn.Delete(&models.Attendance{}, id)
+	if res.Error != nil {
+		return fmt.Errorf("删除考勤记录失败: %w", res.Error)
+	}
+	if res.RowsAffected == 0 {
+		return NotFound(fmt.Sprintf("未找到考勤记录 ID=%d", id))
+	}
+
+	return nil
 }

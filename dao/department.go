@@ -47,7 +47,9 @@ func FetchDepartmentsPaged(page, pageSize int, keyword string) ([]models.Departm
 	if keyword != "" {
 		countQuery = countQuery.Where("name LIKE ?", "%"+strings.TrimSpace(keyword)+"%")
 	}
-	countQuery.Count(&total)
+	if err := countQuery.Count(&total).Error; err != nil {
+		return nil, 0, fmt.Errorf("统计部门总数失败: %w", err)
+	}
 
 	return list, total, nil
 }
@@ -92,10 +94,18 @@ func UpdateDepartment(id uint, d models.Department) error {
 		"is_full":  d.IsFull,
 	}
 
-	return dbConn.
+	res := dbConn.
 		Model(&models.Department{}).
 		Where("id = ?", id).
-		Updates(updates).Error
+		Updates(updates)
+	if res.Error != nil {
+		return fmt.Errorf("更新部门失败: %w", res.Error)
+	}
+	if res.RowsAffected == 0 {
+		return NotFound(fmt.Sprintf("未找到部门 ID: %d", id))
+	}
+
+	return nil
 }
 
 // DeleteDepartment 删除部门（需检查人数）
@@ -104,15 +114,25 @@ func DeleteDepartment(id uint) error {
 
 	// 检查部门下是否有人
 	var count int64
-	dbConn.Model(&models.Person{}).
+	if err := dbConn.Model(&models.Person{}).
 		Where("dpt_id = ?", id).
-		Count(&count)
+		Count(&count).Error; err != nil {
+		return fmt.Errorf("查询部门成员失败: %w", err)
+	}
 
 	if count > 0 {
 		return fmt.Errorf("部门下仍有关联员工，无法删除")
 	}
 
-	return dbConn.Delete(&models.Department{}, id).Error
+	res := dbConn.Delete(&models.Department{}, id)
+	if res.Error != nil {
+		return fmt.Errorf("删除部门失败: %w", res.Error)
+	}
+	if res.RowsAffected == 0 {
+		return NotFound(fmt.Sprintf("未找到部门 ID: %d", id))
+	}
+
+	return nil
 }
 
 // FetchDepartmentByID 查询单个部门
@@ -124,9 +144,9 @@ func FetchDepartmentByID(id uint) (*models.Department, error) {
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("未找到部门 ID: %d", id)
+			return nil, NotFound(fmt.Sprintf("未找到部门 ID: %d", id))
 		}
-		return nil, err
+		return nil, fmt.Errorf("查询部门失败: %w", err)
 	}
 
 	return &d, nil
@@ -136,18 +156,32 @@ func FetchDepartmentByID(id uint) (*models.Department, error) {
 func UpdateDepartmentCount(dptID uint, delta int) error {
 	dbConn := db.GetDB()
 
-	return dbConn.Model(&models.Department{}).
+	res := dbConn.Model(&models.Department{}).
 		Where("id = ?", dptID).
-		Update("dpt_num", gorm.Expr("dpt_num + ?", delta)).
-		Error
+		Update("dpt_num", gorm.Expr("dpt_num + ?", delta))
+	if res.Error != nil {
+		return fmt.Errorf("更新部门人数失败: %w", res.Error)
+	}
+	if res.RowsAffected == 0 {
+		return NotFound(fmt.Sprintf("未找到部门 ID: %d", dptID))
+	}
+
+	return nil
 }
 
 // UpdateDepartmentCountByName 部门人数增减（按名称）
 func UpdateDepartmentCountByName(name string, delta int) error {
 	dbConn := db.GetDB()
 
-	return dbConn.Model(&models.Department{}).
+	res := dbConn.Model(&models.Department{}).
 		Where("name = ?", name).
-		Update("dpt_num", gorm.Expr("dpt_num + ?", delta)).
-		Error
+		Update("dpt_num", gorm.Expr("dpt_num + ?", delta))
+	if res.Error != nil {
+		return fmt.Errorf("更新部门人数失败: %w", res.Error)
+	}
+	if res.RowsAffected == 0 {
+		return NotFound(fmt.Sprintf("未找到部门: %s", name))
+	}
+
+	return nil
 }

@@ -78,7 +78,9 @@ func InsertAccount(a models.Account) error {
 
 		// 6. 自动插入 PERSON 记录
 		var personCount int64
-		tx.Model(&models.Person{}).Count(&personCount)
+		if err := tx.Model(&models.Person{}).Count(&personCount).Error; err != nil {
+			return fmt.Errorf("统计员工数量失败: %w", err)
+		}
 		defaultName := fmt.Sprintf("用户%d", personCount+1)
 
 		p := models.Person{
@@ -106,44 +108,44 @@ func InsertAccount(a models.Account) error {
 }
 
 // ValidateLogin 登录验证
-func ValidateLogin(username, password string) (models.Account, bool) {
+func ValidateLogin(username, password string) (models.Account, error) {
 	dbConn := db.GetDB()
 
 	var acc models.Account
 	err := dbConn.Where("username = ?", username).First(&acc).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return models.Account{}, false
+		return models.Account{}, InvalidCredentials("用户名或密码错误")
 	}
 	if err != nil {
-		log.Println("数据库查询错误:", err)
-		return models.Account{}, false
+		return models.Account{}, fmt.Errorf("查询账号失败: %w", err)
 	}
 
 	// 密码比对
 	if bcrypt.CompareHashAndPassword([]byte(acc.Password), []byte(password)) != nil {
-		return models.Account{}, false
+		return models.Account{}, InvalidCredentials("用户名或密码错误")
 	}
 
 	// 更新登录时间
 	now := time.Now()
-	dbConn.Model(&acc).Update("last_login", &now)
+	if err := dbConn.Model(&acc).Update("last_login", &now).Error; err != nil {
+		return models.Account{}, fmt.Errorf("更新登录时间失败: %w", err)
+	}
 
 	acc.Password = "" // 不把密码返回给上层
-	return acc, true
+	return acc, nil
 }
 
 // GetAllAccounts 获取所有账号列表
-func GetAllAccounts() []models.Account {
+func GetAllAccounts() ([]models.Account, error) {
 	dbConn := db.GetDB()
 
 	var accounts []models.Account
 	if err := dbConn.
 		Order("id DESC").
 		Find(&accounts).Error; err != nil {
-		log.Println("查询账号列表错误:", err)
-		return nil
+		return nil, fmt.Errorf("查询账号列表失败: %w", err)
 	}
-	return accounts
+	return accounts, nil
 }
 
 // UpdateAccount 更新账号信息（角色 / 状态）
@@ -166,17 +168,21 @@ func UpdateAccount(id string, a models.Account) error {
 		"last_login": time.Now(),
 	}
 
-	if err := dbConn.Model(&models.Account{}).
+	res := dbConn.Model(&models.Account{}).
 		Where("id = ?", uid).
-		Updates(updates).Error; err != nil {
-		log.Printf("\033[31m更新账号失败: %v\033[0m", err)
-		return err
+		Updates(updates)
+	if res.Error != nil {
+		return fmt.Errorf("更新账号失败: %w", res.Error)
 	}
+	if res.RowsAffected == 0 {
+		return NotFound(fmt.Sprintf("未找到账号 ID: %d", uid))
+	}
+
 	return nil
 }
 
 // GetAccountByUsername 根据用户名查询账号信息
-func GetAccountByUsername(username string) (models.Account, bool) {
+func GetAccountByUsername(username string) (models.Account, error) {
 	dbConn := db.GetDB()
 
 	var acc models.Account
@@ -184,10 +190,31 @@ func GetAccountByUsername(username string) (models.Account, bool) {
 		Select("id, username, emp_id, role, status").
 		Where("username = ?", username).
 		First(&acc).Error
-	if err != nil {
-		return models.Account{}, false
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return models.Account{}, NotFound(fmt.Sprintf("未找到用户名: %s", username))
 	}
-	return acc, true
+	if err != nil {
+		return models.Account{}, fmt.Errorf("查询账号失败: %w", err)
+	}
+	return acc, nil
+}
+
+// GetAccountByEmpID 根据员工工号查询账号信息
+func GetAccountByEmpID(empID string) (models.Account, error) {
+	dbConn := db.GetDB()
+
+	var acc models.Account
+	err := dbConn.
+		Select("id, username, emp_id, role, status").
+		Where("emp_id = ?", empID).
+		First(&acc).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return models.Account{}, NotFound(fmt.Sprintf("未找到员工账号: %s", empID))
+	}
+	if err != nil {
+		return models.Account{}, fmt.Errorf("查询账号失败: %w", err)
+	}
+	return acc, nil
 }
 
 // DeleteAccount 删除账号
@@ -199,5 +226,13 @@ func DeleteAccount(id string) error {
 		return fmt.Errorf("无效的账号 ID: %s", id)
 	}
 
-	return dbConn.Delete(&models.Account{}, uid).Error
+	res := dbConn.Delete(&models.Account{}, uid)
+	if res.Error != nil {
+		return fmt.Errorf("删除账号失败: %w", res.Error)
+	}
+	if res.RowsAffected == 0 {
+		return NotFound(fmt.Sprintf("未找到账号 ID: %d", uid))
+	}
+
+	return nil
 }

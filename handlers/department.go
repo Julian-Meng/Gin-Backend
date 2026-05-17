@@ -69,7 +69,11 @@ func GetDepartmentByID(c *gin.Context) {
 
 	d, err := dao.FetchDepartmentByID(uint(id64))
 	if err != nil {
-		errorx.NotFound(c, "部门不存在", err)
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "部门不存在", err)
+			return
+		}
+		errorx.Internal(c, "查询部门失败", err)
 		return
 	}
 
@@ -161,6 +165,10 @@ func UpdateDepartment(c *gin.Context) {
 	}
 
 	if err := dao.UpdateDepartment(uint(id64), req); err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "部门不存在", err)
+			return
+		}
 		errorx.Internal(c, "更新失败", err)
 		return
 	}
@@ -187,6 +195,10 @@ func DeleteDepartment(c *gin.Context) {
 
 	err = dao.DeleteDepartment(uint(id64))
 	if err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "部门不存在", err)
+			return
+		}
 		// 部门内有人时给出明确提示
 		errorx.BadRequest(c, err.Error(), nil)
 		return

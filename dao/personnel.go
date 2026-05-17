@@ -3,6 +3,7 @@ package dao
 import (
 	"backend/db"
 	"backend/models"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -31,7 +32,9 @@ func FetchPersonnelPaged(limit, offset int) ([]models.Personnel, int64, error) {
 	var total int64
 
 	// 统计总数
-	dbConn.Model(&models.Personnel{}).Count(&total)
+	if err := dbConn.Model(&models.Personnel{}).Count(&total).Error; err != nil {
+		return nil, 0, fmt.Errorf("统计变更记录失败: %w", err)
+	}
 
 	// 主查询（JOIN）
 	err := dbConn.Table("PERSONNEL p").
@@ -78,9 +81,11 @@ func FetchPersonnelByEmpIDPaged(empID string, limit, offset int) ([]models.Perso
 	var total int64
 
 	// 统计当前员工记录数
-	dbConn.Model(&models.Personnel{}).
+	if err := dbConn.Model(&models.Personnel{}).
 		Where("emp_id = ?", empID).
-		Count(&total)
+		Count(&total).Error; err != nil {
+		return nil, 0, fmt.Errorf("统计我的变更记录失败: %w", err)
+	}
 
 	err := dbConn.Table("PERSONNEL p").
 		Select(`
@@ -125,7 +130,7 @@ func GetPersonnelByID(id uint) (*models.Personnel, error) {
 
 	var p models.Personnel
 
-	err := dbConn.Table("PERSONNEL p").
+	result := dbConn.Table("PERSONNEL p").
 		Select(`
 			p.id, 
 			p.emp_id,
@@ -150,10 +155,13 @@ func GetPersonnelByID(id uint) (*models.Personnel, error) {
 		Joins("LEFT JOIN DEPARTMENT d1 ON per.dpt_id = d1.id").
 		Joins("LEFT JOIN DEPARTMENT d2 ON p.target_dpt = d2.id").
 		Where("p.id = ?", id).
-		Scan(&p).Error
+		Scan(&p)
 
-	if err != nil {
-		return nil, fmt.Errorf("查询变更详情失败: %v", err)
+	if result.Error != nil {
+		return nil, fmt.Errorf("查询变更详情失败: %w", result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return nil, NotFound(fmt.Sprintf("未找到变更记录 ID=%d", id))
 	}
 
 	return &p, nil
@@ -174,7 +182,10 @@ func ApprovePersonnelChange(id uint, approver string, approve bool, rejectReason
 		// 1. 获取变更记录
 		var record models.Personnel
 		if err := tx.First(&record, id).Error; err != nil {
-			return fmt.Errorf("查询变更记录失败: %v", err)
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return NotFound(fmt.Sprintf("未找到变更记录 ID=%d", id))
+			}
+			return fmt.Errorf("查询变更记录失败: %w", err)
 		}
 
 		// 校验 emp_id 是否合法
@@ -189,7 +200,10 @@ func ApprovePersonnelChange(id uint, approver string, approve bool, rejectReason
 		// 2. 获取员工信息
 		var person models.Person
 		if err := tx.Where("emp_id = ?", record.EmpID).First(&person).Error; err != nil {
-			return fmt.Errorf("员工不存在: %s", record.EmpID)
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return NotFound(fmt.Sprintf("员工不存在: %s", record.EmpID))
+			}
+			return fmt.Errorf("查询员工信息失败: %w", err)
 		}
 
 		// 3. 审批逻辑
@@ -211,15 +225,27 @@ func ApprovePersonnelChange(id uint, approver string, approve bool, rejectReason
 				}
 
 				// 目标部门人数 +1
-				tx.Model(&models.Department{}).
+				res := tx.Model(&models.Department{}).
 					Where("id = ?", newDpt).
 					Update("dpt_num", gorm.Expr("dpt_num + 1"))
+				if res.Error != nil {
+					return fmt.Errorf("更新目标部门人数失败: %w", res.Error)
+				}
+				if res.RowsAffected == 0 {
+					return NotFound(fmt.Sprintf("未找到目标部门 ID=%d", newDpt))
+				}
 
 				// 原部门人数 -1
 				if oldDpt != 0 && oldDpt != newDpt {
-					tx.Model(&models.Department{}).
+					res = tx.Model(&models.Department{}).
 						Where("id = ?", oldDpt).
 						Update("dpt_num", gorm.Expr("dpt_num - 1"))
+					if res.Error != nil {
+						return fmt.Errorf("更新原部门人数失败: %w", res.Error)
+					}
+					if res.RowsAffected == 0 {
+						return NotFound(fmt.Sprintf("未找到原部门 ID=%d", oldDpt))
+					}
 				}
 
 			case 2: // 调岗位
@@ -238,9 +264,15 @@ func ApprovePersonnelChange(id uint, approver string, approve bool, rejectReason
 				}
 
 				// 部门人数 -1
-				tx.Model(&models.Department{}).
+				res := tx.Model(&models.Department{}).
 					Where("id = ?", person.DptID).
 					Update("dpt_num", gorm.Expr("dpt_num - 1"))
+				if res.Error != nil {
+					return fmt.Errorf("更新部门人数失败: %w", res.Error)
+				}
+				if res.RowsAffected == 0 {
+					return NotFound(fmt.Sprintf("未找到部门 ID=%d", person.DptID))
+				}
 
 			case 4: // 请假
 				// 请假审批通过时仅更新审批结果，不改人员主数据
@@ -252,14 +284,22 @@ func ApprovePersonnelChange(id uint, approver string, approve bool, rejectReason
 		if approve {
 			rejectReason = ""
 		}
-		return tx.Model(&models.Personnel{}).
+		res := tx.Model(&models.Personnel{}).
 			Where("id = ?", id).
 			Updates(map[string]interface{}{
 				"state":         newState,
 				"approver":      approver,
 				"reject_reason": rejectReason,
 				"approve_at":    &now,
-			}).Error
+			})
+		if res.Error != nil {
+			return fmt.Errorf("更新审批结果失败: %w", res.Error)
+		}
+		if res.RowsAffected == 0 {
+			return NotFound(fmt.Sprintf("未找到变更记录 ID=%d", id))
+		}
+
+		return nil
 	})
 }
 

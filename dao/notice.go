@@ -26,16 +26,32 @@ func UpdateNotice(id uint, n models.Notice) error {
 		"updated_at": time.Now(),
 	}
 
-	return dbConn.
+	res := dbConn.
 		Model(&models.Notice{}).
 		Where("id = ?", id).
-		Updates(updates).Error
+		Updates(updates)
+	if res.Error != nil {
+		return fmt.Errorf("更新公告失败: %w", res.Error)
+	}
+	if res.RowsAffected == 0 {
+		return NotFound(fmt.Sprintf("未找到公告 ID=%d", id))
+	}
+
+	return nil
 }
 
 // DeleteNotice 删除公告
 func DeleteNotice(id uint) error {
 	dbConn := db.GetDB()
-	return dbConn.Delete(&models.Notice{}, id).Error
+	res := dbConn.Delete(&models.Notice{}, id)
+	if res.Error != nil {
+		return fmt.Errorf("删除公告失败: %w", res.Error)
+	}
+	if res.RowsAffected == 0 {
+		return NotFound(fmt.Sprintf("未找到公告 ID=%d", id))
+	}
+
+	return nil
 }
 
 // GetAllNotices 分页获取公告
@@ -47,7 +63,9 @@ func GetAllNotices(page, pageSize int) ([]models.Notice, int64, error) {
 	var total int64
 
 	// count
-	dbConn.Model(&models.Notice{}).Count(&total)
+	if err := dbConn.Model(&models.Notice{}).Count(&total).Error; err != nil {
+		return nil, 0, fmt.Errorf("统计公告总数失败: %w", err)
+	}
 
 	// 查询
 	err := dbConn.
@@ -72,9 +90,9 @@ func GetNoticeByID(id uint) (*models.Notice, error) {
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("未找到公告 ID=%d", id)
+			return nil, NotFound(fmt.Sprintf("未找到公告 ID=%d", id))
 		}
-		return nil, err
+		return nil, fmt.Errorf("查询公告失败: %w", err)
 	}
 
 	return &n, nil

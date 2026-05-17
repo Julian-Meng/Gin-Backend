@@ -49,11 +49,12 @@ func buildProfile(person *models.Person, account *models.Account) (*ProfileRespo
 	if person.DptID != 0 {
 		dbConn := db.GetDB()
 		var dept models.Department
-		if err := dbConn.First(&dept, person.DptID).Error; err == nil {
-			deptInfo = &DepartmentInfo{
-				ID:   dept.ID,
-				Name: dept.Name,
-			}
+		if err := dbConn.First(&dept, person.DptID).Error; err != nil {
+			return nil, err
+		}
+		deptInfo = &DepartmentInfo{
+			ID:   dept.ID,
+			Name: dept.Name,
 		}
 	}
 
@@ -110,26 +111,34 @@ func GetMyProfile(c *gin.Context) {
 	}
 
 	// 1) 查账号 Account（拿 EmpID）
-	account, ok := dao.GetAccountByUsername(username)
-	if !ok {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code": 1,
-			"msg":  "未找到当前用户对应的账号记录",
-		})
-		errorx.NotFound(c, "未找到当前用户对应的账号记录", nil)
+	account, err := dao.GetAccountByUsername(username)
+	if err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "未找到当前用户对应的账号记录", err)
+			return
+		}
+		errorx.Internal(c, "查询账号信息失败", err)
 		return
 	}
 
 	// 2) 查员工 Person（根据 EmpID）
 	person, err := dao.FetchPersonByEmpID(account.EmpID)
 	if err != nil {
-		errorx.NotFound(c, "未找到当前用户对应的员工档案", err)
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "未找到当前用户对应的员工档案", err)
+			return
+		}
+		errorx.Internal(c, "查询员工档案失败", err)
 		return
 	}
 
 	// 3) 组合档案信息
 	profile, err := buildProfile(person, &account)
 	if err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "关联部门不存在", err)
+			return
+		}
 		errorx.Internal(c, "构建档案信息失败", err)
 		return
 	}
@@ -162,25 +171,31 @@ func GetPersonProfile(c *gin.Context) {
 	// 1) 查员工 Person
 	person, err := dao.FetchPersonByEmpID(empID)
 	if err != nil {
-		errorx.NotFound(c, "未找到对应的员工档案", err)
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "未找到对应的员工档案", err)
+			return
+		}
+		errorx.Internal(c, "查询员工档案失败", err)
 		return
 	}
 
 	// 2) 尝试查账号（有些员工可能还没账号）
 	var account *models.Account
-	{
-		dbConn := db.GetDB()
-		var acc models.Account
-		if err := dbConn.
-			Where("emp_id = ?", empID).
-			First(&acc).Error; err == nil {
-			account = &acc
-		}
+	acc, err := dao.GetAccountByEmpID(empID)
+	if err == nil {
+		account = &acc
+	} else if !dao.IsNotFound(err) {
+		errorx.Internal(c, "查询员工账号失败", err)
+		return
 	}
 
 	// 3) 组合档案信息
 	profile, err := buildProfile(person, account)
 	if err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "关联部门不存在", err)
+			return
+		}
 		errorx.Internal(c, "构建档案信息失败", err)
 		return
 	}
@@ -237,15 +252,23 @@ func UpdateMyProfile(c *gin.Context) {
 		return
 	}
 
-	account, ok := dao.GetAccountByUsername(username)
-	if !ok {
-		errorx.NotFound(c, "未找到当前用户对应的账号记录", nil)
+	account, err := dao.GetAccountByUsername(username)
+	if err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "未找到当前用户对应的账号记录", err)
+			return
+		}
+		errorx.Internal(c, "查询账号信息失败", err)
 		return
 	}
 
 	person, err := dao.FetchPersonByEmpID(account.EmpID)
 	if err != nil {
-		errorx.NotFound(c, "未找到当前用户对应的员工档案", err)
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "未找到当前用户对应的员工档案", err)
+			return
+		}
+		errorx.Internal(c, "查询员工档案失败", err)
 		return
 	}
 
@@ -300,18 +323,30 @@ func UpdateMyProfile(c *gin.Context) {
 	updates["updated_at"] = time.Now()
 
 	if err := dao.UpdatePersonFields(person.ID, updates); err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "员工档案不存在", err)
+			return
+		}
 		errorx.Internal(c, "更新档案信息失败", err)
 		return
 	}
 
 	updatedPerson, err := dao.FetchPersonByID(person.ID)
 	if err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "员工档案不存在", err)
+			return
+		}
 		errorx.Internal(c, "档案更新后读取失败", err)
 		return
 	}
 
 	profile, err := buildProfile(updatedPerson, &account)
 	if err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "关联部门不存在", err)
+			return
+		}
 		errorx.Internal(c, "构建档案信息失败", err)
 		return
 	}

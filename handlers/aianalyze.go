@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"backend/dao"
+	"backend/middlewares/errorx"
 	"backend/models"
 	"encoding/json"
 	"net/http"
@@ -21,15 +22,15 @@ import (
 // @Failure 500 {object} APIErrorResponse
 // @Router /api/admin/ai/analyze/dashboard [get]
 func AdminAnalyzeDashboardAI(c *gin.Context) {
-	data := dao.GetAdminDashboardData()
+	data, err := dao.GetAdminDashboardData()
+	if err != nil {
+		errorx.Internal(c, "获取管理员仪表盘失败", err)
+		return
+	}
 
 	analysis, err := analyzeDashboardWithAI(data, true)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "failed to analyze dashboard by AI",
-			"data": gin.H{"error": err.Error()},
-		})
+		errorx.Internal(c, "AI 解读失败", err)
 		return
 	}
 
@@ -52,15 +53,15 @@ func AdminAnalyzeDashboardAI(c *gin.Context) {
 // @Failure 500 {object} APIErrorResponse
 // @Router /api/user/ai/analyze/dashboard [get]
 func UserAnalyzeDashboardAI(c *gin.Context) {
-	data := dao.GetUserDashboardData()
+	data, err := dao.GetUserDashboardData()
+	if err != nil {
+		errorx.Internal(c, "获取用户仪表盘失败", err)
+		return
+	}
 
 	analysis, err := analyzeDashboardWithAI(data, false)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "failed to analyze dashboard by AI",
-			"data": gin.H{"error": err.Error()},
-		})
+		errorx.Internal(c, "AI 解读失败", err)
 		return
 	}
 

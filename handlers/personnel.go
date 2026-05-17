@@ -39,11 +39,7 @@ func GetPersonnelList(c *gin.Context) {
 
 	list, total, err := dao.FetchPersonnelPaged(limit, offset)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 1,
-			"msg":  "获取人事变更记录失败",
-			"err":  err.Error(),
-		})
+		errorx.Internal(c, "获取人事变更记录失败", err)
 		return
 	}
 
@@ -137,7 +133,11 @@ func GetPersonnelByID(c *gin.Context) {
 
 	data, err := dao.GetPersonnelByID(uint(id64))
 	if err != nil {
-		errorx.NotFound(c, "记录不存在", err)
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "记录不存在", err)
+			return
+		}
+		errorx.Internal(c, "查询记录失败", err)
 		return
 	}
 
@@ -313,6 +313,10 @@ func ApprovePersonnel(c *gin.Context) {
 
 	// 审批逻辑（部门人数增减 / 调岗 / 离职 全部由 DAO 处理）
 	if err := dao.ApprovePersonnelChange(req.ID, req.Approver, req.Approve, req.RejectReason); err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "记录不存在", err)
+			return
+		}
 		errorx.BadRequest(c, "审批失败", err)
 		return
 	}

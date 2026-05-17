@@ -65,7 +65,11 @@ func GetNoticeByID(c *gin.Context) {
 
 	n, err := dao.GetNoticeByID(uint(id64))
 	if err != nil {
-		errorx.NotFound(c, "公告不存在", err)
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "公告不存在", err)
+			return
+		}
+		errorx.Internal(c, "查询公告失败", err)
 		return
 	}
 
@@ -151,6 +155,10 @@ func UpdateNotice(c *gin.Context) {
 	}
 
 	if err := dao.UpdateNotice(uint(id64), req); err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "公告不存在", err)
+			return
+		}
 		errorx.Internal(c, "公告更新失败", err)
 		return
 	}
@@ -177,6 +185,10 @@ func DeleteNotice(c *gin.Context) {
 	}
 
 	if err := dao.DeleteNotice(uint(id64)); err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "公告不存在", err)
+			return
+		}
 		errorx.Internal(c, "删除公告失败", err)
 		return
 	}

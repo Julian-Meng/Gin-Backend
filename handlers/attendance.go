@@ -258,6 +258,10 @@ func AdminUpdateAttendance(c *gin.Context) {
 	}
 
 	if err := dao.UpdateAttendance(uint(id64), updates); err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "考勤记录不存在", err)
+			return
+		}
 		errorx.Internal(c, "更新考勤记录失败", err)
 		return
 	}
@@ -287,6 +291,10 @@ func AdminDeleteAttendance(c *gin.Context) {
 	}
 
 	if err := dao.DeleteAttendance(uint(id64)); err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "考勤记录不存在", err)
+			return
+		}
 		errorx.Internal(c, "删除考勤记录失败", err)
 		return
 	}

@@ -54,7 +54,9 @@ func FetchPersonsPaged(page, pageSize int, keyword string) ([]models.EmployeeInf
 	if keyword != "" {
 		countQuery = countQuery.Where("name LIKE ?", "%"+strings.TrimSpace(keyword)+"%")
 	}
-	countQuery.Count(&total)
+	if err := countQuery.Count(&total).Error; err != nil {
+		return nil, 0, fmt.Errorf("统计员工总数失败: %w", err)
+	}
 
 	return list, total, nil
 }
@@ -66,9 +68,12 @@ func FetchPersonByID(id uint) (*models.Person, error) {
 	var p models.Person
 	err := dbConn.First(&p, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, fmt.Errorf("未找到员工 ID: %d", id)
+		return nil, NotFound(fmt.Sprintf("未找到员工 ID: %d", id))
 	}
-	return &p, err
+	if err != nil {
+		return nil, fmt.Errorf("查询员工失败: %w", err)
+	}
+	return &p, nil
 }
 
 // FetchPersonByEmpID 查询单个员工（emp_id）
@@ -78,9 +83,12 @@ func FetchPersonByEmpID(empID string) (*models.Person, error) {
 	var p models.Person
 	err := dbConn.Where("emp_id = ?", empID).First(&p).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, fmt.Errorf("未找到员工 emp_id: %s", empID)
+		return nil, NotFound(fmt.Sprintf("未找到员工 emp_id: %s", empID))
 	}
-	return &p, err
+	if err != nil {
+		return nil, fmt.Errorf("查询员工失败: %w", err)
+	}
+	return &p, nil
 }
 
 // CreatePerson 创建员工（自动生成 EMP 编号）
@@ -111,11 +119,14 @@ func CreatePerson(p *models.Person) error {
 
 		// 设置了部门 → 部门人数 +1
 		if p.DptID != 0 {
-			err := tx.Model(&models.Department{}).
+			res := tx.Model(&models.Department{}).
 				Where("id = ?", p.DptID).
-				Update("dpt_num", gorm.Expr("dpt_num + 1")).Error
-			if err != nil {
-				return fmt.Errorf("更新部门人数失败: %v", err)
+				Update("dpt_num", gorm.Expr("dpt_num + 1"))
+			if res.Error != nil {
+				return fmt.Errorf("更新部门人数失败: %w", res.Error)
+			}
+			if res.RowsAffected == 0 {
+				return NotFound(fmt.Sprintf("未找到部门 ID: %d", p.DptID))
 			}
 		}
 
@@ -139,10 +150,17 @@ func UpdatePerson(id uint, p models.Person) error {
 		"updated_at": time.Now(),
 	}
 
-	return dbConn.
+	res := dbConn.
 		Model(&models.Person{}).
 		Where("id = ?", id).
-		Updates(updates).Error
+		Updates(updates)
+	if res.Error != nil {
+		return fmt.Errorf("更新员工失败: %w", res.Error)
+	}
+	if res.RowsAffected == 0 {
+		return NotFound(fmt.Sprintf("未找到员工 ID: %d", id))
+	}
+	return nil
 }
 
 // UpdatePersonFields 按字段更新员工信息（仅更新传入字段）
@@ -153,10 +171,17 @@ func UpdatePersonFields(id uint, updates map[string]interface{}) error {
 
 	dbConn := db.GetDB()
 
-	return dbConn.
+	res := dbConn.
 		Model(&models.Person{}).
 		Where("id = ?", id).
-		Updates(updates).Error
+		Updates(updates)
+	if res.Error != nil {
+		return fmt.Errorf("更新员工失败: %w", res.Error)
+	}
+	if res.RowsAffected == 0 {
+		return NotFound(fmt.Sprintf("未找到员工 ID: %d", id))
+	}
+	return nil
 }
 
 // DeletePersonByEmpID 删除员工（按 emp_id）
@@ -168,17 +193,34 @@ func DeletePersonByEmpID(empID string) error {
 		var p models.Person
 		err := tx.Where("emp_id = ?", empID).First(&p).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("未找到员工 %s", empID)
+			return NotFound(fmt.Sprintf("未找到员工 %s", empID))
+		}
+		if err != nil {
+			return fmt.Errorf("查询员工失败: %w", err)
 		}
 
 		// 部门人数 -1
 		if p.DptID != 0 {
-			tx.Model(&models.Department{}).
+			res := tx.Model(&models.Department{}).
 				Where("id = ?", p.DptID).
 				Update("dpt_num", gorm.Expr("dpt_num - 1"))
+			if res.Error != nil {
+				return fmt.Errorf("更新部门人数失败: %w", res.Error)
+			}
+			if res.RowsAffected == 0 {
+				return NotFound(fmt.Sprintf("未找到部门 ID: %d", p.DptID))
+			}
 		}
 
-		return tx.Delete(&models.Person{}, "emp_id = ?", empID).Error
+		res := tx.Delete(&models.Person{}, "emp_id = ?", empID)
+		if res.Error != nil {
+			return fmt.Errorf("删除员工失败: %w", res.Error)
+		}
+		if res.RowsAffected == 0 {
+			return NotFound(fmt.Sprintf("未找到员工 %s", empID))
+		}
+
+		return nil
 	})
 }
 
@@ -190,16 +232,32 @@ func SafeDeletePerson(id uint) error {
 
 		var p models.Person
 		if err := tx.First(&p, id).Error; err != nil {
-			return err
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return NotFound(fmt.Sprintf("未找到员工 ID: %d", id))
+			}
+			return fmt.Errorf("查询员工失败: %w", err)
 		}
 
 		if p.DptID != 0 {
-			tx.Model(&models.Department{}).
+			res := tx.Model(&models.Department{}).
 				Where("id = ?", p.DptID).
 				Update("dpt_num", gorm.Expr("dpt_num - 1"))
+			if res.Error != nil {
+				return fmt.Errorf("更新部门人数失败: %w", res.Error)
+			}
+			if res.RowsAffected == 0 {
+				return NotFound(fmt.Sprintf("未找到部门 ID: %d", p.DptID))
+			}
 		}
 
-		return tx.Delete(&models.Person{}, id).Error
+		res := tx.Delete(&models.Person{}, id)
+		if res.Error != nil {
+			return fmt.Errorf("删除员工失败: %w", res.Error)
+		}
+		if res.RowsAffected == 0 {
+			return NotFound(fmt.Sprintf("未找到员工 ID: %d", id))
+		}
+		return nil
 	})
 }
 
@@ -211,33 +269,58 @@ func UpdatePersonDepartment(empID string, deptName string) error {
 
 		var p models.Person
 		if err := tx.Where("emp_id = ?", empID).First(&p).Error; err != nil {
-			return err
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return NotFound(fmt.Sprintf("未找到员工 %s", empID))
+			}
+			return fmt.Errorf("查询员工失败: %w", err)
 		}
 
 		var target models.Department
 		if err := tx.Where("name = ?", deptName).First(&target).Error; err != nil {
-			return fmt.Errorf("未找到部门: %s", deptName)
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return NotFound(fmt.Sprintf("未找到部门: %s", deptName))
+			}
+			return fmt.Errorf("查询目标部门失败: %w", err)
 		}
 
 		if p.DptID != target.ID {
 			// 原部门 -1
 			if p.DptID != 0 {
-				tx.Model(&models.Department{}).
+				res := tx.Model(&models.Department{}).
 					Where("id = ?", p.DptID).
 					Update("dpt_num", gorm.Expr("dpt_num - 1"))
+				if res.Error != nil {
+					return fmt.Errorf("更新原部门人数失败: %w", res.Error)
+				}
+				if res.RowsAffected == 0 {
+					return NotFound(fmt.Sprintf("未找到原部门 ID: %d", p.DptID))
+				}
 			}
 			// 新部门 +1
-			tx.Model(&models.Department{}).
+			res := tx.Model(&models.Department{}).
 				Where("id = ?", target.ID).
 				Update("dpt_num", gorm.Expr("dpt_num + 1"))
+			if res.Error != nil {
+				return fmt.Errorf("更新新部门人数失败: %w", res.Error)
+			}
+			if res.RowsAffected == 0 {
+				return NotFound(fmt.Sprintf("未找到目标部门 ID: %d", target.ID))
+			}
 		}
 
-		return tx.Model(&models.Person{}).
+		res := tx.Model(&models.Person{}).
 			Where("emp_id = ?", empID).
 			Updates(map[string]interface{}{
 				"dpt_id":     target.ID,
 				"updated_at": time.Now(),
-			}).Error
+			})
+		if res.Error != nil {
+			return fmt.Errorf("更新员工部门失败: %w", res.Error)
+		}
+		if res.RowsAffected == 0 {
+			return NotFound(fmt.Sprintf("未找到员工 %s", empID))
+		}
+		return nil
 	})
 }
 
@@ -245,22 +328,36 @@ func UpdatePersonDepartment(empID string, deptName string) error {
 func UpdatePersonState(empID string, state int) error {
 	dbConn := db.GetDB()
 
-	return dbConn.Model(&models.Person{}).
+	res := dbConn.Model(&models.Person{}).
 		Where("emp_id = ?", empID).
 		Updates(map[string]interface{}{
 			"state":      state,
 			"updated_at": time.Now(),
-		}).Error
+		})
+	if res.Error != nil {
+		return fmt.Errorf("更新员工状态失败: %w", res.Error)
+	}
+	if res.RowsAffected == 0 {
+		return NotFound(fmt.Sprintf("未找到员工 %s", empID))
+	}
+	return nil
 }
 
 // UpdatePersonJob 修改员工职位
 func UpdatePersonJob(empID string, newJob string) error {
 	dbConn := db.GetDB()
 
-	return dbConn.Model(&models.Person{}).
+	res := dbConn.Model(&models.Person{}).
 		Where("emp_id = ?", empID).
 		Updates(map[string]interface{}{
 			"job":        newJob,
 			"updated_at": time.Now(),
-		}).Error
+		})
+	if res.Error != nil {
+		return fmt.Errorf("更新员工岗位失败: %w", res.Error)
+	}
+	if res.RowsAffected == 0 {
+		return NotFound(fmt.Sprintf("未找到员工 %s", empID))
+	}
+	return nil
 }

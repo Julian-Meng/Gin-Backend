@@ -70,7 +70,11 @@ func GetPersonByID(c *gin.Context) {
 
 	p, err := dao.FetchPersonByID(uint(id64))
 	if err != nil {
-		errorx.NotFound(c, "员工不存在", err)
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "员工不存在", err)
+			return
+		}
+		errorx.Internal(c, "查询员工失败", err)
 		return
 	}
 
@@ -161,6 +165,10 @@ func UpdatePerson(c *gin.Context) {
 	}
 
 	if err := dao.UpdatePerson(uint(id64), req); err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "员工不存在", err)
+			return
+		}
 		errorx.Internal(c, "更新失败", err)
 		return
 	}
@@ -186,6 +194,10 @@ func DeletePersonByEmpID(c *gin.Context) {
 	}
 
 	if err := dao.DeletePersonByEmpID(empID); err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "员工不存在", err)
+			return
+		}
 		errorx.Internal(c, "删除失败", err)
 		return
 	}
@@ -212,6 +224,10 @@ func DeletePersonByID(c *gin.Context) {
 	}
 
 	if err := dao.SafeDeletePerson(uint(id64)); err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "员工不存在", err)
+			return
+		}
 		errorx.Internal(c, "删除失败", err)
 		return
 	}
@@ -246,6 +262,10 @@ func ChangePersonDepartment(c *gin.Context) {
 	}
 
 	if err := dao.UpdatePersonDepartment(req.EmpID, req.Dept); err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "员工或部门不存在", err)
+			return
+		}
 		errorx.Internal(c, "部门调整失败", err)
 		return
 	}
@@ -278,6 +298,10 @@ func ChangePersonState(c *gin.Context) {
 	}
 
 	if err := dao.UpdatePersonState(req.EmpID, req.State); err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "员工不存在", err)
+			return
+		}
 		errorx.Internal(c, "状态更新失败", err)
 		return
 	}
@@ -310,6 +334,10 @@ func ChangePersonJob(c *gin.Context) {
 	}
 
 	if err := dao.UpdatePersonJob(req.EmpID, req.Job); err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "员工不存在", err)
+			return
+		}
 		errorx.Internal(c, "职位更新失败", err)
 		return
 	}

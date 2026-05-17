@@ -14,5 +14,21 @@
 
 ## TODO
 
-- 完善 error handling
-- 扩充/重写 README
+### 近期：
+
+- ~~新增 Swagger 文档~~
+- 完善错误处理 + 统一响应格式
+- 补充详细 README + 环境变量说明
+- 添加基础日志 + Request ID
+
+### 中期：
+
+- 增加 Service 层，重构部分逻辑
+- 安全加固（密码、JWT、Rate Limit）
+- 测试覆盖 + CI
+
+### 长期：
+
+- 更清晰的目录结构 + 依赖注入
+- 监控（Prometheus + Grafana）
+- 更多自动化（migrations、code generation）

@@ -10,7 +10,7 @@
 
 ## 统一响应格式
 
-所有接口统一返回 JSON：
+成功响应：
 
 ```json
 {
@@ -18,13 +18,33 @@
   "msg": "success",
   "data": {}
 }
-````
+```
 
-字段说明：
+错误响应：
 
-* `code`：业务状态码，0 表示成功
-* `msg`：提示信息
-* `data`：返回数据内容（不同接口含义不同）
+```json
+{
+  "code": 1,
+  "msg": "请求参数错误",
+  "error_code": "INVALID_PARAM",
+  "request_id": "req-1715842301123-000001"
+}
+```
+
+字段说明（错误场景）：
+
+- `code`：业务状态码，`0` 表示成功，`1` 表示失败
+- `msg`：提示信息
+- `data`：返回数据内容（成功场景）
+- `error_code`：错误类型标识，常见值：
+  - `INVALID_PARAM`（400）
+  - `UNAUTHORIZED`（401）
+  - `FORBIDDEN`（403）
+  - `NOT_FOUND`（404）
+  - `CONFLICT`（409）
+  - `INTERNAL_ERROR`（500）
+- `request_id`：请求追踪 ID（服务端自动注入）
+- `detail`：调试细节，仅在 debug 或开启 `ERROR_DETAIL_ENABLED=true` 时返回
 
 ---
 

@@ -5,7 +5,7 @@
     ],
     "swagger": "2.0",
     "info": {
-        "description": "人事管理后端 API 文档（含 admin/user/chat 等接口）",
+        "description": "人事管理后端 API 文档（含 admin/user/chat 等接口）\n联调页面：[Backend Test Console](/bt)",
         "title": "Gin Backend API",
         "contact": {},
         "version": "1.0"

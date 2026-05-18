@@ -1,144 +1,151 @@
-# Vue Admin Backend (Go)
+# Vue Admin Backend（Go）
 
-这是一个基于 **Go + Gin + GORM** 的后端服务，为 Vue Admin 前端提供企业人事管理 API，并支持 JWT 鉴权与角色权限控制（superadmin / admin / staff）。
+基于 **Go + Gin + GORM** 的人事管理后端，提供账号、员工、部门、人事变更、公告、考勤、权限矩阵与客服聊天能力（含可选 AI 兜底）。
 
-## 功能概览
+## 1. 快速启动
 
-已实现模块：
+### 1.1 路径 A：SQLite 最小启动（推荐本地开发）
 
-- 账户管理（Account）
-- 员工档案管理（Person）（含账户绑定、档案扩展）
-- 部门管理（Department）
-- 人事变动管理（Personnel）
-- 公告管理（Notice）
-- 仪表盘数据（Dashboard）
-- 考勤管理（Attendance）（签到 / 签退 / 个人查询 / 管理员查询）
-- 权限展示接口（Permission）
-- AI Chat（对接 Ollama，可选）
-- 客服聊天（Support Chat：用户-管理员会话、离线队列、管理员认领、AI 兜底）
-
-## 技术栈
-
-- Go 1.19+
-- Gin Web Framework
-- GORM ORM
-- JWT Authentication
-- MySQL / SQLite（自动建表）
-
-## 项目结构
-
-```text
-backend/
-├── dao/                    # 数据访问层
-├── db/                     # 数据库逻辑层
-│   └── database.go         # 数据库初始化、自动迁移
-├── handlers/               # HTTP 处理逻辑
-├── middlewares/            # 中间件
-│   └── jwt.go              # JWT 登录与角色验证
-├── models/                 # 数据模型
-├── static/                 # 测试页面与静态文件
-├── tmp/                    # 临时文件
-├── .env.example            # 环境变量示例
-├── router.go               # 路由注册
-└── main.go                 # 程序入口
-````
-
-## 快速启动（开发环境）
-
-### 1) 安装依赖
+1. 安装依赖：
 
 ```bash
 go mod download
 ```
 
-### 2) 启动依赖服务（MySQL / Ollama）
-
-如果你使用 docker-compose（推荐开发环境）：
+2. 复制环境变量模板并按需调整：
 
 ```bash
-docker compose up -d
+cp .env.example .env
 ```
 
-> 如果你的 Go 服务跑在 Windows 宿主机上，默认使用 `127.0.0.1` 连接 MySQL / Ollama。
+3. 保证至少配置了 `JWT_SECRET`（必填），并使用 SQLite：
 
-### 3) 启动后端
+```env
+DB_DRIVER=sqlite
+DB_DSN=./db/hr.db
+```
+
+4. 启动服务：
 
 ```bash
 go run .
 ```
 
-## 认证与权限（简版说明）
+默认地址：`http://localhost:2077`  
+Swagger：`http://localhost:2077/swagger/index.html`
 
-大多数受保护接口都需要 Header：
+### 1.2 路径 B：MySQL + Ollama（docker-compose）
 
-```text
-Authorization: Bearer <token>
-```
-
-角色说明：
-
-* superadmin：最高权限，所有接口可访问
-* admin：管理员（人事/部门/账号/考勤）
-* staff：普通员工（个人信息/申请/打卡等）
-
-路由权限约定：
-
-* `/api/admin/**`：仅 admin（以及 superadmin）可访问
-* `/api/user/**`：任何已登录用户可访问
-
-详细接口说明见：[`docs/API.md`](./API.md)
-
-## Swagger 文档
-
-- 访问地址：`/`（会重定向到 `/swagger/index.html`）
-- 文档文件：`docs/swagger.json`、`docs/swagger.yaml`
-- 当接口注解有改动时，执行以下命令重新生成：
+1. 启动依赖服务：
 
 ```bash
-swag init -g main.go -o docs
+docker compose up -d
 ```
 
-## 聊天模块说明（新增）
+2. 在 `.env` 切换为 MySQL DSN（示例）：
 
-- 入口：`/api/chat/*`
-- 实时通道：`GET /api/chat/ws?token=<jwt>`（浏览器场景推荐 query token）
-- 用户发消息：`POST /api/chat/user/message`
-- 管理员会话：`GET /api/chat/admin/sessions`
-- 管理员认领：`POST /api/chat/admin/sessions/claim`
-- 会话历史：`GET /api/chat/messages/:id`
+```env
+DB_DRIVER=mysql
+DB_DSN=user:112233@tcp(127.0.0.1:3306)/hrdb?charset=utf8mb4&parseTime=True&loc=Local
+```
 
-模块行为：
+3. 启动后端：
 
-- 首次分配按低负载优先再随机，后续会话粘性绑定管理员。
-- 管理员离线时消息入库排队，管理员上线后认领并补发。
-- 可选 AI 离线兜底，回复会落库，管理员上线可追溯。
+```bash
+go run .
+```
 
-## 聊天 AI 兜底环境变量
+---
 
-在 `.env` 中新增：
+## 2. 文档入口
 
-- `CHAT_AI_FALLBACK_ENABLED=true`
-- `CHAT_AI_FALLBACK_MIN_GAP_SECONDS=30`
+- API 文档：[`docs/API.md`](./API.md)
+- Swagger：`/swagger/index.html`
+- 英文文档：[`docs/README_ENG.md`](./README_ENG.md)
+- 环境变量模板：[`../.env.example`](../.env.example)
 
-说明：
+---
 
-- `CHAT_AI_FALLBACK_ENABLED`：是否启用管理员离线时的 AI 自动回复。
-- `CHAT_AI_FALLBACK_MIN_GAP_SECONDS`：同一会话最小 AI 触发间隔，避免高频重复回复。
+## 3. 环境变量说明
 
-## 联调页面
+以代码实际读取为准，分为**应用运行层**和**基础设施层**。
 
-- 打开：`/bt`
-- 页面中的“客服聊天”页签已支持：WS 连接、会话列表、认领会话、拉取历史、用户/管理员发送消息。
+## 3.1 应用运行层（Go 服务直接读取）
 
-## Superadmin（必填配置）
+| 变量 | 必填 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `GIN_MODE` | 否 | `release` | Gin 运行模式：`debug/release/test` |
+| `SERVER_ADDR` | 否 | `:2077` | HTTP 服务监听地址 |
+| `SHUTDOWN_TIMEOUT_SECONDS` | 否 | `5` | 优雅关闭超时时间（秒） |
+| `JWT_SECRET` | **是** | 无 | JWT 签名密钥；未配置会启动失败 |
+| `JWT_ISSUER` | 否 | `gin-backend` | JWT issuer |
+| `JWT_EXPIRE_HOURS` | 否 | `24` | JWT 过期时间（小时） |
+| `JWT_REFRESH_THRESHOLD_HOURS` | 否 | `6` | 自动续签阈值（小时） |
+| `DB_DRIVER` | 否 | `sqlite` | 数据库驱动：`sqlite/mysql` |
+| `DB_DSN` | 否 | `./db/hr.db` | 数据库连接串 |
+| `DB_DEBUG` | 否 | `false` | GORM debug 日志开关 |
+| `SUPERADMIN_ENABLED` | **是** | 无 | superadmin 开关，必须显式配置 `true/false` |
+| `SUPERADMIN_USERNAME` | 条件必填 | 无 | `SUPERADMIN_ENABLED=true` 时必填 |
+| `SUPERADMIN_PASSWORD` | 条件必填 | 无 | `SUPERADMIN_ENABLED=true` 时必填 |
+| `SUPERADMIN_ROLE` | 条件必填 | 无 | `SUPERADMIN_ENABLED=true` 时必填，通常 `superadmin` |
+| `LOGIN_CAPTCHA_THRESHOLD` | 否 | `3` | 登录连续失败多少次后启用验证码 |
+| `CAPTCHA_TTL_SECONDS` | 否 | `180` | 验证码有效期（秒） |
+| `AI_PROVIDER` | 否 | `ollama` | AI 提供方标识 |
+| `AI_BASE_URL` | 条件必填 | 无 | 启用 AI 调用时必填（OpenAI 兼容基础地址） |
+| `AI_MODEL_ID` | 条件必填 | 无 | 启用 AI 调用时必填 |
+| `AI_API_KEY` | 否 | 空 | 某些 provider 需要 |
+| `AI_SYSTEM_PROMPT` | 否 | 内置默认 Prompt | AI system prompt |
+| `CHAT_AI_FALLBACK_ENABLED` | 否 | `true` | 管理员离线时是否启用 AI 兜底 |
+| `CHAT_AI_FALLBACK_MIN_GAP_SECONDS` | 否 | `30` | 同会话 AI 兜底最小触发间隔 |
+| `ERROR_DETAIL_ENABLED` | 否 | `false` | 是否在错误响应中暴露 `detail`；`GIN_MODE=debug` 时也会暴露 |
 
-项目包含用于演示/紧急情况的 superadmin 账号，必须通过环境变量配置，禁止硬编码。
+## 3.2 基础设施层（docker-compose 使用）
 
-在 `.env` 中设置：
+| 变量 | 必填 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `MYSQL_ROOT_PASSWORD` | 建议 | 无 | MySQL root 密码 |
+| `MYSQL_DATABASE` | 建议 | 无 | 初始化数据库名 |
+| `MYSQL_USER` | 建议 | 无 | 业务用户名 |
+| `MYSQL_PASSWORD` | 建议 | 无 | 业务用户密码 |
+| `MYSQL_PORT` | 否 | `3306` | MySQL 映射端口 |
+| `OLLAMA_PORT` | 否 | `11434` | Ollama 映射端口 |
 
-* `SUPERADMIN_USERNAME`
-* `SUPERADMIN_PASSWORD`
-* `SUPERADMIN_ROLE`（默认 superadmin）
-* `SUPERADMIN_ENABLED`（true/false）
+---
 
-注意：若启用 `SUPERADMIN_ENABLED=true` 但未设置用户名或密码，服务将拒绝启动。
+## 4. 推荐配置模板
+
+### 4.1 本地最小开发（SQLite）
+
+```env
+GIN_MODE=debug
+SERVER_ADDR=:2077
+JWT_SECRET=HereIsYourStrongSecret
+SUPERADMIN_ENABLED=true
+SUPERADMIN_USERNAME=root
+SUPERADMIN_PASSWORD=123
+SUPERADMIN_ROLE=superadmin
+DB_DRIVER=sqlite
+DB_DSN=./db/hr.db
+DB_DEBUG=false
+```
+
+### 4.2 MySQL + Ollama 开发
+
+```env
+DB_DRIVER=mysql
+DB_DSN=user:112233@tcp(127.0.0.1:3306)/hrdb?charset=utf8mb4&parseTime=True&loc=Local
+AI_PROVIDER=ollama
+AI_BASE_URL=http://127.0.0.1:11434/v1
+AI_MODEL_ID=qwen3:4b
+CHAT_AI_FALLBACK_ENABLED=true
+CHAT_AI_FALLBACK_MIN_GAP_SECONDS=30
+```
+
+---
+
+## 5. 常见问题
+
+1. **启动即退出，提示 `JWT_SECRET 未设置`**：补充 `JWT_SECRET`。
+2. **启动失败，提示缺少 `SUPERADMIN_ENABLED`**：该项必须显式设置 `true/false`。
+3. **AI 调用失败**：检查 `AI_BASE_URL`、`AI_MODEL_ID` 以及对应服务是否可达。
+4. **错误响应没看到 detail**：`ERROR_DETAIL_ENABLED=true` 或 `GIN_MODE=debug` 时才会返回 detail。

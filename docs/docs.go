@@ -4196,7 +4196,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/",
 	Schemes:          []string{"http", "https"},
 	Title:            "Gin Backend API",
-	Description:      "人事管理后端 API 文档（含 admin/user/chat 等接口）",
+	Description:      "人事管理后端 API 文档（含 admin/user/chat 等接口）\n联调页面：[Backend Test Console](/bt)",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

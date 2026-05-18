@@ -25,12 +25,6 @@ definitions:
       detail:
         example: 'json: cannot unmarshal number into Go struct field ...'
         type: string
-      err:
-        example: error detail
-        type: string
-      error:
-        example: error detail
-        type: string
       error_code:
         example: INVALID_PARAM
         type: string

@@ -2883,14 +2883,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "json: cannot unmarshal number into Go struct field ..."
                 },
-                "err": {
-                    "type": "string",
-                    "example": "error detail"
-                },
-                "error": {
-                    "type": "string",
-                    "example": "error detail"
-                },
                 "error_code": {
                     "type": "string",
                     "example": "INVALID_PARAM"

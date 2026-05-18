@@ -16,8 +16,6 @@ type APIErrorResponse struct {
 	ErrorCode   string `json:"error_code,omitempty" example:"INVALID_PARAM"`
 	RequestID   string `json:"request_id,omitempty" example:"req-1715842301123-000001"`
 	Detail      string `json:"detail,omitempty" example:"json: cannot unmarshal number into Go struct field ..."`
-	Err         string `json:"err,omitempty" example:"error detail"`
-	Error       string `json:"error,omitempty" example:"error detail"`
 	NeedCaptcha bool   `json:"need_captcha,omitempty" example:"true"`
 	FailCount   int    `json:"fail_count,omitempty" example:"3"`
 }

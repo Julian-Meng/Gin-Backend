@@ -5,7 +5,9 @@ import (
 	"backend/middlewares"
 	"backend/middlewares/errorx"
 	"backend/models"
+	"bytes"
 	"errors"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -450,10 +452,10 @@ func AdminClaimWaitingSessions(c *gin.Context) {
 		return
 	}
 
-	var req models.AdminClaimRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		// 允许空 body，使用默认值
-		req.Limit = 20
+	req, err := parseAdminClaimRequest(c)
+	if err != nil {
+		errorx.BadRequest(c, "请求格式错误", err)
+		return
 	}
 
 	claimed, err := dao.ClaimWaitingSessionsForAdmin(empID, req.Limit)
@@ -467,6 +469,27 @@ func AdminClaimWaitingSessions(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "ok", "data": claimed})
+}
+
+func parseAdminClaimRequest(c *gin.Context) (models.AdminClaimRequest, error) {
+	var req models.AdminClaimRequest
+
+	rawBody, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		return req, err
+	}
+
+	if len(bytes.TrimSpace(rawBody)) == 0 {
+		req.Limit = 20
+		return req, nil
+	}
+
+	c.Request.Body = io.NopCloser(bytes.NewBuffer(rawBody))
+	if err := c.ShouldBindJSON(&req); err != nil {
+		return req, err
+	}
+
+	return req, nil
 }
 
 // AdminClaimSessionByID godoc

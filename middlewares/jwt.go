@@ -1,8 +1,8 @@
 package middlewares
 
 import (
+	"backend/middlewares/errorx"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -112,41 +112,25 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if strings.TrimSpace(authHeader) == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"code": 1,
-				"msg":  "缺少 Authorization Header",
-			})
-			c.Abort()
+			errorx.Unauthorized(c, "缺少 Authorization Header", nil)
 			return
 		}
 
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"code": 1,
-				"msg":  "Token 格式错误，应为 'Bearer {token}'",
-			})
-			c.Abort()
+			errorx.Unauthorized(c, "Token 格式错误，应为 'Bearer {token}'", nil)
 			return
 		}
 
 		claims, err := ParseToken(parts[1])
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"code": 1,
-				"msg":  "Token 无效或已过期，请重新登录",
-			})
-			c.Abort()
+			errorx.Unauthorized(c, "Token 无效或已过期，请重新登录", err)
 			return
 		}
 
 		// 角色合法性验证
 		if claims.Role != "admin" && claims.Role != "staff" && claims.Role != "superadmin" {
-			c.JSON(http.StatusForbidden, gin.H{
-				"code": 1,
-				"msg":  "无效角色访问",
-			})
-			c.Abort()
+			errorx.Forbidden(c, "无效角色访问", nil)
 			return
 		}
 
@@ -178,11 +162,7 @@ func AdminOnly() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		role, exists := c.Get("role")
 		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"code": 1,
-				"msg":  "缺少用户身份信息",
-			})
-			c.Abort()
+			errorx.Unauthorized(c, "缺少用户身份信息", nil)
 			return
 		}
 
@@ -191,11 +171,7 @@ func AdminOnly() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusForbidden, gin.H{
-			"code": 1,
-			"msg":  "权限不足，仅管理员可访问",
-		})
-		c.Abort()
+		errorx.Forbidden(c, "权限不足，仅管理员可访问", nil)
 	}
 }
 

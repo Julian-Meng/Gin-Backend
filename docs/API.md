@@ -148,7 +148,7 @@ change_type 值：
 | ------ | ------------------------ | ----- | --------------------------------------------------------------------- | --------- |
 | GET    | `/api/admin/accounts`    | admin | 无                                                                     | 获取所有账号列表  |
 | POST   | `/api/admin/account`     | admin | `{ "username": string, "password": string, "role": "staff"/"admin" }` | 创建新账号     |
-| PUT    | `/api/admin/account/:id` | admin | `:id` + `{ "role": "staff"/"admin", "status": 0/1 }`                  | 更新账号角色或状态 |
+| PUT    | `/api/admin/account/:id` | admin | `:id` + `{ "role": "staff"/"admin", "status": 0/1 }`                  | 更新账号状态；角色变更需满足 `ACCOUNT_ROLE_CHANGE_REQUIRED_ROLE` |
 | DELETE | `/api/admin/account/:id` | admin | `:id`                                                                 | 删除账号      |
 
 ---

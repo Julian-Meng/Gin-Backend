@@ -87,7 +87,8 @@ The source of truth is what the code actually reads. Variables are grouped into 
 | `SUPERADMIN_ENABLED` | **Yes** | None | Must be explicitly set to `true/false` |
 | `SUPERADMIN_USERNAME` | Conditionally | None | Required when `SUPERADMIN_ENABLED=true` |
 | `SUPERADMIN_PASSWORD` | Conditionally | None | Required when `SUPERADMIN_ENABLED=true` |
-| `SUPERADMIN_ROLE` | Conditionally | None | Required when `SUPERADMIN_ENABLED=true`, usually `superadmin` |
+| `SUPERADMIN_ROLE` | Conditionally | None | Required when `SUPERADMIN_ENABLED=true`, supports `superadmin/admin` (case-insensitive) |
+| `ACCOUNT_ROLE_CHANGE_REQUIRED_ROLE` | No | `superadmin` | Required role to change account roles; supports `admin/superadmin` (case-insensitive) |
 | `LOGIN_CAPTCHA_THRESHOLD` | No | `3` | Captcha required after N failed logins |
 | `CAPTCHA_TTL_SECONDS` | No | `180` | Captcha TTL in seconds |
 | `AI_PROVIDER` | No | `ollama` | AI provider identifier |
@@ -124,6 +125,7 @@ SUPERADMIN_ENABLED=true
 SUPERADMIN_USERNAME=root
 SUPERADMIN_PASSWORD=123
 SUPERADMIN_ROLE=superadmin
+ACCOUNT_ROLE_CHANGE_REQUIRED_ROLE=superadmin
 DB_DRIVER=sqlite
 DB_DSN=./db/hr.db
 DB_DEBUG=false

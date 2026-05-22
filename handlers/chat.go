@@ -780,7 +780,7 @@ func currentChatPrincipalForWS(c *gin.Context) (string, string, bool) {
 }
 
 func principalFromClaims(username, empID, role string, hasEmpID bool) (string, string, bool) {
-	role = strings.TrimSpace(role)
+	role = middlewares.NormalizeRole(role)
 
 	if role == "admin" {
 		if !hasEmpID || empID == "" {

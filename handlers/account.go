@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"backend/dao"
+	"backend/middlewares"
 	"backend/middlewares/errorx"
 	"backend/models"
 	"net/http"
@@ -81,8 +82,13 @@ func CreateAccount(c *gin.Context) {
 	}
 
 	// 角色兜底
+	req.Role = middlewares.NormalizeRole(req.Role)
 	if req.Role == "" {
 		req.Role = "staff"
+	}
+	if req.Role != "admin" && req.Role != "staff" {
+		errorx.BadRequest(c, "角色只能为 admin 或 staff", nil)
+		return
 	}
 
 	// 调用 DAO，内部会做：
@@ -128,8 +134,25 @@ func UpdateAccount(c *gin.Context) {
 	}
 
 	req.Role = strings.TrimSpace(req.Role)
+	req.Role = middlewares.NormalizeRole(req.Role)
 	if req.Role != "admin" && req.Role != "staff" {
 		errorx.BadRequest(c, "角色只能为 admin 或 staff", nil)
+		return
+	}
+
+	current, err := dao.GetAccountByID(id)
+	if err != nil {
+		if dao.IsNotFound(err) {
+			errorx.NotFound(c, "账号不存在", err)
+			return
+		}
+		errorx.Internal(c, "查询账号失败", err)
+		return
+	}
+
+	currentRole := middlewares.NormalizeRole(current.Role)
+	if currentRole == "" {
+		errorx.Internal(c, "当前账号角色无效", nil)
 		return
 	}
 
@@ -137,6 +160,21 @@ func UpdateAccount(c *gin.Context) {
 	if req.Status != 0 && req.Status != 1 {
 		errorx.BadRequest(c, "状态只能为 0 或 1", nil)
 		return
+	}
+
+	if currentRole != req.Role {
+		requiredRole := mustLoadRoleChangeConfig()
+		actorRoleVal, ok := c.Get("role")
+		if !ok {
+			errorx.Unauthorized(c, "未获取到操作者角色信息", nil)
+			return
+		}
+		actorRole, _ := actorRoleVal.(string)
+		actorRole = middlewares.NormalizeRole(actorRole)
+		if !canChangeAccountRole(actorRole, requiredRole) {
+			errorx.Forbidden(c, "权限不足，无法变更账号角色", nil)
+			return
+		}
 	}
 
 	if err := dao.UpdateAccount(id, req); err != nil {
@@ -152,6 +190,16 @@ func UpdateAccount(c *gin.Context) {
 		"code": 0,
 		"msg":  "账号更新成功",
 	})
+}
+
+func canChangeAccountRole(actorRole, requiredRole string) bool {
+	if requiredRole == "admin" {
+		return actorRole == "admin" || actorRole == "superadmin"
+	}
+	if requiredRole == "superadmin" {
+		return actorRole == "superadmin"
+	}
+	return false
 }
 
 // DeleteAccount godoc

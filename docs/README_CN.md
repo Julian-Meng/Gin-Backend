@@ -87,7 +87,8 @@ go run .
 | `SUPERADMIN_ENABLED` | **是** | 无 | superadmin 开关，必须显式配置 `true/false` |
 | `SUPERADMIN_USERNAME` | 条件必填 | 无 | `SUPERADMIN_ENABLED=true` 时必填 |
 | `SUPERADMIN_PASSWORD` | 条件必填 | 无 | `SUPERADMIN_ENABLED=true` 时必填 |
-| `SUPERADMIN_ROLE` | 条件必填 | 无 | `SUPERADMIN_ENABLED=true` 时必填，通常 `superadmin` |
+| `SUPERADMIN_ROLE` | 条件必填 | 无 | `SUPERADMIN_ENABLED=true` 时必填，支持 `superadmin/admin`（不区分大小写） |
+| `ACCOUNT_ROLE_CHANGE_REQUIRED_ROLE` | 否 | `superadmin` | 变更账号角色所需权限，支持 `admin/superadmin`（不区分大小写） |
 | `LOGIN_CAPTCHA_THRESHOLD` | 否 | `3` | 登录连续失败多少次后启用验证码 |
 | `CAPTCHA_TTL_SECONDS` | 否 | `180` | 验证码有效期（秒） |
 | `AI_PROVIDER` | 否 | `ollama` | AI 提供方标识 |
@@ -124,6 +125,7 @@ SUPERADMIN_ENABLED=true
 SUPERADMIN_USERNAME=root
 SUPERADMIN_PASSWORD=123
 SUPERADMIN_ROLE=superadmin
+ACCOUNT_ROLE_CHANGE_REQUIRED_ROLE=superadmin
 DB_DRIVER=sqlite
 DB_DSN=./db/hr.db
 DB_DEBUG=false

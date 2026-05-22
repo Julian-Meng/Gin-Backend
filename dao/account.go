@@ -217,6 +217,29 @@ func GetAccountByEmpID(empID string) (models.Account, error) {
 	return acc, nil
 }
 
+// GetAccountByID 根据账号 ID 查询账号信息
+func GetAccountByID(id string) (models.Account, error) {
+	dbConn := db.GetDB()
+
+	uid, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		return models.Account{}, fmt.Errorf("无效的账号 ID: %s", id)
+	}
+
+	var acc models.Account
+	err = dbConn.
+		Select("id, username, emp_id, role, status").
+		Where("id = ?", uid).
+		First(&acc).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return models.Account{}, NotFound(fmt.Sprintf("未找到账号 ID: %d", uid))
+	}
+	if err != nil {
+		return models.Account{}, fmt.Errorf("查询账号失败: %w", err)
+	}
+	return acc, nil
+}
+
 // DeleteAccount 删除账号
 func DeleteAccount(id string) error {
 	dbConn := db.GetDB()

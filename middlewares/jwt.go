@@ -69,6 +69,14 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
+func NormalizeRole(role string) string {
+	return strings.ToLower(strings.TrimSpace(role))
+}
+
+func isSupportedRole(role string) bool {
+	return role == "admin" || role == "staff" || role == "superadmin"
+}
+
 //  生成 Token
 
 func GenerateToken(username, empID, role string) (string, error) {
@@ -129,7 +137,8 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		}
 
 		// 角色合法性验证
-		if claims.Role != "admin" && claims.Role != "staff" && claims.Role != "superadmin" {
+		normalizedRole := NormalizeRole(claims.Role)
+		if !isSupportedRole(normalizedRole) {
 			errorx.Forbidden(c, "无效角色访问", nil)
 			return
 		}
@@ -139,7 +148,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		if claims.ExpiresAt != nil {
 			threshold := time.Duration(cfg.RefreshThresholdHours) * time.Hour
 			if time.Until(claims.ExpiresAt.Time) < threshold {
-				newToken, err := GenerateToken(claims.Username, claims.EmpID, claims.Role)
+				newToken, err := GenerateToken(claims.Username, claims.EmpID, normalizedRole)
 				if err != nil {
 					log.Printf("自动续签 Token 失败: %v", err)
 				} else {
@@ -151,7 +160,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		// 写入上下文，供后续 handler 使用
 		c.Set("username", claims.Username)
 		c.Set("emp_id", claims.EmpID)
-		c.Set("role", claims.Role)
+		c.Set("role", normalizedRole)
 		c.Next()
 	}
 }

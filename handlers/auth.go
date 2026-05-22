@@ -50,6 +50,9 @@ var (
 	superAdminOnce sync.Once
 	superAdminCfg  SuperAdminConfig
 	superAdminErr  error
+	roleChangeOnce sync.Once
+	roleChangeCfg  string
+	roleChangeErr  error
 
 	captchaOnce  sync.Once
 	captchaSvc   *base64Captcha.Captcha
@@ -61,6 +64,7 @@ var (
 // 目的：fail-fast 校验必要的 env 配置，避免“运行起来才发现配置缺失”。
 func MustInitAuthConfig() {
 	_ = mustLoadSuperAdminConfig()
+	_ = mustLoadRoleChangeConfig()
 	_ = mustLoadCaptchaConfig()
 }
 
@@ -193,9 +197,13 @@ func loadSuperAdminConfig() (SuperAdminConfig, error) {
 		return SuperAdminConfig{}, fmt.Errorf("缺少所需的env变量: SUPERADMIN_PASSWORD")
 	}
 
-	role := strings.TrimSpace(os.Getenv("SUPERADMIN_ROLE"))
+	roleRaw := os.Getenv("SUPERADMIN_ROLE")
+	role := middlewares.NormalizeRole(roleRaw)
 	if role == "" {
 		return SuperAdminConfig{}, fmt.Errorf("缺少所需的env变量: SUPERADMIN_ROLE")
+	}
+	if role != "superadmin" && role != "admin" {
+		return SuperAdminConfig{}, fmt.Errorf("无效的 SUPERADMIN_ROLE=%q (仅支持 superadmin/admin，不区分大小写)", strings.TrimSpace(roleRaw))
 	}
 
 	return SuperAdminConfig{
@@ -204,6 +212,34 @@ func loadSuperAdminConfig() (SuperAdminConfig, error) {
 		Password: password,
 		Role:     role,
 	}, nil
+}
+
+func mustLoadRoleChangeConfig() string {
+	roleChangeOnce.Do(func() {
+		cfg, err := loadRoleChangeConfig()
+		if err != nil {
+			roleChangeErr = err
+			return
+		}
+		roleChangeCfg = cfg
+	})
+
+	if roleChangeErr != nil {
+		log.Fatal("\033[31m角色变更权限配置出错: \033[0m", roleChangeErr)
+	}
+	return roleChangeCfg
+}
+
+func loadRoleChangeConfig() (string, error) {
+	raw := strings.TrimSpace(os.Getenv("ACCOUNT_ROLE_CHANGE_REQUIRED_ROLE"))
+	if raw == "" {
+		return "superadmin", nil
+	}
+	role := middlewares.NormalizeRole(raw)
+	if role != "admin" && role != "superadmin" {
+		return "", fmt.Errorf("无效的 ACCOUNT_ROLE_CHANGE_REQUIRED_ROLE=%q (仅支持 admin/superadmin，不区分大小写)", raw)
+	}
+	return role, nil
 }
 
 // Login godoc
@@ -374,10 +410,19 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	req.Role = middlewares.NormalizeRole(req.Role)
+	if req.Role == "" {
+		req.Role = "staff"
+	}
+	if req.Role != "admin" && req.Role != "staff" {
+		errorx.BadRequest(c, "角色只能为 admin 或 staff", nil)
+		return
+	}
+
 	acc := models.Account{
 		Username: req.Username,
 		Password: strings.TrimSpace(req.Password),
-		Role:     strings.TrimSpace(req.Role),
+		Role:     req.Role,
 	}
 
 	if err := dao.InsertAccount(acc); err != nil {

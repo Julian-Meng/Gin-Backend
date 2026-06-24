@@ -6,6 +6,7 @@ import (
 	"backend/handlers"
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -32,8 +33,7 @@ import (
 func main() {
 	// 加载 .env
 	if err := godotenv.Load(); err != nil {
-		// 不强制报错：允许你在生产环境不使用 .env
-		log.Println("\033[43m未找到 .env 文件\033[0m")
+		printEnvFileMissingAndExit()
 	}
 	// 初始化 Auth 配置读取.env
 	handlers.MustInitAuthConfig()
@@ -109,6 +109,39 @@ func main() {
 	db.CloseDB()
 
 	log.Println("\033[32m服务已安全退出\033[0m")
+}
+
+// printEnvFileMissingAndExit 在 .env 文件缺失时打印双语提示并等待用户确认后退出。
+func printEnvFileMissingAndExit() {
+	separator := strings.Repeat("=", 56)
+
+	fmt.Println()
+	fmt.Println(separator)
+	log.Println("\033[31m  错误!  未找到 .env 配置文件\033[0m")
+	log.Println("\033[31m  ERROR!  .env configuration file not found\033[0m")
+	fmt.Println(separator)
+	fmt.Println()
+	fmt.Println("  请在应用程序同级目录下创建 .env 文件")
+	fmt.Println("  并配置所需的环境变量。")
+	fmt.Println()
+	fmt.Println("  Please create a .env file in the same")
+	fmt.Println("  directory as this application and configure")
+	fmt.Println("  the required environment variables.")
+	fmt.Println()
+	fmt.Println(separator)
+	fmt.Println("  参考配置项 / Required items:")
+	fmt.Println("    JWT_SECRET=your_secret_key")
+	fmt.Println("    SUPERADMIN_ENABLED=true")
+	fmt.Println("    SUPERADMIN_USERNAME=admin")
+	fmt.Println("    SUPERADMIN_PASSWORD=your_password")
+	fmt.Println("    SUPERADMIN_ROLE=superadmin")
+	fmt.Println("    DB_DRIVER=sqlite")
+	fmt.Println("    DB_DSN=./db/hr.db")
+	fmt.Println(separator)
+	fmt.Println()
+	fmt.Print("  按 Enter 键退出 / Press Enter to exit...")
+	fmt.Scanln()
+	os.Exit(1)
 }
 
 // getEnv 获取环境变量，若未设置则返回默认值

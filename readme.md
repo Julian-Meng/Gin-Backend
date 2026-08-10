@@ -40,3 +40,8 @@ Swagger：`http://localhost:2077/swagger/index.html`
 - 更清晰的目录结构 + 依赖注入
 - 监控（Prometheus + Grafana）
 - 更多自动化（migrations、code generation）
+
+## Contributors
+
+- [Julian-Meng](https://github.com/Julian-Meng) - Project maintainer
+- [Codex](https://github.com/codex) - AI coding agent

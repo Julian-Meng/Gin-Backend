@@ -36,7 +36,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.AccountCreateRequest"
+                            "$ref": "#/definitions/handler.AccountCreateRequest"
                         }
                     }
                 ],
@@ -44,19 +44,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -94,7 +94,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.AccountUpdateRequest"
+                            "$ref": "#/definitions/handler.AccountUpdateRequest"
                         }
                     }
                 ],
@@ -102,19 +102,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -145,19 +145,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -181,19 +181,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.AccountListResponse"
+                            "$ref": "#/definitions/handler.AccountListResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -218,25 +218,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.AIAnalyzeResponse"
+                            "$ref": "#/definitions/handler.AIAnalyzeResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -300,19 +300,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.AttendanceListResponse"
+                            "$ref": "#/definitions/handler.AttendanceListResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -349,7 +349,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.AttendanceUpdateRequest"
+                            "$ref": "#/definitions/handler.AttendanceUpdateRequest"
                         }
                     }
                 ],
@@ -357,19 +357,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -400,19 +400,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -443,7 +443,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.PersonnelCreateRequest"
+                            "$ref": "#/definitions/handler.PersonnelCreateRequest"
                         }
                     }
                 ],
@@ -451,25 +451,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -499,7 +499,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.PersonnelApproveRequest"
+                            "$ref": "#/definitions/handler.PersonnelApproveRequest"
                         }
                     }
                 ],
@@ -507,25 +507,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -558,19 +558,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.PersonnelDetailResponse"
+                            "$ref": "#/definitions/handler.PersonnelDetailResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -610,13 +610,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.PersonnelListResponse"
+                            "$ref": "#/definitions/handler.PersonnelListResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -641,19 +641,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.DashboardAdminResponse"
+                            "$ref": "#/definitions/handler.DashboardAdminResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -683,7 +683,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Department"
+                            "$ref": "#/definitions/model.Department"
                         }
                     }
                 ],
@@ -691,19 +691,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -736,19 +736,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.DepartmentDetailResponse"
+                            "$ref": "#/definitions/handler.DepartmentDetailResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -783,7 +783,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Department"
+                            "$ref": "#/definitions/model.Department"
                         }
                     }
                 ],
@@ -791,19 +791,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -834,13 +834,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -886,13 +886,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.DepartmentListResponse"
+                            "$ref": "#/definitions/handler.DepartmentListResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -922,7 +922,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Notice"
+                            "$ref": "#/definitions/model.Notice"
                         }
                     }
                 ],
@@ -930,19 +930,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -975,19 +975,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.NoticeDetailResponse"
+                            "$ref": "#/definitions/handler.NoticeDetailResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1022,7 +1022,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Notice"
+                            "$ref": "#/definitions/model.Notice"
                         }
                     }
                 ],
@@ -1030,19 +1030,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1073,19 +1073,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1115,7 +1115,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Person"
+                            "$ref": "#/definitions/model.Person"
                         }
                     }
                 ],
@@ -1123,19 +1123,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1165,7 +1165,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.PersonDepartmentChangeRequest"
+                            "$ref": "#/definitions/handler.PersonDepartmentChangeRequest"
                         }
                     }
                 ],
@@ -1173,19 +1173,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1218,19 +1218,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1260,7 +1260,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.PersonJobChangeRequest"
+                            "$ref": "#/definitions/handler.PersonJobChangeRequest"
                         }
                     }
                 ],
@@ -1268,19 +1268,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1313,25 +1313,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ProfileDetailResponse"
+                            "$ref": "#/definitions/handler.ProfileDetailResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1361,7 +1361,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.PersonStateChangeRequest"
+                            "$ref": "#/definitions/handler.PersonStateChangeRequest"
                         }
                     }
                 ],
@@ -1369,19 +1369,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1414,19 +1414,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.PersonDetailResponse"
+                            "$ref": "#/definitions/handler.PersonDetailResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1462,7 +1462,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Person"
+                            "$ref": "#/definitions/model.Person"
                         }
                     }
                 ],
@@ -1470,19 +1470,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1513,19 +1513,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1571,13 +1571,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.PersonListResponse"
+                            "$ref": "#/definitions/handler.PersonListResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1610,19 +1610,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.CaptchaSuccessResponse"
+                            "$ref": "#/definitions/handler.CaptchaSuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1647,7 +1647,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.AIRequest"
+                            "$ref": "#/definitions/model.AIRequest"
                         }
                     }
                 ],
@@ -1655,19 +1655,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.AIResponse"
+                            "$ref": "#/definitions/model.AIResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1697,7 +1697,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.AdminSendChatRequest"
+                            "$ref": "#/definitions/model.AdminSendChatRequest"
                         }
                     }
                 ],
@@ -1705,31 +1705,31 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ChatAdminSendResponse"
+                            "$ref": "#/definitions/handler.ChatAdminSendResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1753,25 +1753,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ChatSessionsResponse"
+                            "$ref": "#/definitions/handler.ChatSessionsResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1800,7 +1800,7 @@
                         "name": "request",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/models.AdminClaimRequest"
+                            "$ref": "#/definitions/model.AdminClaimRequest"
                         }
                     }
                 ],
@@ -1808,25 +1808,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ChatSessionsResponse"
+                            "$ref": "#/definitions/handler.ChatSessionsResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1859,37 +1859,37 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ChatSessionResponse"
+                            "$ref": "#/definitions/handler.ChatSessionResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1922,31 +1922,31 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ChatMessagesResponse"
+                            "$ref": "#/definitions/handler.ChatMessagesResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -1976,7 +1976,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UserSendChatRequest"
+                            "$ref": "#/definitions/model.UserSendChatRequest"
                         }
                     }
                 ],
@@ -1984,31 +1984,31 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ChatUserSendResponse"
+                            "$ref": "#/definitions/handler.ChatUserSendResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2032,25 +2032,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ChatSessionsResponse"
+                            "$ref": "#/definitions/handler.ChatSessionsResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2086,7 +2086,7 @@
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2112,7 +2112,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerLoginRequest"
+                            "$ref": "#/definitions/handler.SwaggerLoginRequest"
                         }
                     }
                 ],
@@ -2120,25 +2120,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.LoginSuccessResponse"
+                            "$ref": "#/definitions/handler.LoginSuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2173,13 +2173,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.NoticeListResponse"
+                            "$ref": "#/definitions/handler.NoticeListResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2205,7 +2205,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.SwaggerRegisterRequest"
+                            "$ref": "#/definitions/handler.SwaggerRegisterRequest"
                         }
                     }
                 ],
@@ -2213,25 +2213,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.RegisterSuccessResponse"
+                            "$ref": "#/definitions/handler.RegisterSuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2256,25 +2256,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.AIAnalyzeResponse"
+                            "$ref": "#/definitions/handler.AIAnalyzeResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2298,13 +2298,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2328,13 +2328,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2386,19 +2386,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.AttendanceListResponse"
+                            "$ref": "#/definitions/handler.AttendanceListResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2429,7 +2429,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.PersonnelCreateRequest"
+                            "$ref": "#/definitions/handler.PersonnelCreateRequest"
                         }
                     }
                 ],
@@ -2437,25 +2437,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2501,25 +2501,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.PersonnelListResponse"
+                            "$ref": "#/definitions/handler.PersonnelListResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2544,19 +2544,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.DashboardUserResponse"
+                            "$ref": "#/definitions/handler.DashboardUserResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2589,19 +2589,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.DepartmentDetailResponse"
+                            "$ref": "#/definitions/handler.DepartmentDetailResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2626,13 +2626,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.PermissionsResponse"
+                            "$ref": "#/definitions/handler.PermissionsResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2656,25 +2656,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ProfileDetailResponse"
+                            "$ref": "#/definitions/handler.ProfileDetailResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2703,7 +2703,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.UpdateMyProfileReq"
+                            "$ref": "#/definitions/handler.UpdateMyProfileReq"
                         }
                     }
                 ],
@@ -2711,31 +2711,31 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ProfileDetailResponse"
+                            "$ref": "#/definitions/handler.ProfileDetailResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2768,19 +2768,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.PersonDetailResponse"
+                            "$ref": "#/definitions/handler.PersonDetailResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2816,7 +2816,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Person"
+                            "$ref": "#/definitions/model.Person"
                         }
                     }
                 ],
@@ -2824,19 +2824,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APISuccessResponse"
+                            "$ref": "#/definitions/handler.APISuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.APIErrorResponse"
+                            "$ref": "#/definitions/handler.APIErrorResponse"
                         }
                     }
                 }
@@ -2844,7 +2844,7 @@
         }
     },
     "definitions": {
-        "handlers.AIAnalyzeData": {
+        "handler.AIAnalyzeData": {
             "type": "object",
             "properties": {
                 "analysis": {
@@ -2853,7 +2853,7 @@
                 }
             }
         },
-        "handlers.AIAnalyzeResponse": {
+        "handler.AIAnalyzeResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -2861,7 +2861,7 @@
                     "example": 0
                 },
                 "data": {
-                    "$ref": "#/definitions/handlers.AIAnalyzeData"
+                    "$ref": "#/definitions/handler.AIAnalyzeData"
                 },
                 "msg": {
                     "type": "string",
@@ -2869,7 +2869,7 @@
                 }
             }
         },
-        "handlers.APIErrorResponse": {
+        "handler.APIErrorResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -2902,7 +2902,7 @@
                 }
             }
         },
-        "handlers.APISuccessResponse": {
+        "handler.APISuccessResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -2915,7 +2915,7 @@
                 }
             }
         },
-        "handlers.AccountCreateRequest": {
+        "handler.AccountCreateRequest": {
             "type": "object",
             "properties": {
                 "password": {
@@ -2932,7 +2932,7 @@
                 }
             }
         },
-        "handlers.AccountListResponse": {
+        "handler.AccountListResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -2942,7 +2942,7 @@
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Account"
+                        "$ref": "#/definitions/model.Account"
                     }
                 },
                 "msg": {
@@ -2951,7 +2951,7 @@
                 }
             }
         },
-        "handlers.AccountUpdateRequest": {
+        "handler.AccountUpdateRequest": {
             "type": "object",
             "properties": {
                 "role": {
@@ -2964,7 +2964,7 @@
                 }
             }
         },
-        "handlers.AttendanceListResponse": {
+        "handler.AttendanceListResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -2974,7 +2974,7 @@
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.AttendanceDetail"
+                        "$ref": "#/definitions/model.AttendanceDetail"
                     }
                 },
                 "msg": {
@@ -2987,7 +2987,7 @@
                 }
             }
         },
-        "handlers.AttendanceUpdateRequest": {
+        "handler.AttendanceUpdateRequest": {
             "type": "object",
             "properties": {
                 "check_in": {
@@ -3008,7 +3008,7 @@
                 }
             }
         },
-        "handlers.CaptchaData": {
+        "handler.CaptchaData": {
             "type": "object",
             "properties": {
                 "captcha_id": {
@@ -3029,7 +3029,7 @@
                 }
             }
         },
-        "handlers.CaptchaSuccessResponse": {
+        "handler.CaptchaSuccessResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3037,7 +3037,7 @@
                     "example": 0
                 },
                 "data": {
-                    "$ref": "#/definitions/handlers.CaptchaData"
+                    "$ref": "#/definitions/handler.CaptchaData"
                 },
                 "msg": {
                     "type": "string",
@@ -3045,7 +3045,7 @@
                 }
             }
         },
-        "handlers.ChatAdminSendResponse": {
+        "handler.ChatAdminSendResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3053,7 +3053,7 @@
                     "example": 0
                 },
                 "data": {
-                    "$ref": "#/definitions/handlers.ChatAdminSendResponseData"
+                    "$ref": "#/definitions/handler.ChatAdminSendResponseData"
                 },
                 "msg": {
                     "type": "string",
@@ -3061,18 +3061,18 @@
                 }
             }
         },
-        "handlers.ChatAdminSendResponseData": {
+        "handler.ChatAdminSendResponseData": {
             "type": "object",
             "properties": {
                 "message": {
-                    "$ref": "#/definitions/models.ChatMessage"
+                    "$ref": "#/definitions/model.ChatMessage"
                 },
                 "session": {
-                    "$ref": "#/definitions/models.ChatSession"
+                    "$ref": "#/definitions/model.ChatSession"
                 }
             }
         },
-        "handlers.ChatMessagesResponse": {
+        "handler.ChatMessagesResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3082,7 +3082,7 @@
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.ChatMessage"
+                        "$ref": "#/definitions/model.ChatMessage"
                     }
                 },
                 "msg": {
@@ -3091,7 +3091,7 @@
                 }
             }
         },
-        "handlers.ChatSessionResponse": {
+        "handler.ChatSessionResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3099,7 +3099,7 @@
                     "example": 0
                 },
                 "data": {
-                    "$ref": "#/definitions/models.ChatSession"
+                    "$ref": "#/definitions/model.ChatSession"
                 },
                 "msg": {
                     "type": "string",
@@ -3107,7 +3107,7 @@
                 }
             }
         },
-        "handlers.ChatSessionsResponse": {
+        "handler.ChatSessionsResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3117,7 +3117,7 @@
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.ChatSession"
+                        "$ref": "#/definitions/model.ChatSession"
                     }
                 },
                 "msg": {
@@ -3126,7 +3126,7 @@
                 }
             }
         },
-        "handlers.ChatUserSendResponse": {
+        "handler.ChatUserSendResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3134,7 +3134,7 @@
                     "example": 0
                 },
                 "data": {
-                    "$ref": "#/definitions/handlers.ChatUserSendResponseData"
+                    "$ref": "#/definitions/handler.ChatUserSendResponseData"
                 },
                 "msg": {
                     "type": "string",
@@ -3142,21 +3142,21 @@
                 }
             }
         },
-        "handlers.ChatUserSendResponseData": {
+        "handler.ChatUserSendResponseData": {
             "type": "object",
             "properties": {
                 "ai_message": {
-                    "$ref": "#/definitions/models.ChatMessage"
+                    "$ref": "#/definitions/model.ChatMessage"
                 },
                 "session": {
-                    "$ref": "#/definitions/models.ChatSession"
+                    "$ref": "#/definitions/model.ChatSession"
                 },
                 "user_message": {
-                    "$ref": "#/definitions/models.ChatMessage"
+                    "$ref": "#/definitions/model.ChatMessage"
                 }
             }
         },
-        "handlers.DashboardAdminResponse": {
+        "handler.DashboardAdminResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3164,7 +3164,7 @@
                     "example": 0
                 },
                 "data": {
-                    "$ref": "#/definitions/models.AdminDashboardData"
+                    "$ref": "#/definitions/model.AdminDashboardData"
                 },
                 "msg": {
                     "type": "string",
@@ -3172,7 +3172,7 @@
                 }
             }
         },
-        "handlers.DashboardUserResponse": {
+        "handler.DashboardUserResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3180,7 +3180,7 @@
                     "example": 0
                 },
                 "data": {
-                    "$ref": "#/definitions/models.UserDashboardData"
+                    "$ref": "#/definitions/model.UserDashboardData"
                 },
                 "msg": {
                     "type": "string",
@@ -3188,7 +3188,7 @@
                 }
             }
         },
-        "handlers.DepartmentDetailResponse": {
+        "handler.DepartmentDetailResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3196,7 +3196,7 @@
                     "example": 0
                 },
                 "data": {
-                    "$ref": "#/definitions/models.Department"
+                    "$ref": "#/definitions/model.Department"
                 },
                 "msg": {
                     "type": "string",
@@ -3204,7 +3204,7 @@
                 }
             }
         },
-        "handlers.DepartmentInfo": {
+        "handler.DepartmentInfo": {
             "type": "object",
             "properties": {
                 "id": {
@@ -3215,7 +3215,7 @@
                 }
             }
         },
-        "handlers.DepartmentListResponse": {
+        "handler.DepartmentListResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3225,7 +3225,7 @@
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.DepartmentWithCount"
+                        "$ref": "#/definitions/model.DepartmentWithCount"
                     }
                 },
                 "msg": {
@@ -3238,7 +3238,7 @@
                 }
             }
         },
-        "handlers.LoginSuccessResponse": {
+        "handler.LoginSuccessResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3263,7 +3263,7 @@
                 }
             }
         },
-        "handlers.NoticeDetailResponse": {
+        "handler.NoticeDetailResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3271,7 +3271,7 @@
                     "example": 0
                 },
                 "data": {
-                    "$ref": "#/definitions/models.Notice"
+                    "$ref": "#/definitions/model.Notice"
                 },
                 "msg": {
                     "type": "string",
@@ -3279,7 +3279,7 @@
                 }
             }
         },
-        "handlers.NoticeListResponse": {
+        "handler.NoticeListResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3289,7 +3289,7 @@
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Notice"
+                        "$ref": "#/definitions/model.Notice"
                     }
                 },
                 "msg": {
@@ -3302,7 +3302,7 @@
                 }
             }
         },
-        "handlers.PermissionItem": {
+        "handler.PermissionItem": {
             "type": "object",
             "properties": {
                 "allowed_roles": {
@@ -3342,7 +3342,7 @@
                 }
             }
         },
-        "handlers.PermissionsResponse": {
+        "handler.PermissionsResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3364,12 +3364,12 @@
                 "permissions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handlers.PermissionItem"
+                        "$ref": "#/definitions/handler.PermissionItem"
                     }
                 }
             }
         },
-        "handlers.PersonDepartmentChangeRequest": {
+        "handler.PersonDepartmentChangeRequest": {
             "type": "object",
             "properties": {
                 "dept": {
@@ -3382,7 +3382,7 @@
                 }
             }
         },
-        "handlers.PersonDetailResponse": {
+        "handler.PersonDetailResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3390,7 +3390,7 @@
                     "example": 0
                 },
                 "data": {
-                    "$ref": "#/definitions/models.Person"
+                    "$ref": "#/definitions/model.Person"
                 },
                 "msg": {
                     "type": "string",
@@ -3398,7 +3398,7 @@
                 }
             }
         },
-        "handlers.PersonJobChangeRequest": {
+        "handler.PersonJobChangeRequest": {
             "type": "object",
             "properties": {
                 "emp_id": {
@@ -3411,7 +3411,7 @@
                 }
             }
         },
-        "handlers.PersonListResponse": {
+        "handler.PersonListResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3421,7 +3421,7 @@
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.EmployeeInfo"
+                        "$ref": "#/definitions/model.EmployeeInfo"
                     }
                 },
                 "msg": {
@@ -3434,7 +3434,7 @@
                 }
             }
         },
-        "handlers.PersonStateChangeRequest": {
+        "handler.PersonStateChangeRequest": {
             "type": "object",
             "properties": {
                 "emp_id": {
@@ -3447,7 +3447,7 @@
                 }
             }
         },
-        "handlers.PersonnelApproveRequest": {
+        "handler.PersonnelApproveRequest": {
             "type": "object",
             "properties": {
                 "approve": {
@@ -3468,7 +3468,7 @@
                 }
             }
         },
-        "handlers.PersonnelCreateRequest": {
+        "handler.PersonnelCreateRequest": {
             "type": "object",
             "properties": {
                 "change_type": {
@@ -3505,7 +3505,7 @@
                 }
             }
         },
-        "handlers.PersonnelDetailResponse": {
+        "handler.PersonnelDetailResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3513,7 +3513,7 @@
                     "example": 0
                 },
                 "data": {
-                    "$ref": "#/definitions/models.Personnel"
+                    "$ref": "#/definitions/model.Personnel"
                 },
                 "msg": {
                     "type": "string",
@@ -3521,7 +3521,7 @@
                 }
             }
         },
-        "handlers.PersonnelListResponse": {
+        "handler.PersonnelListResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3531,7 +3531,7 @@
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Personnel"
+                        "$ref": "#/definitions/model.Personnel"
                     }
                 },
                 "msg": {
@@ -3544,7 +3544,7 @@
                 }
             }
         },
-        "handlers.ProfileDetailResponse": {
+        "handler.ProfileDetailResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3552,7 +3552,7 @@
                     "example": 0
                 },
                 "data": {
-                    "$ref": "#/definitions/handlers.ProfileResponse"
+                    "$ref": "#/definitions/handler.ProfileResponse"
                 },
                 "msg": {
                     "type": "string",
@@ -3560,7 +3560,7 @@
                 }
             }
         },
-        "handlers.ProfileResponse": {
+        "handler.ProfileResponse": {
             "type": "object",
             "properties": {
                 "addr": {
@@ -3576,7 +3576,7 @@
                     "type": "string"
                 },
                 "department": {
-                    "$ref": "#/definitions/handlers.DepartmentInfo"
+                    "$ref": "#/definitions/handler.DepartmentInfo"
                 },
                 "dpt_id": {
                     "type": "integer"
@@ -3619,7 +3619,7 @@
                 }
             }
         },
-        "handlers.RegisterSuccessResponse": {
+        "handler.RegisterSuccessResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3636,7 +3636,7 @@
                 }
             }
         },
-        "handlers.SwaggerLoginRequest": {
+        "handler.SwaggerLoginRequest": {
             "type": "object",
             "properties": {
                 "captcha_code": {
@@ -3657,7 +3657,7 @@
                 }
             }
         },
-        "handlers.SwaggerRegisterRequest": {
+        "handler.SwaggerRegisterRequest": {
             "type": "object",
             "properties": {
                 "captcha_code": {
@@ -3682,7 +3682,7 @@
                 }
             }
         },
-        "handlers.UpdateMyProfileReq": {
+        "handler.UpdateMyProfileReq": {
             "type": "object",
             "properties": {
                 "addr": {
@@ -3711,7 +3711,7 @@
                 }
             }
         },
-        "models.AIRequest": {
+        "model.AIRequest": {
             "type": "object",
             "properties": {
                 "message": {
@@ -3722,7 +3722,7 @@
                 }
             }
         },
-        "models.AIResponse": {
+        "model.AIResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -3730,7 +3730,7 @@
                 }
             }
         },
-        "models.Account": {
+        "model.Account": {
             "type": "object",
             "properties": {
                 "create_at": {
@@ -3759,7 +3759,7 @@
                 }
             }
         },
-        "models.AdminClaimRequest": {
+        "model.AdminClaimRequest": {
             "type": "object",
             "properties": {
                 "limit": {
@@ -3767,7 +3767,7 @@
                 }
             }
         },
-        "models.AdminDashboardData": {
+        "model.AdminDashboardData": {
             "type": "object",
             "properties": {
                 "department_count": {
@@ -3782,12 +3782,12 @@
                 "recent_notices": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Notice"
+                        "$ref": "#/definitions/model.Notice"
                     }
                 }
             }
         },
-        "models.AdminSendChatRequest": {
+        "model.AdminSendChatRequest": {
             "type": "object",
             "properties": {
                 "content": {
@@ -3798,7 +3798,7 @@
                 }
             }
         },
-        "models.AttendanceDetail": {
+        "model.AttendanceDetail": {
             "type": "object",
             "properties": {
                 "check_in": {
@@ -3841,7 +3841,7 @@
                 }
             }
         },
-        "models.ChatMessage": {
+        "model.ChatMessage": {
             "type": "object",
             "properties": {
                 "ai_flag": {
@@ -3885,7 +3885,7 @@
                 }
             }
         },
-        "models.ChatSession": {
+        "model.ChatSession": {
             "type": "object",
             "properties": {
                 "assigned_admin_emp_id": {
@@ -3914,7 +3914,7 @@
                 }
             }
         },
-        "models.Department": {
+        "model.Department": {
             "type": "object",
             "properties": {
                 "create_at": {
@@ -3947,7 +3947,7 @@
                 }
             }
         },
-        "models.DepartmentWithCount": {
+        "model.DepartmentWithCount": {
             "type": "object",
             "properties": {
                 "create_at": {
@@ -3986,7 +3986,7 @@
                 }
             }
         },
-        "models.EmployeeInfo": {
+        "model.EmployeeInfo": {
             "type": "object",
             "properties": {
                 "department": {
@@ -4012,7 +4012,7 @@
                 }
             }
         },
-        "models.Notice": {
+        "model.Notice": {
             "type": "object",
             "properties": {
                 "content": {
@@ -4035,7 +4035,7 @@
                 }
             }
         },
-        "models.Person": {
+        "model.Person": {
             "type": "object",
             "properties": {
                 "addr": {
@@ -4085,7 +4085,7 @@
                 }
             }
         },
-        "models.Personnel": {
+        "model.Personnel": {
             "type": "object",
             "properties": {
                 "approve_at": {
@@ -4150,7 +4150,7 @@
                 }
             }
         },
-        "models.UserDashboardData": {
+        "model.UserDashboardData": {
             "type": "object",
             "properties": {
                 "employee_count": {
@@ -4162,12 +4162,12 @@
                 "recent_notices": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Notice"
+                        "$ref": "#/definitions/model.Notice"
                     }
                 }
             }
         },
-        "models.UserSendChatRequest": {
+        "model.UserSendChatRequest": {
             "type": "object",
             "properties": {
                 "content": {

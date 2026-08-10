@@ -22,7 +22,7 @@ cp .env.example .env
 
 ```env
 DB_DRIVER=sqlite
-DB_DSN=./db/hr.db
+DB_DSN=./internal/db/hr.db
 ```
 
 4. 启动服务：
@@ -82,7 +82,7 @@ go run .
 | `JWT_EXPIRE_HOURS` | 否 | `24` | JWT 过期时间（小时） |
 | `JWT_REFRESH_THRESHOLD_HOURS` | 否 | `6` | 自动续签阈值（小时） |
 | `DB_DRIVER` | 否 | `sqlite` | 数据库驱动：`sqlite/mysql` |
-| `DB_DSN` | 否 | `./db/hr.db` | 数据库连接串 |
+| `DB_DSN` | 否 | `./internal/db/hr.db` | 数据库连接串 |
 | `DB_DEBUG` | 否 | `false` | GORM debug 日志开关 |
 | `SUPERADMIN_ENABLED` | **是** | 无 | superadmin 开关，必须显式配置 `true/false` |
 | `SUPERADMIN_USERNAME` | 条件必填 | 无 | `SUPERADMIN_ENABLED=true` 时必填 |
@@ -127,7 +127,7 @@ SUPERADMIN_PASSWORD=123
 SUPERADMIN_ROLE=superadmin
 ACCOUNT_ROLE_CHANGE_REQUIRED_ROLE=superadmin
 DB_DRIVER=sqlite
-DB_DSN=./db/hr.db
+DB_DSN=./internal/db/hr.db
 DB_DEBUG=false
 ```
 

@@ -1,0 +1,439 @@
+package handler
+
+import (
+	"backend/internal/dao"
+	"backend/internal/middleware"
+	"backend/internal/middleware/errorx"
+	"backend/internal/model"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/mojocn/base64Captcha"
+)
+
+const (
+	defaultLoginCaptchaThreshold = 3
+	defaultCaptchaTTLSeconds     = 180
+	captchaTextSource            = "23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+)
+
+type loginRequest struct {
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	CaptchaID   string `json:"captcha_id"`
+	CaptchaCode string `json:"captcha_code"`
+}
+
+type registerRequest struct {
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	Role        string `json:"role"`
+	CaptchaID   string `json:"captcha_id"`
+	CaptchaCode string `json:"captcha_code"`
+}
+
+type SuperAdminConfig struct {
+	Enabled  bool
+	Username string
+	Password string
+	Role     string
+}
+
+var (
+	superAdminOnce sync.Once
+	superAdminCfg  SuperAdminConfig
+	superAdminErr  error
+	roleChangeOnce sync.Once
+	roleChangeCfg  string
+	roleChangeErr  error
+
+	captchaOnce  sync.Once
+	captchaSvc   *base64Captcha.Captcha
+	captchaTTL   int
+	loginCapThld int
+)
+
+// MustInitAuthConfig 应当在 main() 中、godotenv.Load() 之后调用一次。
+// 目的：fail-fast 校验必要的 env 配置，避免“运行起来才发现配置缺失”。
+func MustInitAuthConfig() {
+	_ = mustLoadSuperAdminConfig()
+	_ = mustLoadRoleChangeConfig()
+	_ = mustLoadCaptchaConfig()
+}
+
+func mustLoadCaptchaConfig() *base64Captcha.Captcha {
+	captchaOnce.Do(func() {
+		captchaTTL = getEnvInt("CAPTCHA_TTL_SECONDS", defaultCaptchaTTLSeconds)
+		if captchaTTL <= 0 {
+			captchaTTL = defaultCaptchaTTLSeconds
+		}
+
+		loginCapThld = getEnvInt("LOGIN_CAPTCHA_THRESHOLD", defaultLoginCaptchaThreshold)
+		if loginCapThld <= 0 {
+			loginCapThld = defaultLoginCaptchaThreshold
+		}
+
+		driver := base64Captcha.NewDriverString(
+			60,
+			220,
+			2,
+			base64Captcha.OptionShowHollowLine,
+			4,
+			captchaTextSource,
+			nil,
+			nil,
+			nil,
+		)
+		store := base64Captcha.NewMemoryStore(10240, time.Duration(captchaTTL)*time.Second)
+		captchaSvc = base64Captcha.NewCaptcha(driver, store)
+	})
+
+	return captchaSvc
+}
+
+func getEnvInt(key string, defaultVal int) int {
+	v := strings.TrimSpace(os.Getenv(key))
+	if v == "" {
+		return defaultVal
+	}
+	i, err := strconv.Atoi(v)
+	if err != nil {
+		log.Printf("\033[43m环境变量 %s=%q 不是合法 int，将使用默认值 %d\033[0m\n", key, v, defaultVal)
+		return defaultVal
+	}
+	return i
+}
+
+func loginFailResponse(c *gin.Context, failCount int, msg string) {
+	needCaptcha := failCount >= loginCapThld
+	errorx.Abort(c, http.StatusUnauthorized, errorx.CodeUnauthorized, msg, nil, gin.H{
+		"need_captcha": needCaptcha,
+		"fail_count":   failCount,
+	})
+}
+
+// GetCaptcha godoc
+// @Summary 获取验证码
+// @Description 获取注册/登录验证码
+// @Tags auth
+// @Produce json
+// @Param scene query string false "验证码场景" Enums(register,login) default(register)
+// @Success 200 {object} CaptchaSuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/captcha [get]
+func GetCaptcha(c *gin.Context) {
+	service := mustLoadCaptchaConfig()
+	scene := strings.ToLower(strings.TrimSpace(c.DefaultQuery("scene", "register")))
+	if scene != "register" && scene != "login" {
+		errorx.BadRequest(c, "无效的 scene，仅支持 register/login", nil)
+		return
+	}
+
+	id, b64, _, err := service.Generate()
+	if err != nil {
+		log.Println("\033[31m生成验证码失败:\033[0m", err)
+		errorx.Internal(c, "生成验证码失败", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"msg":  "ok",
+		"data": gin.H{
+			"scene":          scene,
+			"captcha_id":     id,
+			"image_base64":   b64,
+			"expire_seconds": captchaTTL,
+		},
+	})
+}
+
+func mustLoadSuperAdminConfig() SuperAdminConfig {
+	superAdminOnce.Do(func() {
+		cfg, err := loadSuperAdminConfig()
+		if err != nil {
+			superAdminErr = err
+			return
+		}
+		superAdminCfg = cfg
+	})
+
+	if superAdminErr != nil {
+		log.Fatal("\033[31mSuperadmin权限配置出错: \033[0m", superAdminErr)
+	}
+	return superAdminCfg
+}
+
+func loadSuperAdminConfig() (SuperAdminConfig, error) {
+	enabledRaw := strings.TrimSpace(os.Getenv("SUPERADMIN_ENABLED"))
+	if enabledRaw == "" {
+		return SuperAdminConfig{}, fmt.Errorf("缺少所需的env变量: SUPERADMIN_ENABLED (必须是 true/false)")
+	}
+	enabled, err := strconv.ParseBool(enabledRaw)
+	if err != nil {
+		return SuperAdminConfig{}, fmt.Errorf("无效的 SUPERADMIN_ENABLED=%q (必须是 true/false)", enabledRaw)
+	}
+
+	// 禁用时：不要求其他字段
+	if !enabled {
+		return SuperAdminConfig{Enabled: false}, nil
+	}
+
+	username := strings.TrimSpace(os.Getenv("SUPERADMIN_USERNAME"))
+	if username == "" {
+		return SuperAdminConfig{}, fmt.Errorf("缺少所需的env变量: SUPERADMIN_USERNAME")
+	}
+
+	password := strings.TrimSpace(os.Getenv("SUPERADMIN_PASSWORD"))
+	if password == "" {
+		return SuperAdminConfig{}, fmt.Errorf("缺少所需的env变量: SUPERADMIN_PASSWORD")
+	}
+
+	roleRaw := os.Getenv("SUPERADMIN_ROLE")
+	role := middleware.NormalizeRole(roleRaw)
+	if role == "" {
+		return SuperAdminConfig{}, fmt.Errorf("缺少所需的env变量: SUPERADMIN_ROLE")
+	}
+	if role != "superadmin" && role != "admin" {
+		return SuperAdminConfig{}, fmt.Errorf("无效的 SUPERADMIN_ROLE=%q (仅支持 superadmin/admin，不区分大小写)", strings.TrimSpace(roleRaw))
+	}
+
+	return SuperAdminConfig{
+		Enabled:  true,
+		Username: username,
+		Password: password,
+		Role:     role,
+	}, nil
+}
+
+func mustLoadRoleChangeConfig() string {
+	roleChangeOnce.Do(func() {
+		cfg, err := loadRoleChangeConfig()
+		if err != nil {
+			roleChangeErr = err
+			return
+		}
+		roleChangeCfg = cfg
+	})
+
+	if roleChangeErr != nil {
+		log.Fatal("\033[31m角色变更权限配置出错: \033[0m", roleChangeErr)
+	}
+	return roleChangeCfg
+}
+
+func loadRoleChangeConfig() (string, error) {
+	raw := strings.TrimSpace(os.Getenv("ACCOUNT_ROLE_CHANGE_REQUIRED_ROLE"))
+	if raw == "" {
+		return "superadmin", nil
+	}
+	role := middleware.NormalizeRole(raw)
+	if role != "admin" && role != "superadmin" {
+		return "", fmt.Errorf("无效的 ACCOUNT_ROLE_CHANGE_REQUIRED_ROLE=%q (仅支持 admin/superadmin，不区分大小写)", raw)
+	}
+	return role, nil
+}
+
+// Login godoc
+// @Summary 登录
+// @Description 账号登录，必要时需要验证码
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body SwaggerLoginRequest true "登录参数"
+// @Success 200 {object} LoginSuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 401 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/login [post]
+func Login(c *gin.Context) {
+	cfg := mustLoadSuperAdminConfig()
+	mustLoadCaptchaConfig()
+
+	ip := strings.TrimSpace(c.ClientIP())
+
+	var req loginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		errorx.BadRequest(c, "请求格式错误", err)
+		return
+	}
+
+	req.Username = strings.TrimSpace(req.Username)
+	req.Password = strings.TrimSpace(req.Password)
+
+	if req.Username == "" || req.Password == "" {
+		errorx.BadRequest(c, "用户名和密码不能为空", nil)
+		return
+	}
+
+	needCaptcha := dao.GetLoginFailCount(req.Username, ip) >= loginCapThld
+	if needCaptcha {
+		req.CaptchaID = strings.TrimSpace(req.CaptchaID)
+		req.CaptchaCode = strings.TrimSpace(req.CaptchaCode)
+		if req.CaptchaID == "" || req.CaptchaCode == "" {
+			errorx.Abort(c, http.StatusBadRequest, errorx.CodeInvalidParam, "需要输入验证码", nil, gin.H{
+				"need_captcha": true,
+				"fail_count":   dao.GetLoginFailCount(req.Username, ip),
+			})
+			return
+		}
+
+		if !captchaSvc.Verify(req.CaptchaID, req.CaptchaCode, true) {
+			errorx.Abort(c, http.StatusBadRequest, errorx.CodeInvalidParam, "验证码错误或已过期", nil, gin.H{
+				"need_captcha": true,
+				"fail_count":   dao.GetLoginFailCount(req.Username, ip),
+			})
+			return
+		}
+	}
+
+	// 1) superadmin 兜底账号（仅启用时）
+	if cfg.Enabled && req.Username == cfg.Username {
+		if req.Password != cfg.Password {
+			failCount := dao.IncrementLoginFailCount(req.Username, ip)
+			loginFailResponse(c, failCount, "superadmin 密码错误")
+			return
+		}
+
+		dao.ClearLoginFailCount(req.Username, ip)
+
+		token, err := middleware.GenerateToken(cfg.Username, "", cfg.Role)
+		if err != nil {
+			log.Println("\033[31m生成 superadmin Token 失败:\033[0m", err)
+			errorx.Internal(c, "生成 Token 失败", err)
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"code":     0,
+			"msg":      "登录成功",
+			"token":    token,
+			"username": cfg.Username,
+			"role":     cfg.Role,
+		})
+		return
+	}
+
+	// 2) 普通用户登录
+	account, err := dao.ValidateLogin(req.Username, req.Password)
+	if err != nil {
+		if dao.IsInvalidCredentials(err) {
+			failCount := dao.IncrementLoginFailCount(req.Username, ip)
+			loginFailResponse(c, failCount, "用户名或密码错误")
+			return
+		}
+
+		log.Println("\033[31m登录查询失败:\033[0m", err)
+		errorx.Internal(c, "登录失败，请稍后重试", err)
+		return
+	}
+
+	dao.ClearLoginFailCount(req.Username, ip)
+
+	token, err := middleware.GenerateToken(account.Username, account.EmpID, account.Role)
+	if err != nil {
+		log.Println("\033[31m生成 Token 失败:\033[0m", err)
+		errorx.Internal(c, "Token 生成失败", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":     0,
+		"msg":      "登录成功",
+		"token":    token,
+		"username": account.Username,
+		"role":     account.Role,
+	})
+}
+
+// Register godoc
+// @Summary 注册
+// @Description 注册新账号（需验证码）
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body SwaggerRegisterRequest true "注册参数"
+// @Success 200 {object} RegisterSuccessResponse
+// @Failure 400 {object} APIErrorResponse
+// @Failure 403 {object} APIErrorResponse
+// @Failure 500 {object} APIErrorResponse
+// @Router /api/register [post]
+func Register(c *gin.Context) {
+	cfg := mustLoadSuperAdminConfig()
+	mustLoadCaptchaConfig()
+
+	var req registerRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		errorx.BadRequest(c, "请求格式错误", err)
+		return
+	}
+
+	req.Username = strings.TrimSpace(req.Username)
+	req.CaptchaID = strings.TrimSpace(req.CaptchaID)
+	req.CaptchaCode = strings.TrimSpace(req.CaptchaCode)
+
+	if req.Username == "" {
+		errorx.BadRequest(c, "用户名不能为空", nil)
+		return
+	}
+
+	if req.CaptchaID == "" || req.CaptchaCode == "" {
+		errorx.BadRequest(c, "注册需要验证码", nil)
+		return
+	}
+
+	if !captchaSvc.Verify(req.CaptchaID, req.CaptchaCode, true) {
+		errorx.BadRequest(c, "验证码错误或已过期", nil)
+		return
+	}
+
+	// 启用 superadmin 时：保留用户名不可注册
+	if cfg.Enabled && req.Username == cfg.Username {
+		errorx.Forbidden(c, "不允许注册保留用户名", nil)
+		return
+	}
+
+	// 检查重名
+	if _, err := dao.GetAccountByUsername(req.Username); err == nil {
+		errorx.Conflict(c, "用户名已存在", nil)
+		return
+	} else if !dao.IsNotFound(err) {
+		errorx.Internal(c, "校验用户名是否存在失败", err)
+		return
+	}
+
+	req.Role = middleware.NormalizeRole(req.Role)
+	if req.Role == "" {
+		req.Role = "staff"
+	}
+	if req.Role != "admin" && req.Role != "staff" {
+		errorx.BadRequest(c, "角色只能为 admin 或 staff", nil)
+		return
+	}
+
+	acc := model.Account{
+		Username: req.Username,
+		Password: strings.TrimSpace(req.Password),
+		Role:     req.Role,
+	}
+
+	if err := dao.InsertAccount(acc); err != nil {
+		log.Println("\033[31m注册失败:\033[0m", err)
+		errorx.Internal(c, "注册失败", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"success": true,
+		"msg":     "注册成功",
+	})
+}

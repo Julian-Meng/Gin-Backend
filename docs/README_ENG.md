@@ -22,7 +22,7 @@ cp .env.example .env
 
 ```env
 DB_DRIVER=sqlite
-DB_DSN=./db/hr.db
+DB_DSN=./internal/db/hr.db
 ```
 
 4. Run server:
@@ -82,7 +82,7 @@ The source of truth is what the code actually reads. Variables are grouped into 
 | `JWT_EXPIRE_HOURS` | No | `24` | JWT expiration in hours |
 | `JWT_REFRESH_THRESHOLD_HOURS` | No | `6` | Auto-refresh threshold in hours |
 | `DB_DRIVER` | No | `sqlite` | DB driver: `sqlite/mysql` |
-| `DB_DSN` | No | `./db/hr.db` | Database DSN |
+| `DB_DSN` | No | `./internal/db/hr.db` | Database DSN |
 | `DB_DEBUG` | No | `false` | GORM debug logging |
 | `SUPERADMIN_ENABLED` | **Yes** | None | Must be explicitly set to `true/false` |
 | `SUPERADMIN_USERNAME` | Conditionally | None | Required when `SUPERADMIN_ENABLED=true` |
@@ -127,7 +127,7 @@ SUPERADMIN_PASSWORD=123
 SUPERADMIN_ROLE=superadmin
 ACCOUNT_ROLE_CHANGE_REQUIRED_ROLE=superadmin
 DB_DRIVER=sqlite
-DB_DSN=./db/hr.db
+DB_DSN=./internal/db/hr.db
 DB_DEBUG=false
 ```
 

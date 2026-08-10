@@ -18,7 +18,7 @@ Swagger：`http://localhost:2077/swagger/index.html`
 - English deployment/config guide: [`docs/README_ENG.md`](./docs/README_ENG.md)
 - API 手册（含统一响应与权限说明）：[`docs/API.md`](./docs/API.md)
 - 环境变量模板：[`./.env.example`](./.env.example)
-- Swagger 生成命令：`swag init -g main.go -o docs`
+- Swagger 生成命令：`swag init -g ./cmd/server/main.go -o docs`
 
 ## TODO
 

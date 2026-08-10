@@ -1,23 +1,23 @@
 basePath: /
 definitions:
-  handlers.AIAnalyzeData:
+  handler.AIAnalyzeData:
     properties:
       analysis:
         example: 【概览】...
         type: string
     type: object
-  handlers.AIAnalyzeResponse:
+  handler.AIAnalyzeResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
-        $ref: '#/definitions/handlers.AIAnalyzeData'
+        $ref: '#/definitions/handler.AIAnalyzeData'
       msg:
         example: success
         type: string
     type: object
-  handlers.APIErrorResponse:
+  handler.APIErrorResponse:
     properties:
       code:
         example: 1
@@ -41,7 +41,7 @@ definitions:
         example: req-1715842301123-000001
         type: string
     type: object
-  handlers.APISuccessResponse:
+  handler.APISuccessResponse:
     properties:
       code:
         example: 0
@@ -50,7 +50,7 @@ definitions:
         example: ok
         type: string
     type: object
-  handlers.AccountCreateRequest:
+  handler.AccountCreateRequest:
     properties:
       password:
         example: "123456"
@@ -62,20 +62,20 @@ definitions:
         example: staff01
         type: string
     type: object
-  handlers.AccountListResponse:
+  handler.AccountListResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
         items:
-          $ref: '#/definitions/models.Account'
+          $ref: '#/definitions/model.Account'
         type: array
       msg:
         example: ok
         type: string
     type: object
-  handlers.AccountUpdateRequest:
+  handler.AccountUpdateRequest:
     properties:
       role:
         example: staff
@@ -84,14 +84,14 @@ definitions:
         example: 1
         type: integer
     type: object
-  handlers.AttendanceListResponse:
+  handler.AttendanceListResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
         items:
-          $ref: '#/definitions/models.AttendanceDetail'
+          $ref: '#/definitions/model.AttendanceDetail'
         type: array
       msg:
         example: ok
@@ -100,7 +100,7 @@ definitions:
         example: 31
         type: integer
     type: object
-  handlers.AttendanceUpdateRequest:
+  handler.AttendanceUpdateRequest:
     properties:
       check_in:
         example: "2025-01-01T09:10:00+08:00"
@@ -115,7 +115,7 @@ definitions:
         example: 2
         type: integer
     type: object
-  handlers.CaptchaData:
+  handler.CaptchaData:
     properties:
       captcha_id:
         example: rY8M8P4KQd
@@ -130,140 +130,140 @@ definitions:
         example: register
         type: string
     type: object
-  handlers.CaptchaSuccessResponse:
+  handler.CaptchaSuccessResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
-        $ref: '#/definitions/handlers.CaptchaData'
+        $ref: '#/definitions/handler.CaptchaData'
       msg:
         example: ok
         type: string
     type: object
-  handlers.ChatAdminSendResponse:
+  handler.ChatAdminSendResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
-        $ref: '#/definitions/handlers.ChatAdminSendResponseData'
+        $ref: '#/definitions/handler.ChatAdminSendResponseData'
       msg:
         example: ok
         type: string
     type: object
-  handlers.ChatAdminSendResponseData:
+  handler.ChatAdminSendResponseData:
     properties:
       message:
-        $ref: '#/definitions/models.ChatMessage'
+        $ref: '#/definitions/model.ChatMessage'
       session:
-        $ref: '#/definitions/models.ChatSession'
+        $ref: '#/definitions/model.ChatSession'
     type: object
-  handlers.ChatMessagesResponse:
+  handler.ChatMessagesResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
         items:
-          $ref: '#/definitions/models.ChatMessage'
+          $ref: '#/definitions/model.ChatMessage'
         type: array
       msg:
         example: ok
         type: string
     type: object
-  handlers.ChatSessionResponse:
+  handler.ChatSessionResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
-        $ref: '#/definitions/models.ChatSession'
+        $ref: '#/definitions/model.ChatSession'
       msg:
         example: ok
         type: string
     type: object
-  handlers.ChatSessionsResponse:
+  handler.ChatSessionsResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
         items:
-          $ref: '#/definitions/models.ChatSession'
+          $ref: '#/definitions/model.ChatSession'
         type: array
       msg:
         example: ok
         type: string
     type: object
-  handlers.ChatUserSendResponse:
+  handler.ChatUserSendResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
-        $ref: '#/definitions/handlers.ChatUserSendResponseData'
+        $ref: '#/definitions/handler.ChatUserSendResponseData'
       msg:
         example: ok
         type: string
     type: object
-  handlers.ChatUserSendResponseData:
+  handler.ChatUserSendResponseData:
     properties:
       ai_message:
-        $ref: '#/definitions/models.ChatMessage'
+        $ref: '#/definitions/model.ChatMessage'
       session:
-        $ref: '#/definitions/models.ChatSession'
+        $ref: '#/definitions/model.ChatSession'
       user_message:
-        $ref: '#/definitions/models.ChatMessage'
+        $ref: '#/definitions/model.ChatMessage'
     type: object
-  handlers.DashboardAdminResponse:
+  handler.DashboardAdminResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
-        $ref: '#/definitions/models.AdminDashboardData'
+        $ref: '#/definitions/model.AdminDashboardData'
       msg:
         example: success
         type: string
     type: object
-  handlers.DashboardUserResponse:
+  handler.DashboardUserResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
-        $ref: '#/definitions/models.UserDashboardData'
+        $ref: '#/definitions/model.UserDashboardData'
       msg:
         example: success
         type: string
     type: object
-  handlers.DepartmentDetailResponse:
+  handler.DepartmentDetailResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
-        $ref: '#/definitions/models.Department'
+        $ref: '#/definitions/model.Department'
       msg:
         example: ok
         type: string
     type: object
-  handlers.DepartmentInfo:
+  handler.DepartmentInfo:
     properties:
       id:
         type: integer
       name:
         type: string
     type: object
-  handlers.DepartmentListResponse:
+  handler.DepartmentListResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
         items:
-          $ref: '#/definitions/models.DepartmentWithCount'
+          $ref: '#/definitions/model.DepartmentWithCount'
         type: array
       msg:
         example: ok
@@ -272,7 +272,7 @@ definitions:
         example: 20
         type: integer
     type: object
-  handlers.LoginSuccessResponse:
+  handler.LoginSuccessResponse:
     properties:
       code:
         example: 0
@@ -290,25 +290,25 @@ definitions:
         example: admin
         type: string
     type: object
-  handlers.NoticeDetailResponse:
+  handler.NoticeDetailResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
-        $ref: '#/definitions/models.Notice'
+        $ref: '#/definitions/model.Notice'
       msg:
         example: ok
         type: string
     type: object
-  handlers.NoticeListResponse:
+  handler.NoticeListResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
         items:
-          $ref: '#/definitions/models.Notice'
+          $ref: '#/definitions/model.Notice'
         type: array
       msg:
         example: ok
@@ -317,7 +317,7 @@ definitions:
         example: 20
         type: integer
     type: object
-  handlers.PermissionItem:
+  handler.PermissionItem:
     properties:
       allowed_roles:
         description: 允许访问的角色列表
@@ -346,7 +346,7 @@ definitions:
         description: 接口路径，如 "/api/admin/persons"
         type: string
     type: object
-  handlers.PermissionsResponse:
+  handler.PermissionsResponse:
     properties:
       code:
         example: 0
@@ -362,10 +362,10 @@ definitions:
         type: string
       permissions:
         items:
-          $ref: '#/definitions/handlers.PermissionItem'
+          $ref: '#/definitions/handler.PermissionItem'
         type: array
     type: object
-  handlers.PersonDepartmentChangeRequest:
+  handler.PersonDepartmentChangeRequest:
     properties:
       dept:
         example: 技术部
@@ -374,18 +374,18 @@ definitions:
         example: EMP0001
         type: string
     type: object
-  handlers.PersonDetailResponse:
+  handler.PersonDetailResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
-        $ref: '#/definitions/models.Person'
+        $ref: '#/definitions/model.Person'
       msg:
         example: ok
         type: string
     type: object
-  handlers.PersonJobChangeRequest:
+  handler.PersonJobChangeRequest:
     properties:
       emp_id:
         example: EMP0001
@@ -394,14 +394,14 @@ definitions:
         example: 后端工程师
         type: string
     type: object
-  handlers.PersonListResponse:
+  handler.PersonListResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
         items:
-          $ref: '#/definitions/models.EmployeeInfo'
+          $ref: '#/definitions/model.EmployeeInfo'
         type: array
       msg:
         example: ok
@@ -410,7 +410,7 @@ definitions:
         example: 100
         type: integer
     type: object
-  handlers.PersonStateChangeRequest:
+  handler.PersonStateChangeRequest:
     properties:
       emp_id:
         example: EMP0001
@@ -419,7 +419,7 @@ definitions:
         example: 1
         type: integer
     type: object
-  handlers.PersonnelApproveRequest:
+  handler.PersonnelApproveRequest:
     properties:
       approve:
         example: true
@@ -434,7 +434,7 @@ definitions:
         example: 信息不完整
         type: string
     type: object
-  handlers.PersonnelCreateRequest:
+  handler.PersonnelCreateRequest:
     properties:
       change_type:
         example: 1
@@ -461,25 +461,25 @@ definitions:
         example: 2
         type: integer
     type: object
-  handlers.PersonnelDetailResponse:
+  handler.PersonnelDetailResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
-        $ref: '#/definitions/models.Personnel'
+        $ref: '#/definitions/model.Personnel'
       msg:
         example: ok
         type: string
     type: object
-  handlers.PersonnelListResponse:
+  handler.PersonnelListResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
         items:
-          $ref: '#/definitions/models.Personnel'
+          $ref: '#/definitions/model.Personnel'
         type: array
       msg:
         example: ok
@@ -488,18 +488,18 @@ definitions:
         example: 20
         type: integer
     type: object
-  handlers.ProfileDetailResponse:
+  handler.ProfileDetailResponse:
     properties:
       code:
         example: 0
         type: integer
       data:
-        $ref: '#/definitions/handlers.ProfileResponse'
+        $ref: '#/definitions/handler.ProfileResponse'
       msg:
         example: ok
         type: string
     type: object
-  handlers.ProfileResponse:
+  handler.ProfileResponse:
     properties:
       addr:
         type: string
@@ -510,7 +510,7 @@ definitions:
       create_at:
         type: string
       department:
-        $ref: '#/definitions/handlers.DepartmentInfo'
+        $ref: '#/definitions/handler.DepartmentInfo'
       dpt_id:
         type: integer
       email:
@@ -538,7 +538,7 @@ definitions:
       username:
         type: string
     type: object
-  handlers.RegisterSuccessResponse:
+  handler.RegisterSuccessResponse:
     properties:
       code:
         example: 0
@@ -550,7 +550,7 @@ definitions:
         example: true
         type: boolean
     type: object
-  handlers.SwaggerLoginRequest:
+  handler.SwaggerLoginRequest:
     properties:
       captcha_code:
         example: A3D7
@@ -565,7 +565,7 @@ definitions:
         example: admin
         type: string
     type: object
-  handlers.SwaggerRegisterRequest:
+  handler.SwaggerRegisterRequest:
     properties:
       captcha_code:
         example: A3D7
@@ -583,7 +583,7 @@ definitions:
         example: staff01
         type: string
     type: object
-  handlers.UpdateMyProfileReq:
+  handler.UpdateMyProfileReq:
     properties:
       addr:
         type: string
@@ -602,19 +602,19 @@ definitions:
       tel:
         type: string
     type: object
-  models.AIRequest:
+  model.AIRequest:
     properties:
       message:
         type: string
       session_id:
         type: string
     type: object
-  models.AIResponse:
+  model.AIResponse:
     properties:
       message:
         type: string
     type: object
-  models.Account:
+  model.Account:
     properties:
       create_at:
         type: string
@@ -633,12 +633,12 @@ definitions:
       username:
         type: string
     type: object
-  models.AdminClaimRequest:
+  model.AdminClaimRequest:
     properties:
       limit:
         type: integer
     type: object
-  models.AdminDashboardData:
+  model.AdminDashboardData:
     properties:
       department_count:
         type: integer
@@ -648,17 +648,17 @@ definitions:
         type: integer
       recent_notices:
         items:
-          $ref: '#/definitions/models.Notice'
+          $ref: '#/definitions/model.Notice'
         type: array
     type: object
-  models.AdminSendChatRequest:
+  model.AdminSendChatRequest:
     properties:
       content:
         type: string
       session_id:
         type: integer
     type: object
-  models.AttendanceDetail:
+  model.AttendanceDetail:
     properties:
       check_in:
         type: string
@@ -688,7 +688,7 @@ definitions:
         description: 人类可读的中文状态，在 SQL 或 DAO 中组装
         type: string
     type: object
-  models.ChatMessage:
+  model.ChatMessage:
     properties:
       ai_flag:
         type: boolean
@@ -717,7 +717,7 @@ definitions:
       update_at:
         type: string
     type: object
-  models.ChatSession:
+  model.ChatSession:
     properties:
       assigned_admin_emp_id:
         type: string
@@ -736,7 +736,7 @@ definitions:
       user_emp_id:
         type: string
     type: object
-  models.Department:
+  model.Department:
     properties:
       create_at:
         description: 原字段名兼容旧前端
@@ -758,7 +758,7 @@ definitions:
       name:
         type: string
     type: object
-  models.DepartmentWithCount:
+  model.DepartmentWithCount:
     properties:
       create_at:
         description: 原字段名兼容旧前端
@@ -784,7 +784,7 @@ definitions:
       name:
         type: string
     type: object
-  models.EmployeeInfo:
+  model.EmployeeInfo:
     properties:
       department:
         type: string
@@ -801,7 +801,7 @@ definitions:
       status:
         type: string
     type: object
-  models.Notice:
+  model.Notice:
     properties:
       content:
         type: string
@@ -816,7 +816,7 @@ definitions:
       update_at:
         type: string
     type: object
-  models.Person:
+  model.Person:
     properties:
       addr:
         type: string
@@ -849,7 +849,7 @@ definitions:
       update_at:
         type: string
     type: object
-  models.Personnel:
+  model.Personnel:
     properties:
       approve_at:
         type: string
@@ -894,7 +894,7 @@ definitions:
         description: 目标部门名
         type: string
     type: object
-  models.UserDashboardData:
+  model.UserDashboardData:
     properties:
       employee_count:
         type: integer
@@ -902,10 +902,10 @@ definitions:
         type: integer
       recent_notices:
         items:
-          $ref: '#/definitions/models.Notice'
+          $ref: '#/definitions/model.Notice'
         type: array
     type: object
-  models.UserSendChatRequest:
+  model.UserSendChatRequest:
     properties:
       content:
         type: string
@@ -928,22 +928,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.AccountCreateRequest'
+          $ref: '#/definitions/handler.AccountCreateRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 创建账号
@@ -963,15 +963,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 删除账号
@@ -992,22 +992,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.AccountUpdateRequest'
+          $ref: '#/definitions/handler.AccountUpdateRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 更新账号信息
@@ -1021,15 +1021,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.AccountListResponse'
+            $ref: '#/definitions/handler.AccountListResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 获取账号列表
@@ -1044,19 +1044,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.AIAnalyzeResponse'
+            $ref: '#/definitions/handler.AIAnalyzeResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 管理员 AI 解读仪表盘
@@ -1097,15 +1097,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.AttendanceListResponse'
+            $ref: '#/definitions/handler.AttendanceListResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 管理员查询考勤记录
@@ -1125,15 +1125,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 管理员删除考勤记录
@@ -1153,22 +1153,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.AttendanceUpdateRequest'
+          $ref: '#/definitions/handler.AttendanceUpdateRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 管理员更新考勤记录
@@ -1185,26 +1185,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.PersonnelCreateRequest'
+          $ref: '#/definitions/handler.PersonnelCreateRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 发起人事变更申请
@@ -1224,15 +1224,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.PersonnelDetailResponse'
+            $ref: '#/definitions/handler.PersonnelDetailResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 获取人事变更详情
@@ -1248,26 +1248,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.PersonnelApproveRequest'
+          $ref: '#/definitions/handler.PersonnelApproveRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 审批人事变更
@@ -1292,11 +1292,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.PersonnelListResponse'
+            $ref: '#/definitions/handler.PersonnelListResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 管理员分页获取人事变更列表
@@ -1311,15 +1311,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.DashboardAdminResponse'
+            $ref: '#/definitions/handler.DashboardAdminResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 管理员仪表盘
@@ -1335,22 +1335,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.Department'
+          $ref: '#/definitions/model.Department'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 创建部门
@@ -1370,11 +1370,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 删除部门
@@ -1393,15 +1393,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.DepartmentDetailResponse'
+            $ref: '#/definitions/handler.DepartmentDetailResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 获取部门详情
@@ -1421,22 +1421,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.Department'
+          $ref: '#/definitions/model.Department'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 更新部门
@@ -1465,11 +1465,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.DepartmentListResponse'
+            $ref: '#/definitions/handler.DepartmentListResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 管理员分页获取部门列表
@@ -1485,22 +1485,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.Notice'
+          $ref: '#/definitions/model.Notice'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 创建公告
@@ -1520,15 +1520,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 删除公告
@@ -1547,15 +1547,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.NoticeDetailResponse'
+            $ref: '#/definitions/handler.NoticeDetailResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 获取公告详情
@@ -1575,22 +1575,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.Notice'
+          $ref: '#/definitions/model.Notice'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 更新公告
@@ -1606,22 +1606,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.Person'
+          $ref: '#/definitions/model.Person'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 创建员工
@@ -1641,15 +1641,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 按ID删除员工
@@ -1668,15 +1668,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.PersonDetailResponse'
+            $ref: '#/definitions/handler.PersonDetailResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 获取员工详情
@@ -1697,22 +1697,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.Person'
+          $ref: '#/definitions/model.Person'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 更新员工信息
@@ -1728,22 +1728,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.PersonDepartmentChangeRequest'
+          $ref: '#/definitions/handler.PersonDepartmentChangeRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 调整员工部门
@@ -1763,15 +1763,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 按员工编号删除员工
@@ -1787,22 +1787,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.PersonJobChangeRequest'
+          $ref: '#/definitions/handler.PersonJobChangeRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 修改员工岗位
@@ -1822,19 +1822,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.ProfileDetailResponse'
+            $ref: '#/definitions/handler.ProfileDetailResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 管理员查看员工档案
@@ -1850,22 +1850,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.PersonStateChangeRequest'
+          $ref: '#/definitions/handler.PersonStateChangeRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 修改员工状态
@@ -1894,11 +1894,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.PersonListResponse'
+            $ref: '#/definitions/handler.PersonListResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 管理员分页获取员工列表
@@ -1922,15 +1922,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.CaptchaSuccessResponse'
+            $ref: '#/definitions/handler.CaptchaSuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       summary: 获取验证码
       tags:
       - auth
@@ -1944,22 +1944,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.AIRequest'
+          $ref: '#/definitions/model.AIRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.AIResponse'
+            $ref: '#/definitions/model.AIResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       summary: 兼容旧版 AI 聊天
       tags:
       - chat
@@ -1973,30 +1973,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.AdminSendChatRequest'
+          $ref: '#/definitions/model.AdminSendChatRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.ChatAdminSendResponse'
+            $ref: '#/definitions/handler.ChatAdminSendResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 管理员发送客服消息
@@ -2010,19 +2010,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.ChatSessionsResponse'
+            $ref: '#/definitions/handler.ChatSessionsResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 管理员查询已分配会话列表
@@ -2042,27 +2042,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.ChatSessionResponse'
+            $ref: '#/definitions/handler.ChatSessionResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 管理员接管指定会话
@@ -2077,26 +2077,26 @@ paths:
         in: body
         name: request
         schema:
-          $ref: '#/definitions/models.AdminClaimRequest'
+          $ref: '#/definitions/model.AdminClaimRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.ChatSessionsResponse'
+            $ref: '#/definitions/handler.ChatSessionsResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 管理员批量认领等待会话
@@ -2116,23 +2116,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.ChatMessagesResponse'
+            $ref: '#/definitions/handler.ChatMessagesResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 查询会话消息历史
@@ -2148,30 +2148,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.UserSendChatRequest'
+          $ref: '#/definitions/model.UserSendChatRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.ChatUserSendResponse'
+            $ref: '#/definitions/handler.ChatUserSendResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 用户发送客服消息
@@ -2185,19 +2185,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.ChatSessionsResponse'
+            $ref: '#/definitions/handler.ChatSessionsResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 用户查询自己的会话列表
@@ -2219,7 +2219,7 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 建立聊天 WebSocket 连接
@@ -2236,26 +2236,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.SwaggerLoginRequest'
+          $ref: '#/definitions/handler.SwaggerLoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.LoginSuccessResponse'
+            $ref: '#/definitions/handler.LoginSuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       summary: 登录
       tags:
       - auth
@@ -2278,11 +2278,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.NoticeListResponse'
+            $ref: '#/definitions/handler.NoticeListResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       summary: 获取公告列表
       tags:
       - notice
@@ -2297,26 +2297,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.SwaggerRegisterRequest'
+          $ref: '#/definitions/handler.SwaggerRegisterRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.RegisterSuccessResponse'
+            $ref: '#/definitions/handler.RegisterSuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       summary: 注册
       tags:
       - auth
@@ -2329,19 +2329,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.AIAnalyzeResponse'
+            $ref: '#/definitions/handler.AIAnalyzeResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 用户 AI 解读仪表盘
@@ -2355,11 +2355,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 用户签到
@@ -2373,11 +2373,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 用户签退
@@ -2410,15 +2410,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.AttendanceListResponse'
+            $ref: '#/definitions/handler.AttendanceListResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 查询我的考勤记录
@@ -2435,26 +2435,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.PersonnelCreateRequest'
+          $ref: '#/definitions/handler.PersonnelCreateRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 发起人事变更申请
@@ -2483,19 +2483,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.PersonnelListResponse'
+            $ref: '#/definitions/handler.PersonnelListResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 获取当前用户的人事变更列表
@@ -2510,15 +2510,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.DashboardUserResponse'
+            $ref: '#/definitions/handler.DashboardUserResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 用户仪表盘
@@ -2538,15 +2538,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.DepartmentDetailResponse'
+            $ref: '#/definitions/handler.DepartmentDetailResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 获取部门详情
@@ -2561,11 +2561,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.PermissionsResponse'
+            $ref: '#/definitions/handler.PermissionsResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 获取权限矩阵
@@ -2579,19 +2579,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.ProfileDetailResponse'
+            $ref: '#/definitions/handler.ProfileDetailResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 获取当前用户档案
@@ -2607,30 +2607,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.UpdateMyProfileReq'
+          $ref: '#/definitions/handler.UpdateMyProfileReq'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.ProfileDetailResponse'
+            $ref: '#/definitions/handler.ProfileDetailResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 更新当前用户档案
@@ -2650,15 +2650,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.PersonDetailResponse'
+            $ref: '#/definitions/handler.PersonDetailResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 获取员工详情
@@ -2679,22 +2679,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.Person'
+          $ref: '#/definitions/model.Person'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.APISuccessResponse'
+            $ref: '#/definitions/handler.APISuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.APIErrorResponse'
+            $ref: '#/definitions/handler.APIErrorResponse'
       security:
       - BearerAuth: []
       summary: 更新员工信息

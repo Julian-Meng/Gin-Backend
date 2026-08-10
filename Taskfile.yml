@@ -10,7 +10,7 @@ tasks:
   swag:
     desc: Generate swagger docs
     cmds:
-      - swag init -g main.go -o docs
+      - swag init -g ./cmd/server/main.go -o docs
 
   test:
     desc: Run tests
